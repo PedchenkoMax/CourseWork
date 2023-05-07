@@ -1,0 +1,8 @@
+[Bb]in/
+[Oo]bj/
+
+*.idea
+*.vs
+*.user
+
+.env
