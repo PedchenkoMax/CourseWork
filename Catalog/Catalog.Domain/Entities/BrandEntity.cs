@@ -7,7 +7,8 @@ public class BrandEntity
     public string Description { get; private set; }
     public string ImageUrl { get; private set; }
     public int DisplayOrder { get; private set; }
-    public ICollection<ProductEntity>? Products { get; private set; }
+    public IReadOnlyCollection<ProductEntity>? Products => products;
+    private List<ProductEntity>? products;
 
     private BrandEntity()
     {
