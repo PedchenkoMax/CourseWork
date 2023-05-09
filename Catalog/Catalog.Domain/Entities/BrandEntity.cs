@@ -1,3 +1,6 @@
+﻿using Catalog.Domain.Validators;
+using FluentValidation.Results;
+
 namespace Catalog.Domain.Entities;
 
 public class BrandEntity
@@ -23,4 +26,21 @@ public class BrandEntity
         DisplayOrder = displayOrder;
     }
 
+    public static ValidationResult TryCreate(string name, string description, string imageUrl, int displayOrder,
+        out BrandEntity entity)
+    {
+        entity = new BrandEntity(name, description, imageUrl, displayOrder);
+
+        return new BrandEntityValidator().Validate(entity);
+    }
+    
+    public ValidationResult Update(string name, string description, string imageUrl, int displayOrder)
+    {
+        Name = name;
+        Description = description;
+        ImageUrl = imageUrl;
+        DisplayOrder = displayOrder;
+
+        return new BrandEntityValidator().Validate(this);
+    }
 }
