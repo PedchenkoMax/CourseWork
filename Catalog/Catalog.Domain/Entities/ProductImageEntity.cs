@@ -1,3 +1,6 @@
+﻿using Catalog.Domain.Validators;
+using FluentValidation.Results;
+
 namespace Catalog.Domain.Entities;
 
 public class ProductImageEntity
@@ -18,5 +21,20 @@ public class ProductImageEntity
         ProductId = productId;
         ImageUrl = imageUrl;
         DisplayOrder = displayOrder;
+    }
+
+    public static ValidationResult TryCreate(Guid productId, string imageUrl, int displayOrder,
+        out ProductImageEntity entity)
+    {
+        entity = new ProductImageEntity(productId, imageUrl, displayOrder);
+
+        return new ProductImageEntityValidator().Validate(entity);
+    }
+
+    public ValidationResult Update(int displayOrder)
+    {
+        DisplayOrder = displayOrder;
+
+        return new ProductImageEntityValidator().Validate(this);
     }
 }

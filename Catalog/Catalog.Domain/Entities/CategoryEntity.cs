@@ -1,3 +1,6 @@
+﻿using Catalog.Domain.Validators;
+using FluentValidation.Results;
+
 namespace Catalog.Domain.Entities;
 
 public class CategoryEntity
@@ -24,5 +27,23 @@ public class CategoryEntity
         Description = description;
         ImageUrl = imageUrl;
         DisplayOrder = displayOrder;
+    }
+
+    public static ValidationResult TryCreate(Guid parentCategoryId, string name, string description, string imageUrl,
+        int displayOrder, out CategoryEntity entity)
+    {
+        entity = new CategoryEntity(parentCategoryId, name, description, imageUrl, displayOrder);
+
+        return new CategoryEntityValidator().Validate(entity);
+    }
+    
+    public ValidationResult Update(string name, string description, string imageUrl, int displayOrder)
+    {
+        Name = name;
+        Description = description;
+        ImageUrl = imageUrl;
+        DisplayOrder = displayOrder;
+
+        return new CategoryEntityValidator().Validate(this);
     }
 }

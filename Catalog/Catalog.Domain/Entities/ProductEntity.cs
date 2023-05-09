@@ -1,3 +1,6 @@
+﻿using Catalog.Domain.Validators;
+using FluentValidation.Results;
+
 namespace Catalog.Domain.Entities;
 
 public class ProductEntity
@@ -34,5 +37,29 @@ public class ProductEntity
         SKU = sku;
         Stock = stock;
         Availability = availability;
+    }
+
+    public static ValidationResult TryCreate(Guid brandId, Guid categoryId, string name, string description,
+        decimal price, decimal discount, string sku, int stock, bool availability, out ProductEntity entity)
+    {
+        entity = new ProductEntity(brandId, categoryId, name, description, price, discount, sku, stock, availability);
+
+        return new ProductEntityValidator().Validate(entity);
+    }
+
+    public ValidationResult Update(Guid brandId, Guid categoryId, string name, string description, decimal price,
+        decimal discount, string sku, int stock, bool availability)
+    {
+        BrandId = brandId;
+        CategoryId = categoryId;
+        Name = name;
+        Description = description;
+        Price = price;
+        Discount = discount;
+        SKU = sku;
+        Stock = stock;
+        Availability = availability;
+
+        return new ProductEntityValidator().Validate(this);
     }
 }
