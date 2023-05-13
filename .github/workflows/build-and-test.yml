@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - dev
+      - main
+
+  pull_request:
+    branches:
+      - dev
+      - main
+
+jobs:
+  build-and-test-dotnet:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@v3
+
+      - name: Setup .NET 7.0 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 7.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ./Catalog/Catalog.sln
+
+      - name: Build .NET Project
+        run: dotnet build ./Catalog/Catalog.sln --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test ./Catalog/Catalog.UnitTests/Catalog.UnitTests.csproj --configuration Release --no-build
+
+      - name: Run Integration Tests
+        run: dotnet test ./Catalog/Catalog.IntegrationTests/Catalog.IntegrationTests.csproj --configuration Release --no-build
