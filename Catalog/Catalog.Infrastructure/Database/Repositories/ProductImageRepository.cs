@@ -18,7 +18,7 @@ public class ProductImageRepository : IProductImageRepository
     {
         const string sql =
             """
-            SELECT * FROM "ProductImages" WHERE "ProductId" = @Id
+            SELECT * FROM product_images WHERE product_id = @Id
             """;
 
         var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { Id = id });
@@ -30,7 +30,7 @@ public class ProductImageRepository : IProductImageRepository
     {
         const string sql =
             """
-            SELECT * FROM "ProductImages" WHERE "Id" = @Id
+            SELECT * FROM product_images WHERE id = @Id
             """;
 
         var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { Id = id });
@@ -42,11 +42,11 @@ public class ProductImageRepository : IProductImageRepository
     {
         const string sql =
             """
-            UPDATE "ProductImages" SET
-                "ProductId" = @ProductId,
-                "ImageUrl" = @ImageUrl,
-                "DisplayOrder" = @DisplayOrder
-            WHERE "Id" = @Id
+            UPDATE product_images SET
+                product_id = @ProductId,
+                image_url = @ImageUrl,
+                display_order = @DisplayOrder
+            WHERE id = @Id
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, productImage);
@@ -58,7 +58,7 @@ public class ProductImageRepository : IProductImageRepository
     {
         const string sql =
             """
-            DELETE FROM "ProductImages" WHERE "Id" = @Id
+            DELETE FROM product_images WHERE id = @Id
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -70,7 +70,7 @@ public class ProductImageRepository : IProductImageRepository
     {
         const string sql =
             """
-            INSERT INTO "ProductImages" ("Id", "ProductId", "ImageUrl", "DisplayOrder")
+            INSERT INTO product_images (id, product_id, image_url, display_order)
             VALUES (@Id, @ProductId, @ImageUrl, @DisplayOrder)
             """;
 

@@ -18,7 +18,7 @@ namespace Catalog.Infrastructure.Database.Repositories
         {
             const string sql =
                 """
-                SELECT * FROM "Brands"
+                SELECT * FROM brands
                 """;
 
             var res = await connection.QueryAsync<BrandEntity>(sql);
@@ -30,7 +30,7 @@ namespace Catalog.Infrastructure.Database.Repositories
         {
             const string sql =
                 """
-                SELECT * FROM "Brands" WHERE "Id" = @Id
+                SELECT * FROM brands WHERE id = @Id
                 """;
 
             var res = await connection.QuerySingleOrDefaultAsync<BrandEntity>(sql, new { Id = id });
@@ -43,12 +43,12 @@ namespace Catalog.Infrastructure.Database.Repositories
             // TODO: only display order could be updatable  ??
             const string sql =
                 """
-                UPDATE "Brands" SET
-                    "Name" = @Name,
-                    "Description" = @Description,
-                    "ImageUrl" = @ImageUrl,
-                    "DisplayOrder" = @DisplayOrder
-                WHERE "Id" = @Id
+                UPDATE brands SET
+                    name = @Name,
+                    description = @Description,
+                    image_url = @ImageUrl,
+                    display_order = @DisplayOrder
+                WHERE id = @Id
                 """;
 
             var rowsAffected = await connection.ExecuteAsync(sql, brand);
@@ -60,7 +60,7 @@ namespace Catalog.Infrastructure.Database.Repositories
         {
             const string sql =
                 """
-                DELETE FROM "Brands" WHERE "Id" = @Id
+                DELETE FROM brands WHERE id = @Id
                 """;
 
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -72,7 +72,7 @@ namespace Catalog.Infrastructure.Database.Repositories
         {
             const string sql =
                 """
-                INSERT INTO "Brands" ("Id", "Name", "Description", "ImageUrl", "DisplayOrder")
+                INSERT INTO brands (id, name, description, image_url, display_order)
                 VALUES (@Id, @Name, @Description, @ImageUrl, @DisplayOrder)
                 """;
 

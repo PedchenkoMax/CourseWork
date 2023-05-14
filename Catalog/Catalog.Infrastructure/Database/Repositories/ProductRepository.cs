@@ -18,7 +18,7 @@ public class ProductRepository : IProductRepository
     {
         const string sql =
             """
-            SELECT * FROM "Products"
+            SELECT * FROM products
             """;
 
         var res = await connection.QueryAsync<ProductEntity>(sql);
@@ -30,7 +30,7 @@ public class ProductRepository : IProductRepository
     {
         const string sql =
             """
-            SELECT * FROM "Products" WHERE "Id" = @Id
+            SELECT * FROM products WHERE id = @Id
             """;
 
         var res = await connection.QuerySingleOrDefaultAsync<ProductEntity>(sql, new { Id = id });
@@ -42,17 +42,17 @@ public class ProductRepository : IProductRepository
     {
         const string sql =
             """
-            UPDATE "Products" SET
-                "BrandId" = @BrandId,
-                "CategoryId" = @CategoryId,
-                "Name" = @Name,
-                "Description" = @Description,
-                "Price" = @Price,
-                "Discount" = @Discount,
-                "SKU" = @SKU,
-                "Stock" = @Stock,
-                "Availability" = @Availability
-            WHERE "Id" = @Id
+            UPDATE products SET
+                brand_Id = @BrandId,
+                category_Id = @CategoryId,
+                name = @Name,
+                description = @Description,
+                price = @Price,
+                discount = @Discount,
+                sku = @SKU,
+                stock = @Stock,
+                availability = @Availability
+            WHERE id = @Id
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, product);
@@ -67,7 +67,7 @@ public class ProductRepository : IProductRepository
 
         const string sql =
             """
-            DELETE FROM "Products" WHERE "Id" = @Id
+            DELETE FROM products WHERE id = @Id
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -79,7 +79,7 @@ public class ProductRepository : IProductRepository
     {
         const string sql =
             """
-            INSERT INTO "Products" ("Id", "BrandId", "CategoryId", "Name", "Description", "Price", "Discount", "SKU", "Stock", "Availability")
+            INSERT INTO products (id, brand_id, category_id, name, description, price, discount, sku, stock, availability)
             VALUES (@Id, @BrandId, @CategoryId, @Name, @Description, @Price, @Discount, @SKU, @Stock, @Availability)
             """;
 

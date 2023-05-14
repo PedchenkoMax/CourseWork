@@ -18,7 +18,7 @@ public class CategoryRepository : ICategoryRepository
     {
         const string sql =
             """
-            SELECT * FROM "Categories"
+            SELECT * FROM categories
             """;
 
         var res = await connection.QueryAsync<CategoryEntity>(sql);
@@ -30,7 +30,7 @@ public class CategoryRepository : ICategoryRepository
     {
         const string sql =
             """
-            SELECT * FROM "Categories" WHERE "Id" = @Id
+            SELECT * FROM categories WHERE id = @Id
             """;
 
         var res = await connection.QuerySingleOrDefaultAsync<CategoryEntity>(sql, new { Id = id });
@@ -42,13 +42,13 @@ public class CategoryRepository : ICategoryRepository
     {
         const string sql =
             """
-            UPDATE "Categories" SET
-                "ParentCategoryId" = @ParentCategoryId,
-                "Name" = @Name,
-                "Description" = @Description,
-                "ImageUrl" = @ImageUrl,
-                "DisplayOrder" = @DisplayOrder
-            WHERE "Id" = @Id
+            UPDATE categories SET
+                parent_category_id = @ParentCategoryId,
+                name = @Name,
+                description = @Description,
+                image_url = @ImageUrl,
+                display_order = @DisplayOrder
+            WHERE id = @Id
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, category);
@@ -60,7 +60,7 @@ public class CategoryRepository : ICategoryRepository
     {
         const string sql =
             """
-            DELETE FROM "Categories" WHERE "Id" = @Id
+            DELETE FROM categories WHERE id = @Id
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -72,7 +72,7 @@ public class CategoryRepository : ICategoryRepository
     {
         const string sql =
             """
-            INSERT INTO "Categories" ("Id", "ParentCategoryId", "Name", "Description", "ImageUrl", "DisplayOrder")
+            INSERT INTO categories (id, parent_category_id, name, description, image_url, display_order)
             VALUES (@Id, @ParentCategoryId, @Name, @Description, @ImageUrl, @DisplayOrder)
             """;
 
