@@ -1,63 +1,64 @@
 ﻿using FluentMigrator;
 
-namespace Catalog.Infrastructure.Database.Migrations;
-
-[Migration(1)]
-public class Initial : Migration
+namespace Catalog.Infrastructure.Database.Migrations
 {
-    public override void Up()
+    [Migration(1)]
+    public class Initial : Migration
     {
-        Create.Table("Brands")
-              .WithColumn("Id").AsGuid().PrimaryKey()
-              .WithColumn("Name").AsString().NotNullable()
-              .WithColumn("Description").AsString().NotNullable()
-              .WithColumn("ImageUrl").AsString().NotNullable()
-              .WithColumn("DisplayOrder").AsInt32().NotNullable();
+        public override void Up()
+        {
+            Create.Table("brands")
+                  .WithColumn("id").AsGuid().PrimaryKey()
+                  .WithColumn("name").AsString().NotNullable()
+                  .WithColumn("description").AsString().NotNullable()
+                  .WithColumn("image_url").AsString().NotNullable()
+                  .WithColumn("display_order").AsInt32().NotNullable();
 
-        Create.Table("Categories")
-              .WithColumn("Id").AsGuid().PrimaryKey()
-              .WithColumn("ParentCategoryId").AsGuid().Nullable()
-              .WithColumn("Name").AsString().NotNullable()
-              .WithColumn("Description").AsString().NotNullable()
-              .WithColumn("ImageUrl").AsString().NotNullable()
-              .WithColumn("DisplayOrder").AsInt32().NotNullable();
+            Create.Table("categories")
+                  .WithColumn("id").AsGuid().PrimaryKey()
+                  .WithColumn("parent_category_id").AsGuid().Nullable()
+                  .WithColumn("name").AsString().NotNullable()
+                  .WithColumn("description").AsString().NotNullable()
+                  .WithColumn("image_url").AsString().NotNullable()
+                  .WithColumn("display_order").AsInt32().NotNullable();
 
-        Create.Table("Products")
-              .WithColumn("Id").AsGuid().PrimaryKey()
-              .WithColumn("BrandId").AsGuid().NotNullable()
-              .WithColumn("CategoryId").AsGuid().NotNullable()
-              .WithColumn("Name").AsString().NotNullable()
-              .WithColumn("Description").AsString().NotNullable()
-              .WithColumn("Price").AsDecimal().NotNullable()
-              .WithColumn("Discount").AsDecimal().NotNullable()
-              .WithColumn("SKU").AsString().NotNullable()
-              .WithColumn("Stock").AsInt32().NotNullable()
-              .WithColumn("Availability").AsBoolean().NotNullable();
+            Create.Table("products")
+                  .WithColumn("id").AsGuid().PrimaryKey()
+                  .WithColumn("brand_id").AsGuid().NotNullable()
+                  .WithColumn("category_id").AsGuid().NotNullable()
+                  .WithColumn("name").AsString().NotNullable()
+                  .WithColumn("description").AsString().NotNullable()
+                  .WithColumn("price").AsDecimal().NotNullable()
+                  .WithColumn("discount").AsDecimal().NotNullable()
+                  .WithColumn("sku").AsString().NotNullable()
+                  .WithColumn("stock").AsInt32().NotNullable()
+                  .WithColumn("availability").AsBoolean().NotNullable();
 
-        Create.Table("ProductImages")
-              .WithColumn("Id").AsGuid().PrimaryKey()
-              .WithColumn("ProductId").AsGuid().NotNullable()
-              .WithColumn("ImageUrl").AsString().NotNullable()
-              .WithColumn("DisplayOrder").AsInt32().NotNullable();
+            Create.Table("product_images")
+                  .WithColumn("id").AsGuid().PrimaryKey()
+                  .WithColumn("product_id").AsGuid().NotNullable()
+                  .WithColumn("image_url").AsString().NotNullable()
+                  .WithColumn("display_order").AsInt32().NotNullable();
 
-        Create.ForeignKey("FK_Products_Brands")
-              .FromTable("Products").ForeignColumn("BrandId")
-              .ToTable("Brands").PrimaryColumn("Id");
+            Create.ForeignKey("fk_products_brands")
+                  .FromTable("products").ForeignColumn("brand_id")
+                  .ToTable("brands").PrimaryColumn("id");
 
-        Create.ForeignKey("FK_Products_Categories")
-              .FromTable("Products").ForeignColumn("CategoryId")
-              .ToTable("Categories").PrimaryColumn("Id");
+            Create.ForeignKey("fk_products_categories")
+                  .FromTable("products").ForeignColumn("category_id")
+                  .ToTable("categories").PrimaryColumn("id");
 
-        Create.ForeignKey("FK_ProductImages_Products")
-              .FromTable("ProductImages").ForeignColumn("ProductId")
-              .ToTable("Products").PrimaryColumn("Id");
-    }
+            Create.ForeignKey("fk_product_images_products")
+                  .FromTable("product_images").ForeignColumn("product_id")
+                  .ToTable("products").PrimaryColumn("id");
+        }
 
-    public override void Down()
-    {
-        Delete.Table("ProductImages");
-        Delete.Table("Products");
-        Delete.Table("Categories");
-        Delete.Table("Brands");
+        public override void Down()
+        {
+            Delete.Table("product_images");
+            Delete.Table("products");
+            Delete.Table("categories");
+            Delete.Table("brands");
+        }
     }
 }
