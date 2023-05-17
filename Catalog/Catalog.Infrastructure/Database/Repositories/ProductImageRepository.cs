@@ -14,14 +14,14 @@ public class ProductImageRepository : IProductImageRepository
         connection = context.Connection;
     }
 
-    public async Task<ProductImageEntity?> GetByProductIdAsync(Guid id)
+    public async Task<List<ProductImageEntity>> GetAllByProductIdAsync(Guid id)
     {
         const string sql =
             """
             SELECT * FROM product_images WHERE product_id = @Id
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { Id = id });
+        var res = await connection.QuerySingleOrDefaultAsync<List<ProductImageEntity>>(sql, new { Id = id });
 
         return res;
     }
