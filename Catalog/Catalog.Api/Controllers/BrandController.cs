@@ -1,4 +1,5 @@
-﻿using Catalog.Api.DTO;
+﻿using Catalog.Api.Controllers.Abstractions;
+using Catalog.Api.DTO;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ namespace Catalog.Api.Controllers;
 
 [ApiController]
 [Route("api/brands")]
-public class BrandController : ControllerBase
+public class BrandController : ControllerBase, IBrandController
 {
     private readonly IBrandRepository brandRepository;
 

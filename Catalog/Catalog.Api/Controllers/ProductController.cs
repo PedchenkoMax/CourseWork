@@ -1,4 +1,5 @@
-﻿using Catalog.Api.DTO;
+﻿using Catalog.Api.Controllers.Abstractions;
+using Catalog.Api.DTO;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ namespace Catalog.Api.Controllers;
 
 [ApiController]
 [Route("api/products")]
-public class ProductController : ControllerBase
+public class ProductController : ControllerBase, IProductController
 {
     private readonly IProductRepository productRepository;
     private readonly IProductImageRepository productImageRepository;
@@ -115,7 +116,8 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("{productId:guid}/images")]
-    public async Task<IActionResult> AddProductImage([FromRoute] Guid productId, [FromBody] ProductImage productImageDto)
+    public async Task<IActionResult> AddProductImage([FromRoute] Guid productId,
+        [FromBody] ProductImage productImageDto)
     {
         if (productId == Guid.Empty)
             return BadRequest();
