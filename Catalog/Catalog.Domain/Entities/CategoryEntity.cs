@@ -1,4 +1,4 @@
-﻿using Catalog.Domain.Validators;
+using Catalog.Domain.Validators;
 using FluentValidation.Results;
 
 namespace Catalog.Domain.Entities;
@@ -37,8 +37,9 @@ public class CategoryEntity
         return new CategoryEntityValidator().Validate(entity);
     }
     
-    public ValidationResult Update(string name, string description, string imageUrl, int displayOrder)
+    public ValidationResult Update(Guid parentCategoryId, string name, string description, string imageUrl, int displayOrder)
     {
+        ParentCategoryId = parentCategoryId;
         Name = name;
         Description = description;
         ImageUrl = imageUrl;
