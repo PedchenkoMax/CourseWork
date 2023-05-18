@@ -1,4 +1,4 @@
-﻿using FluentMigrator;
+using FluentMigrator;
 
 namespace Catalog.Infrastructure.Database.Migrations
 {
@@ -24,8 +24,8 @@ namespace Catalog.Infrastructure.Database.Migrations
 
             Create.Table("products")
                   .WithColumn("id").AsGuid().PrimaryKey()
-                  .WithColumn("brand_id").AsGuid().NotNullable()
-                  .WithColumn("category_id").AsGuid().NotNullable()
+                  .WithColumn("brand_id").AsGuid().Nullable()
+                  .WithColumn("category_id").AsGuid().Nullable()
                   .WithColumn("name").AsString().NotNullable()
                   .WithColumn("description").AsString().NotNullable()
                   .WithColumn("price").AsDecimal().NotNullable()
