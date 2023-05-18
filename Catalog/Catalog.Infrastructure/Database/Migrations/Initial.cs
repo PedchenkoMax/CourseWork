@@ -1,3 +1,4 @@
+﻿using System.Data;
 using FluentMigrator;
 
 namespace Catalog.Infrastructure.Database.Migrations
@@ -42,15 +43,23 @@ namespace Catalog.Infrastructure.Database.Migrations
 
             Create.ForeignKey("fk_products_brands")
                   .FromTable("products").ForeignColumn("brand_id")
-                  .ToTable("brands").PrimaryColumn("id");
+                  .ToTable("brands").PrimaryColumn("id")
+                  .OnDelete(Rule.SetNull);
 
             Create.ForeignKey("fk_products_categories")
                   .FromTable("products").ForeignColumn("category_id")
-                  .ToTable("categories").PrimaryColumn("id");
+                  .ToTable("categories").PrimaryColumn("id")
+                  .OnDelete(Rule.SetNull);
 
             Create.ForeignKey("fk_product_images_products")
                   .FromTable("product_images").ForeignColumn("product_id")
-                  .ToTable("products").PrimaryColumn("id");
+                  .ToTable("products").PrimaryColumn("id")
+                  .OnDelete(Rule.Cascade);
+            
+            Create.ForeignKey("fk_categories_parent_categories")
+                  .FromTable("categories").ForeignColumn("parent_category_id")
+                  .ToTable("categories").PrimaryColumn("id")
+                  .OnDelete(Rule.SetNull);
         }
 
         public override void Down()
