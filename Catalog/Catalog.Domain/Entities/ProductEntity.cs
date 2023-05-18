@@ -6,8 +6,8 @@ namespace Catalog.Domain.Entities;
 public class ProductEntity
 {
     public Guid Id { get; private set; }
-    public Guid BrandId { get; private set; }
-    public Guid CategoryId { get; private set; }
+    public Guid? BrandId { get; private set; }
+    public Guid? CategoryId { get; private set; }
     public string Name { get; private set; }
     public string Description { get; private set; }
     public decimal Price { get; private set; }
@@ -24,7 +24,7 @@ public class ProductEntity
     {
     }
 
-    private ProductEntity(Guid brandId, Guid categoryId, string name, string description, decimal price,
+    private ProductEntity(Guid? brandId, Guid? categoryId, string name, string description, decimal price,
         decimal discount, string sku, int stock, bool availability)
     {
         Id = Guid.NewGuid();
@@ -39,7 +39,7 @@ public class ProductEntity
         Availability = availability;
     }
 
-    public static ValidationResult TryCreate(Guid brandId, Guid categoryId, string name, string description,
+    public static ValidationResult TryCreate(Guid? brandId, Guid? categoryId, string name, string description,
         decimal price, decimal discount, string sku, int stock, bool availability, out ProductEntity entity)
     {
         entity = new ProductEntity(brandId, categoryId, name, description, price, discount, sku, stock, availability);
@@ -47,7 +47,7 @@ public class ProductEntity
         return new ProductEntityValidator().Validate(entity);
     }
 
-    public ValidationResult Update(Guid brandId, Guid categoryId, string name, string description, decimal price,
+    public ValidationResult Update(Guid? brandId, Guid? categoryId, string name, string description, decimal price,
         decimal discount, string sku, int stock, bool availability)
     {
         BrandId = brandId;
