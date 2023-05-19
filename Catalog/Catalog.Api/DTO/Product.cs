@@ -1,4 +1,6 @@
-﻿namespace Catalog.Api.DTO;
+﻿using Catalog.Api.ValidationAttributes;
+
+namespace Catalog.Api.DTO;
 
 public record ProductReadDto(
     Guid Id,
@@ -16,8 +18,8 @@ public record ProductReadDto(
     List<ProductImageReadDto>? Images);
 
 public record ProductWriteDto(
-    Guid? BrandId,
-    Guid? CategoryId,
+    [NonZeroNullableGuid] Guid? BrandId,
+    [NonZeroNullableGuid] Guid? CategoryId,
     string Name,
     string Description,
     decimal Price,

@@ -1,5 +1,6 @@
 using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.ValidationAttributes;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -28,11 +29,8 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetProductById([FromRoute] Guid id)
+    public async Task<IActionResult> GetProductById([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var product = await productRepository.GetByIdAsync(id);
 
         return Ok(product);
@@ -62,11 +60,8 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] ProductWriteDto productDto)
+    public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductWriteDto productDto)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var product = await productRepository.GetByIdAsync(id);
 
         if (product == null)
@@ -92,11 +87,8 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteProduct([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var product = await productRepository.GetByIdAsync(id);
 
         if (product == null)
@@ -108,7 +100,7 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpGet("{productId:guid}/images")]
-    public async Task<IActionResult> GetAllProductImagesByProductId([FromRoute] Guid productId)
+    public async Task<IActionResult> GetAllProductImagesByProductId([FromRoute] [NonZeroGuid] Guid productId)
     {
         var productImages = await productImageRepository.GetAllByProductIdAsync(productId);
 
@@ -116,11 +108,8 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPost("{productId:guid}/images")]
-    public async Task<IActionResult> AddProductImage([FromRoute] Guid productId, [FromBody] ProductImageWriteDto productImageDto)
+    public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductImageWriteDto productImageDto)
     {
-        if (productId == Guid.Empty)
-            return BadRequest();
-
         var product = await productRepository.GetByIdAsync(productId);
 
         if (product == null)
@@ -141,11 +130,8 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPut("images/{id:guid}")]
-    public async Task<IActionResult> UpdateProductImage([FromRoute] Guid id, [FromBody] ProductImageWriteDto productImageDto)
+    public async Task<IActionResult> UpdateProductImage([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageWriteDto productImageDto)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var productImage = await productImageRepository.GetByIdAsync(id);
 
         if (productImage == null)
@@ -162,11 +148,8 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpDelete("images/{id:guid}")]
-    public async Task<IActionResult> DeleteProductImage([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var productImage = await productImageRepository.GetByIdAsync(id);
 
         if (productImage == null)

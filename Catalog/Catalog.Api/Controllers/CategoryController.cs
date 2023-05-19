@@ -1,5 +1,6 @@
 using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.ValidationAttributes;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +27,8 @@ public class CategoryController : ControllerBase, ICategoryController
     }
 
     [HttpGet("{id:guid}/children")]
-    public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] Guid id)
+    public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var parentCategory = await categoryRepository.GetByIdAsync(id);
 
         if (parentCategory == null)
@@ -44,11 +42,8 @@ public class CategoryController : ControllerBase, ICategoryController
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
+    public async Task<IActionResult> GetCategoryById([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var category = await categoryRepository.GetByIdAsync(id);
 
         if (category == null)
@@ -77,11 +72,8 @@ public class CategoryController : ControllerBase, ICategoryController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] CategoryWriteDto categoryDto)
+    public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid id, [FromBody] CategoryWriteDto categoryDto)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var category = await categoryRepository.GetByIdAsync(id);
 
         if (category == null)
@@ -103,11 +95,8 @@ public class CategoryController : ControllerBase, ICategoryController
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteCategory([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var category = await categoryRepository.GetByIdAsync(id);
 
         if (category == null)

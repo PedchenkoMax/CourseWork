@@ -1,4 +1,6 @@
-﻿namespace Catalog.Api.DTO;
+﻿using Catalog.Api.ValidationAttributes;
+
+namespace Catalog.Api.DTO;
 
 public record CategoryReadDto(
     Guid Id,
@@ -11,7 +13,7 @@ public record CategoryReadDto(
     List<ProductReadDto>? Products);
 
 public record CategoryWriteDto(
-    Guid? ParentCategoryId,
+    [NonZeroNullableGuid] Guid? ParentCategoryId,
     string Name,
     string Description,
     string ImageUrl,

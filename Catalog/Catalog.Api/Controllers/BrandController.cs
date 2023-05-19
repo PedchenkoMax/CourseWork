@@ -1,5 +1,6 @@
 using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.ValidationAttributes;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +27,8 @@ public class BrandController : ControllerBase, IBrandController
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetBrandById([FromRoute] Guid id)
+    public async Task<IActionResult> GetBrandById([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var brand = await brandRepository.GetByIdAsync(id);
 
         if (brand == null)
@@ -58,11 +56,8 @@ public class BrandController : ControllerBase, IBrandController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateBrand([FromRoute] Guid id, [FromBody] BrandWriteDto brandDto)
+    public async Task<IActionResult> UpdateBrand([FromRoute] [NonZeroGuid] Guid id, [FromBody] BrandWriteDto brandDto)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var brand = await brandRepository.GetByIdAsync(id);
 
         if (brand == null)
@@ -83,11 +78,8 @@ public class BrandController : ControllerBase, IBrandController
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteBrand([FromRoute] Guid id)
+    public async Task<IActionResult> DeleteBrand([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (id == Guid.Empty)
-            return BadRequest();
-
         var brand = await brandRepository.GetByIdAsync(id);
 
         if (brand == null)

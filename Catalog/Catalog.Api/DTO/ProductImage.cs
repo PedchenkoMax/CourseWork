@@ -1,4 +1,6 @@
-﻿namespace Catalog.Api.DTO;
+﻿using Catalog.Api.ValidationAttributes;
+
+namespace Catalog.Api.DTO;
 
 public record ProductImageReadDto(
     Guid Id,
@@ -8,7 +10,7 @@ public record ProductImageReadDto(
     ProductReadDto? Product);
 
 public record ProductImageWriteDto(
-    Guid ProductId,
+    [NonZeroGuid] Guid ProductId,
     string ImageUrl,
     int DisplayOrder,
     ProductReadDto? Product);
