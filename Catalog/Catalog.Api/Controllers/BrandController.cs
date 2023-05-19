@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Controllers.Abstractions;
+using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -40,7 +40,7 @@ public class BrandController : ControllerBase, IBrandController
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddBrand([FromBody] Brand brandDto)
+    public async Task<IActionResult> AddBrand([FromBody] BrandWriteDto brandDto)
     {
         var validationResult = BrandEntity.TryCreate(
             name: brandDto.Name,
@@ -58,7 +58,7 @@ public class BrandController : ControllerBase, IBrandController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateBrand([FromRoute] Guid id, [FromBody] Brand brandDto)
+    public async Task<IActionResult> UpdateBrand([FromRoute] Guid id, [FromBody] BrandWriteDto brandDto)
     {
         if (id == Guid.Empty)
             return BadRequest();

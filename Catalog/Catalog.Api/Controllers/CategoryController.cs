@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Controllers.Abstractions;
+using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -58,7 +58,7 @@ public class CategoryController : ControllerBase, ICategoryController
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddCategory([FromBody] Category categoryDto)
+    public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto categoryDto)
     {
         var validationResult = CategoryEntity.TryCreate(
             parentCategoryId: categoryDto.ParentCategoryId,
@@ -77,7 +77,7 @@ public class CategoryController : ControllerBase, ICategoryController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] Category categoryDto)
+    public async Task<IActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] CategoryWriteDto categoryDto)
     {
         if (id == Guid.Empty)
             return BadRequest();

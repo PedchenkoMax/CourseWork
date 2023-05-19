@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Controllers.Abstractions;
+using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -39,7 +39,7 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddProduct([FromBody] Product productDto)
+    public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto productDto)
     {
         var validationResult = ProductEntity.TryCreate(
             brandId: productDto.BrandId,
@@ -62,7 +62,7 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] Product productDto)
+    public async Task<IActionResult> UpdateProduct([FromRoute] Guid id, [FromBody] ProductWriteDto productDto)
     {
         if (id == Guid.Empty)
             return BadRequest();
@@ -116,8 +116,7 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPost("{productId:guid}/images")]
-    public async Task<IActionResult> AddProductImage([FromRoute] Guid productId,
-        [FromBody] ProductImage productImageDto)
+    public async Task<IActionResult> AddProductImage([FromRoute] Guid productId, [FromBody] ProductImageWriteDto productImageDto)
     {
         if (productId == Guid.Empty)
             return BadRequest();
@@ -142,7 +141,7 @@ public class ProductController : ControllerBase, IProductController
     }
 
     [HttpPut("images/{id:guid}")]
-    public async Task<IActionResult> UpdateProductImage([FromRoute] Guid id, [FromBody] ProductImage productImageDto)
+    public async Task<IActionResult> UpdateProductImage([FromRoute] Guid id, [FromBody] ProductImageWriteDto productImageDto)
     {
         if (id == Guid.Empty)
             return BadRequest();

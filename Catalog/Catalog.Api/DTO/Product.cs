@@ -1,18 +1,27 @@
 ﻿namespace Catalog.Api.DTO;
 
-public class Product
-{
-    public Guid Id { get; set; }
-    public Guid? BrandId { get; set; }
-    public Guid? CategoryId { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public decimal Price { get; set; }
-    public decimal Discount { get; set; }
-    public string SKU { get; set; }
-    public int Stock { get; set; }
-    public bool Availability { get; set; }
-    public Brand? Brand { get; set; }
-    public Category? Category { get; set; }
-    public List<ProductImage>? Images { get; set; }
-}
+public record ProductReadDto(
+    Guid Id,
+    Guid? BrandId,
+    Guid? CategoryId,
+    string Name,
+    string Description,
+    decimal Price,
+    decimal Discount,
+    string SKU,
+    int Stock,
+    bool Availability,
+    BrandReadDto? Brand,
+    CategoryReadDto? Category,
+    List<ProductImageReadDto>? Images);
+
+public record ProductWriteDto(
+    Guid? BrandId,
+    Guid? CategoryId,
+    string Name,
+    string Description,
+    decimal Price,
+    decimal Discount,
+    string SKU,
+    int Stock,
+    bool Availability);

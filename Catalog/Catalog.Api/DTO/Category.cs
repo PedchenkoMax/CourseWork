@@ -1,13 +1,18 @@
 ﻿namespace Catalog.Api.DTO;
 
-public class Category
-{
-    public Guid Id { get; set; }
-    public Guid? ParentCategoryId { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string ImageUrl { get; set; }
-    public int DisplayOrder { get; set; }
-    public Category? ParentCategory { get; set; }
-    public List<Product>? Products { get; set; }
-}
+public record CategoryReadDto(
+    Guid Id,
+    Guid? ParentCategoryId,
+    string Name,
+    string Description,
+    string ImageUrl,
+    int DisplayOrder,
+    CategoryReadDto? ParentCategory,
+    List<ProductReadDto>? Products);
+
+public record CategoryWriteDto(
+    Guid? ParentCategoryId,
+    string Name,
+    string Description,
+    string ImageUrl,
+    int DisplayOrder);
