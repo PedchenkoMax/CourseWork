@@ -26,6 +26,18 @@ public class CategoryRepository : ICategoryRepository
         return res.ToList();
     }
 
+    public async Task<List<CategoryEntity>> GetChildrenByParentCategoryId(Guid parentCategoryId)
+    {
+        const string sql =
+            """
+            SELECT * FROM categories WHERE parent_category_id = @Id
+            """;
+
+        var res = await connection.QueryAsync<CategoryEntity>(sql, new { Id = parentCategoryId });
+
+        return res.ToList();
+    }
+
     public async Task<CategoryEntity?> GetByIdAsync(Guid id)
     {
         const string sql =
