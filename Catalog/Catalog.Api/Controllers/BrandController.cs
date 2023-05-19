@@ -80,9 +80,7 @@ public class BrandController : ControllerBase, IBrandController
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBrand([FromRoute] [NonZeroGuid] Guid id)
     {
-        var brand = await brandRepository.GetByIdAsync(id);
-
-        if (brand == null)
+        if (!await brandRepository.ExistsAsync(id))
             return NotFound();
 
         var res = await brandRepository.RemoveByIdAsync(id);

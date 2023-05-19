@@ -13,11 +13,16 @@ public class ProductController : ControllerBase, IProductController
 {
     private readonly IProductRepository productRepository;
     private readonly IProductImageRepository productImageRepository;
+    private readonly IBrandRepository brandRepository;
+    private readonly ICategoryRepository categoryRepository;
 
-    public ProductController(IProductRepository productRepository, IProductImageRepository productImageRepository)
+    public ProductController(IProductRepository productRepository, IProductImageRepository productImageRepository,
+        IBrandRepository brandRepository, ICategoryRepository categoryRepository)
     {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
+        this.brandRepository = brandRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     [HttpGet]
@@ -39,6 +44,12 @@ public class ProductController : ControllerBase, IProductController
     [HttpPost]
     public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto productDto)
     {
+        if (productDto.BrandId != null && !await brandRepository.ExistsAsync(productDto.BrandId.Value))
+            return NotFound();
+
+        if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
+            return NotFound();
+
         var validationResult = ProductEntity.TryCreate(
             brandId: productDto.BrandId,
             categoryId: productDto.CategoryId,
@@ -62,6 +73,12 @@ public class ProductController : ControllerBase, IProductController
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductWriteDto productDto)
     {
+        if (productDto.BrandId != null && !await brandRepository.ExistsAsync(productDto.BrandId.Value))
+            return NotFound();
+
+        if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
+            return NotFound();
+        
         var product = await productRepository.GetByIdAsync(id);
 
         if (product == null)
@@ -89,6 +106,9 @@ public class ProductController : ControllerBase, IProductController
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid id)
     {
+        if (!await productRepository.ExistsAsync(id))
+            return NotFound();
+        
         var product = await productRepository.GetByIdAsync(id);
 
         if (product == null)
@@ -102,6 +122,9 @@ public class ProductController : ControllerBase, IProductController
     [HttpGet("{productId:guid}/images")]
     public async Task<IActionResult> GetAllProductImagesByProductId([FromRoute] [NonZeroGuid] Guid productId)
     {
+        if (!await productRepository.ExistsAsync(productId))
+            return NotFound();
+        
         var productImages = await productImageRepository.GetAllByProductIdAsync(productId);
 
         return Ok(productImages);
@@ -110,9 +133,7 @@ public class ProductController : ControllerBase, IProductController
     [HttpPost("{productId:guid}/images")]
     public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductImageWriteDto productImageDto)
     {
-        var product = await productRepository.GetByIdAsync(productId);
-
-        if (product == null)
+        if (!await productRepository.ExistsAsync(productId))
             return NotFound();
 
         var validationResult = ProductImageEntity.TryCreate(
@@ -150,9 +171,7 @@ public class ProductController : ControllerBase, IProductController
     [HttpDelete("images/{id:guid}")]
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid id)
     {
-        var productImage = await productImageRepository.GetByIdAsync(id);
-
-        if (productImage == null)
+        if (!await productImageRepository.ExistsAsync(id))
             return NotFound();
 
         var res = await productImageRepository.RemoveByIdAsync(id);

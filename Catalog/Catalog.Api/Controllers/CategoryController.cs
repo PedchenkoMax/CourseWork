@@ -29,9 +29,7 @@ public class CategoryController : ControllerBase, ICategoryController
     [HttpGet("{id:guid}/children")]
     public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] [NonZeroGuid] Guid id)
     {
-        var parentCategory = await categoryRepository.GetByIdAsync(id);
-
-        if (parentCategory == null)
+        if (!await categoryRepository.ExistsAsync(id))
             return NotFound();
 
         var categories = await categoryRepository.GetChildrenByParentCategoryId(id);
@@ -55,6 +53,9 @@ public class CategoryController : ControllerBase, ICategoryController
     [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto categoryDto)
     {
+        if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
+            return NotFound();
+
         var validationResult = CategoryEntity.TryCreate(
             parentCategoryId: categoryDto.ParentCategoryId,
             name: categoryDto.Name,
@@ -74,6 +75,9 @@ public class CategoryController : ControllerBase, ICategoryController
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid id, [FromBody] CategoryWriteDto categoryDto)
     {
+        if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
+            return NotFound();
+        
         var category = await categoryRepository.GetByIdAsync(id);
 
         if (category == null)
@@ -97,9 +101,7 @@ public class CategoryController : ControllerBase, ICategoryController
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid id)
     {
-        var category = await categoryRepository.GetByIdAsync(id);
-
-        if (category == null)
+        if (!await categoryRepository.ExistsAsync(id))
             return NotFound();
 
         var res = await categoryRepository.RemoveByIdAsync(id);
