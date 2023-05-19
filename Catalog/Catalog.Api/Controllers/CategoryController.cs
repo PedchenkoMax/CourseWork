@@ -25,6 +25,24 @@ public class CategoryController : ControllerBase, ICategoryController
         return Ok(categories);
     }
 
+    [HttpGet("{id:guid}/children")]
+    public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] Guid id)
+    {
+        if (id == Guid.Empty)
+            return BadRequest();
+
+        var parentCategory = await categoryRepository.GetByIdAsync(id);
+
+        if (parentCategory == null)
+            return NotFound();
+
+        var categories = await categoryRepository.GetChildrenByParentCategoryId(id);
+
+        // TODO: should we return empty array or NotFound?
+
+        return Ok(categories);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] Guid id)
     {
@@ -70,6 +88,7 @@ public class CategoryController : ControllerBase, ICategoryController
             return NotFound();
 
         var validationResult = category.Update(
+            parentCategoryId: categoryDto.ParentCategoryId,
             name: categoryDto.Name,
             description: categoryDto.Description,
             imageUrl: categoryDto.ImageUrl,
