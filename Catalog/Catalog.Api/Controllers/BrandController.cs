@@ -23,7 +23,15 @@ public class BrandController : ControllerBase, IBrandController
     {
         var brands = await brandRepository.GetAllAsync();
 
-        return Ok(brands);
+        var res = brands.Select(brand => new BrandReadDto(
+            Id: brand.Id,
+            Name: brand.Name,
+            Description: brand.Description,
+            ImageUrl: brand.ImageUrl,
+            DisplayOrder: brand.DisplayOrder,
+            Products: null));
+
+        return Ok(res);
     }
 
     [HttpGet("{id:guid}")]
@@ -34,7 +42,15 @@ public class BrandController : ControllerBase, IBrandController
         if (brand == null)
             return NotFound();
 
-        return Ok(brand);
+        var res = new BrandReadDto(
+            Id: brand.Id,
+            Name: brand.Name,
+            Description: brand.Description,
+            ImageUrl: brand.ImageUrl,
+            DisplayOrder: brand.DisplayOrder,
+            Products: null);
+
+        return Ok(res);
     }
 
     [HttpPost]

@@ -30,7 +30,22 @@ public class ProductController : ControllerBase, IProductController
     {
         var products = await productRepository.GetAllAsync();
 
-        return Ok(products);
+        var res = products.Select(product => new ProductReadDto(
+            Id: product.Id,
+            BrandId: product.BrandId,
+            CategoryId: product.CategoryId,
+            Name: product.Name,
+            Description: product.Description,
+            Price: product.Price,
+            Discount: product.Discount,
+            SKU: product.SKU,
+            Stock: product.Stock,
+            Availability: product.Availability,
+            Brand: null,
+            Category: null,
+            Images: null));
+
+        return Ok(res);
     }
 
     [HttpGet("{id:guid}")]
@@ -38,7 +53,22 @@ public class ProductController : ControllerBase, IProductController
     {
         var product = await productRepository.GetByIdAsync(id);
 
-        return Ok(product);
+        var res = new ProductReadDto(
+            Id: product.Id,
+            BrandId: product.BrandId,
+            CategoryId: product.CategoryId,
+            Name: product.Name,
+            Description: product.Description,
+            Price: product.Price,
+            Discount: product.Discount,
+            SKU: product.SKU,
+            Stock: product.Stock,
+            Availability: product.Availability,
+            Brand: null,
+            Category: null,
+            Images: null);
+
+        return Ok(res);
     }
 
     [HttpPost]
@@ -78,7 +108,7 @@ public class ProductController : ControllerBase, IProductController
 
         if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
             return NotFound();
-        
+
         var product = await productRepository.GetByIdAsync(id);
 
         if (product == null)
@@ -108,7 +138,7 @@ public class ProductController : ControllerBase, IProductController
     {
         if (!await productRepository.ExistsAsync(id))
             return NotFound();
-        
+
         var product = await productRepository.GetByIdAsync(id);
 
         if (product == null)
@@ -124,10 +154,17 @@ public class ProductController : ControllerBase, IProductController
     {
         if (!await productRepository.ExistsAsync(productId))
             return NotFound();
-        
+
         var productImages = await productImageRepository.GetAllByProductIdAsync(productId);
 
-        return Ok(productImages);
+        var res = productImages.Select(productImage => new ProductImageReadDto(
+            Id: productImage.Id,
+            ProductId: productImage.ProductId,
+            ImageUrl: productImage.ImageUrl,
+            DisplayOrder: productImage.DisplayOrder,
+            Product: null));
+
+        return Ok(res);
     }
 
     [HttpPost("{productId:guid}/images")]

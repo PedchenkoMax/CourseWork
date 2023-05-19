@@ -23,7 +23,17 @@ public class CategoryController : ControllerBase, ICategoryController
     {
         var categories = await categoryRepository.GetAllAsync();
 
-        return Ok(categories);
+        var res = categories.Select(category => new CategoryReadDto(
+            Id: category.Id,
+            ParentCategoryId: category.ParentCategoryId,
+            Name: category.Name,
+            Description: category.Description,
+            ImageUrl: category.ImageUrl,
+            DisplayOrder: category.DisplayOrder,
+            ParentCategory: null,
+            Products: null));
+
+        return Ok(res);
     }
 
     [HttpGet("{id:guid}/children")]
@@ -34,9 +44,17 @@ public class CategoryController : ControllerBase, ICategoryController
 
         var categories = await categoryRepository.GetChildrenByParentCategoryId(id);
 
-        // TODO: should we return empty array or NotFound?
+        var res = categories.Select(category => new CategoryReadDto(
+            Id: category.Id,
+            ParentCategoryId: category.ParentCategoryId,
+            Name: category.Name,
+            Description: category.Description,
+            ImageUrl: category.ImageUrl,
+            DisplayOrder: category.DisplayOrder,
+            ParentCategory: null,
+            Products: null));
 
-        return Ok(categories);
+        return Ok(res);
     }
 
     [HttpGet("{id:guid}")]
@@ -47,7 +65,17 @@ public class CategoryController : ControllerBase, ICategoryController
         if (category == null)
             return NotFound();
 
-        return Ok(category);
+        var res = new CategoryReadDto(
+            Id: category.Id,
+            ParentCategoryId: category.ParentCategoryId,
+            Name: category.Name,
+            Description: category.Description,
+            ImageUrl: category.ImageUrl,
+            DisplayOrder: category.DisplayOrder,
+            ParentCategory: null,
+            Products: null);
+
+        return Ok(res);
     }
 
     [HttpPost]
@@ -77,7 +105,7 @@ public class CategoryController : ControllerBase, ICategoryController
     {
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
             return NotFound();
-        
+
         var category = await categoryRepository.GetByIdAsync(id);
 
         if (category == null)
