@@ -9,4 +9,5 @@ public interface IBrandRepository
     Task<bool> UpdateAsync(BrandEntity brand);
     Task<bool> RemoveByIdAsync(Guid id);
     Task<bool> AddAsync(BrandEntity brand);
+    Task<bool> ExistsAsync(Guid id);
 }

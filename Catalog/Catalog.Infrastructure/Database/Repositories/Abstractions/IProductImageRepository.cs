@@ -9,4 +9,5 @@ public interface IProductImageRepository
     Task<bool> UpdateAsync(ProductImageEntity productImage);
     Task<bool> RemoveByIdAsync(Guid id);
     Task<bool> AddAsync(ProductImageEntity productImage);
+    Task<bool> ExistsAsync(Guid id);
 }

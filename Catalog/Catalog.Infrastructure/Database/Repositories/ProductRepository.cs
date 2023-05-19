@@ -87,4 +87,16 @@ public class ProductRepository : IProductRepository
 
         return rowsAffected > 0;
     }
+    
+    public async Task<bool> ExistsAsync(Guid id)
+    {
+        const string sql =
+            """
+            SELECT EXISTS (SELECT 1 FROM products WHERE id = @Id)
+            """;
+
+        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
+
+        return exists;
+    }
 }

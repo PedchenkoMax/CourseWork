@@ -10,4 +10,5 @@ public interface ICategoryRepository
     Task<bool> UpdateAsync(CategoryEntity category);
     Task<bool> RemoveByIdAsync(Guid id);
     Task<bool> AddAsync(CategoryEntity category);
+    Task<bool> ExistsAsync(Guid id);
 }
