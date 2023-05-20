@@ -28,53 +28,53 @@ public class ProductController : ControllerBase, IProductController
     [HttpGet]
     public async Task<IActionResult> GetAllProducts()
     {
-        var products = await productRepository.GetAllAsync();
+        var productEntities = await productRepository.GetAllAsync();
 
-        if (products.Count == 0)
+        if (productEntities.Count == 0)
             return NotFound();
 
-        var res = products.Select(product => new ProductReadDto(
-            Id: product.Id,
-            BrandId: product.BrandId,
-            CategoryId: product.CategoryId,
-            Name: product.Name,
-            Description: product.Description,
-            Price: product.Price,
-            Discount: product.Discount,
-            SKU: product.SKU,
-            Stock: product.Stock,
-            Availability: product.Availability,
+        var productDtos = productEntities.Select(productEntity => new ProductReadDto(
+            Id: productEntity.Id,
+            BrandId: productEntity.BrandId,
+            CategoryId: productEntity.CategoryId,
+            Name: productEntity.Name,
+            Description: productEntity.Description,
+            Price: productEntity.Price,
+            Discount: productEntity.Discount,
+            SKU: productEntity.SKU,
+            Stock: productEntity.Stock,
+            Availability: productEntity.Availability,
             Brand: null,
             Category: null,
             Images: null));
 
-        return Ok(res);
+        return Ok(productDtos);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetProductById([FromRoute] [NonZeroGuid] Guid id)
     {
-        var product = await productRepository.GetByIdAsync(id);
+        var productEntity = await productRepository.GetByIdAsync(id);
 
-        if (product is null)
+        if (productEntity is null)
             return NotFound();
 
-        var res = new ProductReadDto(
-            Id: product.Id,
-            BrandId: product.BrandId,
-            CategoryId: product.CategoryId,
-            Name: product.Name,
-            Description: product.Description,
-            Price: product.Price,
-            Discount: product.Discount,
-            SKU: product.SKU,
-            Stock: product.Stock,
-            Availability: product.Availability,
+        var productDto = new ProductReadDto(
+            Id: productEntity.Id,
+            BrandId: productEntity.BrandId,
+            CategoryId: productEntity.CategoryId,
+            Name: productEntity.Name,
+            Description: productEntity.Description,
+            Price: productEntity.Price,
+            Discount: productEntity.Discount,
+            SKU: productEntity.SKU,
+            Stock: productEntity.Stock,
+            Availability: productEntity.Availability,
             Brand: null,
             Category: null,
             Images: null);
 
-        return Ok(res);
+        return Ok(productDto);
     }
 
     [HttpPost]
@@ -96,14 +96,14 @@ public class ProductController : ControllerBase, IProductController
             sku: productDto.SKU,
             stock: productDto.Stock,
             availability: productDto.Availability,
-            out var product);
+            out var productEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await productRepository.AddAsync(product);
+        var isAdded = await productRepository.AddAsync(productEntity);
 
-        return Ok(res);
+        return Ok(isAdded);
     }
 
     [HttpPut("{id:guid}")]
@@ -115,12 +115,12 @@ public class ProductController : ControllerBase, IProductController
         if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
             return NotFound();
 
-        var product = await productRepository.GetByIdAsync(id);
+        var productEntity = await productRepository.GetByIdAsync(id);
 
-        if (product == null)
+        if (productEntity == null)
             return NotFound();
 
-        var validationResult = product.Update(
+        var validationResult = productEntity.Update(
             brandId: productDto.BrandId,
             categoryId: productDto.CategoryId,
             name: productDto.Name,
@@ -134,9 +134,9 @@ public class ProductController : ControllerBase, IProductController
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await productRepository.UpdateAsync(product);
+        var isUpdated = await productRepository.UpdateAsync(productEntity);
 
-        return Ok(res);
+        return Ok(isUpdated);
     }
 
     [HttpDelete("{id:guid}")]
@@ -145,14 +145,14 @@ public class ProductController : ControllerBase, IProductController
         if (!await productRepository.ExistsAsync(id))
             return NotFound();
 
-        var product = await productRepository.GetByIdAsync(id);
+        var productEntity = await productRepository.GetByIdAsync(id);
 
-        if (product == null)
+        if (productEntity == null)
             return NotFound();
 
-        var res = await productRepository.RemoveByIdAsync(id);
+        var isDeleted = await productRepository.RemoveByIdAsync(id);
 
-        return Ok(res);
+        return Ok(isDeleted);
     }
 
     [HttpGet("{productId:guid}/images")]
@@ -161,19 +161,19 @@ public class ProductController : ControllerBase, IProductController
         if (!await productRepository.ExistsAsync(productId))
             return NotFound();
 
-        var productImages = await productImageRepository.GetAllByProductIdAsync(productId);
+        var productImageEntities = await productImageRepository.GetAllByProductIdAsync(productId);
 
-        if (productImages.Count == 0)
+        if (productImageEntities.Count == 0)
             return NotFound();
 
-        var res = productImages.Select(productImage => new ProductImageReadDto(
-            Id: productImage.Id,
-            ProductId: productImage.ProductId,
-            ImageUrl: productImage.ImageUrl,
-            DisplayOrder: productImage.DisplayOrder,
+        var productImageDtos = productImageEntities.Select(productImageEntity => new ProductImageReadDto(
+            Id: productImageEntity.Id,
+            ProductId: productImageEntity.ProductId,
+            ImageUrl: productImageEntity.ImageUrl,
+            DisplayOrder: productImageEntity.DisplayOrder,
             Product: null));
 
-        return Ok(res);
+        return Ok(productImageDtos);
     }
 
     [HttpPost("{productId:guid}/images")]
@@ -186,32 +186,32 @@ public class ProductController : ControllerBase, IProductController
             productId: productId,
             imageUrl: productImageDto.ImageUrl,
             displayOrder: productImageDto.DisplayOrder,
-            out var productImage);
+            out var productImageEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await productImageRepository.AddAsync(productImage);
+        var isAdded = await productImageRepository.AddAsync(productImageEntity);
 
-        return Ok(res);
+        return Ok(isAdded);
     }
 
     [HttpPut("images/{id:guid}")]
     public async Task<IActionResult> UpdateProductImage([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageWriteDto productImageDto)
     {
-        var productImage = await productImageRepository.GetByIdAsync(id);
+        var productImageEntity = await productImageRepository.GetByIdAsync(id);
 
-        if (productImage == null)
+        if (productImageEntity == null)
             return NotFound();
 
-        var validationResult = productImage.Update(displayOrder: productImageDto.DisplayOrder);
+        var validationResult = productImageEntity.Update(displayOrder: productImageDto.DisplayOrder);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await productImageRepository.UpdateAsync(productImage);
+        var isUpdated = await productImageRepository.UpdateAsync(productImageEntity);
 
-        return Ok(res);
+        return Ok(isUpdated);
     }
 
     [HttpDelete("images/{id:guid}")]
@@ -220,8 +220,8 @@ public class ProductController : ControllerBase, IProductController
         if (!await productImageRepository.ExistsAsync(id))
             return NotFound();
 
-        var res = await productImageRepository.RemoveByIdAsync(id);
+        var isDeleted = await productImageRepository.RemoveByIdAsync(id);
 
-        return Ok(res);
+        return Ok(isDeleted);
     }
 }

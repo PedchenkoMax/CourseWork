@@ -21,39 +21,39 @@ public class BrandController : ControllerBase, IBrandController
     [HttpGet]
     public async Task<IActionResult> GetAllBrands()
     {
-        var brands = await brandRepository.GetAllAsync();
+        var brandEntities = await brandRepository.GetAllAsync();
 
-        if (brands.Count == 0)
+        if (brandEntities.Count == 0)
             return NotFound();
 
-        var res = brands.Select(brand => new BrandReadDto(
-            Id: brand.Id,
-            Name: brand.Name,
-            Description: brand.Description,
-            ImageUrl: brand.ImageUrl,
-            DisplayOrder: brand.DisplayOrder,
+        var brandDtos = brandEntities.Select(brandEntity => new BrandReadDto(
+            Id: brandEntity.Id,
+            Name: brandEntity.Name,
+            Description: brandEntity.Description,
+            ImageUrl: brandEntity.ImageUrl,
+            DisplayOrder: brandEntity.DisplayOrder,
             Products: null));
 
-        return Ok(res);
+        return Ok(brandDtos);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetBrandById([FromRoute] [NonZeroGuid] Guid id)
     {
-        var brand = await brandRepository.GetByIdAsync(id);
+        var brandEntity = await brandRepository.GetByIdAsync(id);
 
-        if (brand == null)
+        if (brandEntity == null)
             return NotFound();
 
-        var res = new BrandReadDto(
-            Id: brand.Id,
-            Name: brand.Name,
-            Description: brand.Description,
-            ImageUrl: brand.ImageUrl,
-            DisplayOrder: brand.DisplayOrder,
+        var brandDto = new BrandReadDto(
+            Id: brandEntity.Id,
+            Name: brandEntity.Name,
+            Description: brandEntity.Description,
+            ImageUrl: brandEntity.ImageUrl,
+            DisplayOrder: brandEntity.DisplayOrder,
             Products: null);
 
-        return Ok(res);
+        return Ok(brandDto);
     }
 
     [HttpPost]
@@ -69,20 +69,20 @@ public class BrandController : ControllerBase, IBrandController
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await brandRepository.AddAsync(brandEntity);
+        var isAdded = await brandRepository.AddAsync(brandEntity);
 
-        return Ok(res);
+        return Ok(isAdded);
     }
 
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateBrand([FromRoute] [NonZeroGuid] Guid id, [FromBody] BrandWriteDto brandDto)
     {
-        var brand = await brandRepository.GetByIdAsync(id);
+        var brandEntity = await brandRepository.GetByIdAsync(id);
 
-        if (brand == null)
+        if (brandEntity == null)
             return NotFound();
 
-        var validationResult = brand.Update(
+        var validationResult = brandEntity.Update(
             name: brandDto.Name,
             description: brandDto.Description,
             imageUrl: brandDto.ImageUrl,
@@ -91,9 +91,9 @@ public class BrandController : ControllerBase, IBrandController
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await brandRepository.UpdateAsync(brand);
+        var isUpdated = await brandRepository.UpdateAsync(brandEntity);
 
-        return Ok(res);
+        return Ok(isUpdated);
     }
 
     [HttpDelete("{id:guid}")]
@@ -102,8 +102,8 @@ public class BrandController : ControllerBase, IBrandController
         if (!await brandRepository.ExistsAsync(id))
             return NotFound();
 
-        var res = await brandRepository.RemoveByIdAsync(id);
+        var isDeleted = await brandRepository.RemoveByIdAsync(id);
 
-        return Ok(res);
+        return Ok(isDeleted);
     }
 }

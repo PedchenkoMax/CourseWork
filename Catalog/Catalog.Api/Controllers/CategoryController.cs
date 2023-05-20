@@ -21,22 +21,22 @@ public class CategoryController : ControllerBase, ICategoryController
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
-        var categories = await categoryRepository.GetAllAsync();
+        var categoryEntities = await categoryRepository.GetAllAsync();
 
-        if (categories.Count == 0)
+        if (categoryEntities.Count == 0)
             return NotFound();
 
-        var res = categories.Select(category => new CategoryReadDto(
-            Id: category.Id,
-            ParentCategoryId: category.ParentCategoryId,
-            Name: category.Name,
-            Description: category.Description,
-            ImageUrl: category.ImageUrl,
-            DisplayOrder: category.DisplayOrder,
+        var categoryDtos = categoryEntities.Select(categoryEntity => new CategoryReadDto(
+            Id: categoryEntity.Id,
+            ParentCategoryId: categoryEntity.ParentCategoryId,
+            Name: categoryEntity.Name,
+            Description: categoryEntity.Description,
+            ImageUrl: categoryEntity.ImageUrl,
+            DisplayOrder: categoryEntity.DisplayOrder,
             ParentCategory: null,
             Products: null));
 
-        return Ok(res);
+        return Ok(categoryDtos);
     }
 
     [HttpGet("{id:guid}/children")]
@@ -45,43 +45,43 @@ public class CategoryController : ControllerBase, ICategoryController
         if (!await categoryRepository.ExistsAsync(id))
             return NotFound();
 
-        var categories = await categoryRepository.GetChildrenByParentCategoryId(id);
+        var categoryEntities = await categoryRepository.GetChildrenByParentCategoryId(id);
 
-        if (categories.Count == 0)
+        if (categoryEntities.Count == 0)
             return NotFound();
 
-        var res = categories.Select(category => new CategoryReadDto(
-            Id: category.Id,
-            ParentCategoryId: category.ParentCategoryId,
-            Name: category.Name,
-            Description: category.Description,
-            ImageUrl: category.ImageUrl,
-            DisplayOrder: category.DisplayOrder,
+        var categoryDtos = categoryEntities.Select(categoryEntity => new CategoryReadDto(
+            Id: categoryEntity.Id,
+            ParentCategoryId: categoryEntity.ParentCategoryId,
+            Name: categoryEntity.Name,
+            Description: categoryEntity.Description,
+            ImageUrl: categoryEntity.ImageUrl,
+            DisplayOrder: categoryEntity.DisplayOrder,
             ParentCategory: null,
             Products: null));
 
-        return Ok(res);
+        return Ok(categoryDtos);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] [NonZeroGuid] Guid id)
     {
-        var category = await categoryRepository.GetByIdAsync(id);
+        var categoryEntity = await categoryRepository.GetByIdAsync(id);
 
-        if (category == null)
+        if (categoryEntity == null)
             return NotFound();
 
-        var res = new CategoryReadDto(
-            Id: category.Id,
-            ParentCategoryId: category.ParentCategoryId,
-            Name: category.Name,
-            Description: category.Description,
-            ImageUrl: category.ImageUrl,
-            DisplayOrder: category.DisplayOrder,
+        var categoryDto = new CategoryReadDto(
+            Id: categoryEntity.Id,
+            ParentCategoryId: categoryEntity.ParentCategoryId,
+            Name: categoryEntity.Name,
+            Description: categoryEntity.Description,
+            ImageUrl: categoryEntity.ImageUrl,
+            DisplayOrder: categoryEntity.DisplayOrder,
             ParentCategory: null,
             Products: null);
 
-        return Ok(res);
+        return Ok(categoryDto);
     }
 
     [HttpPost]
@@ -101,9 +101,9 @@ public class CategoryController : ControllerBase, ICategoryController
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await categoryRepository.AddAsync(categoryEntity);
+        var isAdded = await categoryRepository.AddAsync(categoryEntity);
 
-        return Ok(res);
+        return Ok(isAdded);
     }
 
     [HttpPut("{id:guid}")]
@@ -112,12 +112,12 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
             return NotFound();
 
-        var category = await categoryRepository.GetByIdAsync(id);
+        var categoryEntity = await categoryRepository.GetByIdAsync(id);
 
-        if (category == null)
+        if (categoryEntity == null)
             return NotFound();
 
-        var validationResult = category.Update(
+        var validationResult = categoryEntity.Update(
             parentCategoryId: categoryDto.ParentCategoryId,
             name: categoryDto.Name,
             description: categoryDto.Description,
@@ -127,9 +127,9 @@ public class CategoryController : ControllerBase, ICategoryController
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var res = await categoryRepository.UpdateAsync(category);
+        var isUpdated = await categoryRepository.UpdateAsync(categoryEntity);
 
-        return Ok(res);
+        return Ok(isUpdated);
     }
 
     [HttpDelete("{id:guid}")]
@@ -138,8 +138,8 @@ public class CategoryController : ControllerBase, ICategoryController
         if (!await categoryRepository.ExistsAsync(id))
             return NotFound();
 
-        var res = await categoryRepository.RemoveByIdAsync(id);
+        var isDeleted = await categoryRepository.RemoveByIdAsync(id);
 
-        return Ok(res);
+        return Ok(isDeleted);
     }
 }
