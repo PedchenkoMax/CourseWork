@@ -23,6 +23,9 @@ public class BrandController : ControllerBase, IBrandController
     {
         var brands = await brandRepository.GetAllAsync();
 
+        if (brands.Count == 0)
+            return NotFound();
+
         var res = brands.Select(brand => new BrandReadDto(
             Id: brand.Id,
             Name: brand.Name,

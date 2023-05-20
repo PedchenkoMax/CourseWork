@@ -30,6 +30,9 @@ public class ProductController : ControllerBase, IProductController
     {
         var products = await productRepository.GetAllAsync();
 
+        if (products.Count == 0)
+            return NotFound();
+
         var res = products.Select(product => new ProductReadDto(
             Id: product.Id,
             BrandId: product.BrandId,
@@ -52,6 +55,9 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> GetProductById([FromRoute] [NonZeroGuid] Guid id)
     {
         var product = await productRepository.GetByIdAsync(id);
+
+        if (product is null)
+            return NotFound();
 
         var res = new ProductReadDto(
             Id: product.Id,
@@ -156,6 +162,9 @@ public class ProductController : ControllerBase, IProductController
             return NotFound();
 
         var productImages = await productImageRepository.GetAllByProductIdAsync(productId);
+
+        if (productImages.Count == 0)
+            return NotFound();
 
         var res = productImages.Select(productImage => new ProductImageReadDto(
             Id: productImage.Id,

@@ -23,6 +23,9 @@ public class CategoryController : ControllerBase, ICategoryController
     {
         var categories = await categoryRepository.GetAllAsync();
 
+        if (categories.Count == 0)
+            return NotFound();
+
         var res = categories.Select(category => new CategoryReadDto(
             Id: category.Id,
             ParentCategoryId: category.ParentCategoryId,
@@ -43,6 +46,9 @@ public class CategoryController : ControllerBase, ICategoryController
             return NotFound();
 
         var categories = await categoryRepository.GetChildrenByParentCategoryId(id);
+
+        if (categories.Count == 0)
+            return NotFound();
 
         var res = categories.Select(category => new CategoryReadDto(
             Id: category.Id,
