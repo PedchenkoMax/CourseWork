@@ -16,4 +16,9 @@
         <ProjectReference Include="..\Catalog.Infrastructure\Catalog.Infrastructure.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>    
+
 </Project>

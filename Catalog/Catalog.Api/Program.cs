@@ -16,7 +16,11 @@ var services = builder.Services;
     services.AddControllers();
     services.AddEndpointsApiExplorer();
 
-    services.AddSwaggerGen();
+    services.AddSwaggerGen(options =>
+    {
+        var filePath = Path.Combine(AppContext.BaseDirectory, "Catalog.Api.xml");
+        options.IncludeXmlComments(filePath);
+    });
 }
 
 
