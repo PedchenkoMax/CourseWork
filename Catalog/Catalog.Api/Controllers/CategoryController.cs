@@ -103,7 +103,7 @@ public class CategoryController : ControllerBase, ICategoryController
 
         var isAdded = await categoryRepository.AddAsync(categoryEntity);
 
-        return Ok(isAdded);
+        return isAdded ? Ok() : Conflict();
     }
 
     [HttpPut("{id:guid}")]
@@ -129,7 +129,7 @@ public class CategoryController : ControllerBase, ICategoryController
 
         var isUpdated = await categoryRepository.UpdateAsync(categoryEntity);
 
-        return Ok(isUpdated);
+        return isUpdated ? Ok() : Conflict();
     }
 
     [HttpDelete("{id:guid}")]
@@ -140,6 +140,6 @@ public class CategoryController : ControllerBase, ICategoryController
 
         var isDeleted = await categoryRepository.RemoveByIdAsync(id);
 
-        return Ok(isDeleted);
+        return isDeleted ? Ok() : Conflict();
     }
 }

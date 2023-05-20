@@ -56,7 +56,7 @@ public class ProductController : ControllerBase, IProductController
     {
         var productEntity = await productRepository.GetByIdAsync(id);
 
-        if (productEntity is null)
+        if (productEntity == null)
             return NotFound();
 
         var productDto = new ProductReadDto(
@@ -103,7 +103,7 @@ public class ProductController : ControllerBase, IProductController
 
         var isAdded = await productRepository.AddAsync(productEntity);
 
-        return Ok(isAdded);
+        return isAdded ? Ok() : Conflict();
     }
 
     [HttpPut("{id:guid}")]
@@ -136,7 +136,7 @@ public class ProductController : ControllerBase, IProductController
 
         var isUpdated = await productRepository.UpdateAsync(productEntity);
 
-        return Ok(isUpdated);
+        return isUpdated ? Ok() : Conflict();
     }
 
     [HttpDelete("{id:guid}")]
@@ -152,7 +152,7 @@ public class ProductController : ControllerBase, IProductController
 
         var isDeleted = await productRepository.RemoveByIdAsync(id);
 
-        return Ok(isDeleted);
+        return isDeleted ? Ok() : Conflict();
     }
 
     [HttpGet("{productId:guid}/images")]
@@ -193,7 +193,7 @@ public class ProductController : ControllerBase, IProductController
 
         var isAdded = await productImageRepository.AddAsync(productImageEntity);
 
-        return Ok(isAdded);
+        return isAdded ? Ok() : Conflict();
     }
 
     [HttpPut("images/{id:guid}")]
@@ -211,7 +211,7 @@ public class ProductController : ControllerBase, IProductController
 
         var isUpdated = await productImageRepository.UpdateAsync(productImageEntity);
 
-        return Ok(isUpdated);
+        return isUpdated ? Ok() : Conflict();
     }
 
     [HttpDelete("images/{id:guid}")]
@@ -222,6 +222,6 @@ public class ProductController : ControllerBase, IProductController
 
         var isDeleted = await productImageRepository.RemoveByIdAsync(id);
 
-        return Ok(isDeleted);
+        return isDeleted ? Ok() : Conflict();
     }
 }

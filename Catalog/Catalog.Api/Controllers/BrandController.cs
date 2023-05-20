@@ -71,7 +71,7 @@ public class BrandController : ControllerBase, IBrandController
 
         var isAdded = await brandRepository.AddAsync(brandEntity);
 
-        return Ok(isAdded);
+        return isAdded ? Ok() : Conflict();
     }
 
     [HttpPut("{id:guid}")]
@@ -93,7 +93,7 @@ public class BrandController : ControllerBase, IBrandController
 
         var isUpdated = await brandRepository.UpdateAsync(brandEntity);
 
-        return Ok(isUpdated);
+        return isUpdated ? Ok() : Conflict();
     }
 
     [HttpDelete("{id:guid}")]
@@ -104,6 +104,6 @@ public class BrandController : ControllerBase, IBrandController
 
         var isDeleted = await brandRepository.RemoveByIdAsync(id);
 
-        return Ok(isDeleted);
+        return isDeleted ? Ok() : Conflict();
     }
 }
