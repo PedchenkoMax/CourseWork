@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers;
 
+/// <summary>
+/// Controller responsible for Category entity.
+/// </summary>
 [ApiController]
 [Route("api/categories")]
 public class CategoryController : ControllerBase, ICategoryController

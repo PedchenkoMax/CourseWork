@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers;
 
+/// <summary>
+/// Controller responsible for Product and ProductImage Entities.
+/// </summary>
 [ApiController]
 [Route("api/products")]
 public class ProductController : ControllerBase, IProductController

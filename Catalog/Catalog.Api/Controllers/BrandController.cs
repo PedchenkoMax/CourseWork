@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers;
 
+/// <summary>
+/// Controller responsible for Brand entity.
+/// </summary>
 [ApiController]
 [Route("api/brands")]
 public class BrandController : ControllerBase, IBrandController
