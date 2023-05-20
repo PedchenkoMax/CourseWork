@@ -13,6 +13,9 @@ var services = builder.Services;
     services.AddTransient<IBrandRepository, BrandRepository>();
     services.AddTransient<ICategoryRepository, CategoryRepository>();
     
+    var migrationRunner = new MigrationRunner();
+    migrationRunner.RunMigrations(configuration["ConnectionString"]!, true);
+    
     services.AddControllers();
     services.AddEndpointsApiExplorer();
 
