@@ -21,9 +21,9 @@ public class ProductImageRepository : IProductImageRepository
             SELECT * FROM product_images WHERE product_id = @Id
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<List<ProductImageEntity>>(sql, new { Id = id });
+        var res = await connection.QueryAsync<ProductImageEntity>(sql, new { Id = id });
 
-        return res;
+        return res.ToList();
     }
 
     public async Task<ProductImageEntity?> GetByIdAsync(Guid id)
