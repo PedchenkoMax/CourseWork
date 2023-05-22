@@ -1,7 +1,7 @@
 using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.Mappers;
 using Catalog.Api.ValidationAttributes;
-using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,15 +36,7 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryEntities.Count == 0)
             return NotFound();
 
-        var categoryDtos = categoryEntities.Select(categoryEntity => new CategoryReadDto(
-            Id: categoryEntity.Id,
-            ParentCategoryId: categoryEntity.ParentCategoryId,
-            Name: categoryEntity.Name,
-            Description: categoryEntity.Description,
-            ImageUrl: categoryEntity.ImageUrl,
-            DisplayOrder: categoryEntity.DisplayOrder,
-            ParentCategory: null,
-            Products: null));
+        var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
 
         return Ok(categoryDtos);
     }
@@ -68,15 +60,7 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryEntities.Count == 0)
             return NotFound();
 
-        var categoryDtos = categoryEntities.Select(categoryEntity => new CategoryReadDto(
-            Id: categoryEntity.Id,
-            ParentCategoryId: categoryEntity.ParentCategoryId,
-            Name: categoryEntity.Name,
-            Description: categoryEntity.Description,
-            ImageUrl: categoryEntity.ImageUrl,
-            DisplayOrder: categoryEntity.DisplayOrder,
-            ParentCategory: null,
-            Products: null));
+        var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
 
         return Ok(categoryDtos);
     }
@@ -97,15 +81,7 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryEntity == null)
             return NotFound();
 
-        var categoryDto = new CategoryReadDto(
-            Id: categoryEntity.Id,
-            ParentCategoryId: categoryEntity.ParentCategoryId,
-            Name: categoryEntity.Name,
-            Description: categoryEntity.Description,
-            ImageUrl: categoryEntity.ImageUrl,
-            DisplayOrder: categoryEntity.DisplayOrder,
-            ParentCategory: null,
-            Products: null);
+        var categoryDto = CategoryMapper.MapToReadDto(categoryEntity);
 
         return Ok(categoryDto);
     }
@@ -128,13 +104,7 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
             return NotFound();
 
-        var validationResult = CategoryEntity.TryCreate(
-            parentCategoryId: categoryDto.ParentCategoryId,
-            name: categoryDto.Name,
-            description: categoryDto.Description,
-            imageUrl: categoryDto.ImageUrl,
-            displayOrder: categoryDto.DisplayOrder,
-            out var categoryEntity);
+        var validationResult = CategoryMapper.TryCreateEntity(categoryDto, out var categoryEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -168,12 +138,7 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryEntity == null)
             return NotFound();
 
-        var validationResult = categoryEntity.Update(
-            parentCategoryId: categoryDto.ParentCategoryId,
-            name: categoryDto.Name,
-            description: categoryDto.Description,
-            imageUrl: categoryDto.ImageUrl,
-            displayOrder: categoryDto.DisplayOrder);
+        var validationResult = CategoryMapper.TryUpdateEntity(categoryDto, categoryEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

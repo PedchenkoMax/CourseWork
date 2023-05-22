@@ -1,7 +1,7 @@
 using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.Mappers;
 using Catalog.Api.ValidationAttributes;
-using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,13 +36,7 @@ public class BrandController : ControllerBase, IBrandController
         if (brandEntities.Count == 0)
             return NotFound();
 
-        var brandDtos = brandEntities.Select(brandEntity => new BrandReadDto(
-            Id: brandEntity.Id,
-            Name: brandEntity.Name,
-            Description: brandEntity.Description,
-            ImageUrl: brandEntity.ImageUrl,
-            DisplayOrder: brandEntity.DisplayOrder,
-            Products: null));
+        var brandDtos = brandEntities.Select(brandEntity => BrandMapper.MapToReadDto(brandEntity));
 
         return Ok(brandDtos);
     }
@@ -63,13 +57,7 @@ public class BrandController : ControllerBase, IBrandController
         if (brandEntity == null)
             return NotFound();
 
-        var brandDto = new BrandReadDto(
-            Id: brandEntity.Id,
-            Name: brandEntity.Name,
-            Description: brandEntity.Description,
-            ImageUrl: brandEntity.ImageUrl,
-            DisplayOrder: brandEntity.DisplayOrder,
-            Products: null);
+        var brandDto = BrandMapper.MapToReadDto(brandEntity);
 
         return Ok(brandDto);
     }
@@ -87,12 +75,7 @@ public class BrandController : ControllerBase, IBrandController
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> AddBrand([FromBody] BrandWriteDto brandDto)
     {
-        var validationResult = BrandEntity.TryCreate(
-            name: brandDto.Name,
-            description: brandDto.Description,
-            imageUrl: brandDto.ImageUrl,
-            displayOrder: brandDto.DisplayOrder,
-            out var brandEntity);
+        var validationResult = BrandMapper.TryCreateEntity(brandDto, out var brandEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -123,11 +106,7 @@ public class BrandController : ControllerBase, IBrandController
         if (brandEntity == null)
             return NotFound();
 
-        var validationResult = brandEntity.Update(
-            name: brandDto.Name,
-            description: brandDto.Description,
-            imageUrl: brandDto.ImageUrl,
-            displayOrder: brandDto.DisplayOrder);
+        var validationResult = BrandMapper.TryUpdateEntity(brandDto, brandEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
