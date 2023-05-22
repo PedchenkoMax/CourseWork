@@ -41,7 +41,7 @@ public static class ProductMapper
         return validationResult;
     }
 
-    public static ValidationResult TryUpdateEntity(ProductEntity entity, ProductWriteDto writeDto)
+    public static ValidationResult TryUpdateEntity(ProductWriteDto writeDto, ProductEntity entity)
     {
         var validationResult = entity.Update(
             brandId: writeDto.BrandId,

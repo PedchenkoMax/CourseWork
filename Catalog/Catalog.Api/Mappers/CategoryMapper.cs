@@ -32,7 +32,7 @@ public static class CategoryMapper
         return validationResult;
     }
 
-    public static ValidationResult TryUpdateEntity(CategoryEntity entity, CategoryWriteDto writeDto)
+    public static ValidationResult TryUpdateEntity(CategoryWriteDto writeDto, CategoryEntity entity)
     {
         var validationResult = entity.Update(
             parentCategoryId: writeDto.ParentCategoryId,

@@ -138,7 +138,7 @@ public class CategoryController : ControllerBase, ICategoryController
         if (categoryEntity == null)
             return NotFound();
 
-        var validationResult = CategoryMapper.TryUpdateEntity(categoryEntity, categoryDto);
+        var validationResult = CategoryMapper.TryUpdateEntity(categoryDto, categoryEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

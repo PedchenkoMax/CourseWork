@@ -106,7 +106,7 @@ public class BrandController : ControllerBase, IBrandController
         if (brandEntity == null)
             return NotFound();
 
-        var validationResult = BrandMapper.TryUpdateEntity(brandEntity, brandDto);
+        var validationResult = BrandMapper.TryUpdateEntity(brandDto, brandEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

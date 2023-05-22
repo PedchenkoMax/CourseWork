@@ -127,7 +127,7 @@ public class ProductController : ControllerBase, IProductController
         if (productEntity == null)
             return NotFound();
 
-        var validationResult = ProductMapper.TryUpdateEntity(productEntity, productDto);
+        var validationResult = ProductMapper.TryUpdateEntity(productDto, productEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -238,7 +238,7 @@ public class ProductController : ControllerBase, IProductController
         if (productImageEntity == null)
             return NotFound();
 
-        var validationResult = ProductImageMapper.TryUpdateEntity(productImageEntity, productImageDto);
+        var validationResult = ProductImageMapper.TryUpdateEntity(productImageDto, productImageEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

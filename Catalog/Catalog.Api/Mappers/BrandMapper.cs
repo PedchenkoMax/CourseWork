@@ -29,7 +29,7 @@ public static class BrandMapper
         return validationResult;
     }
 
-    public static ValidationResult TryUpdateEntity(BrandEntity entity, BrandWriteDto writeDto)
+    public static ValidationResult TryUpdateEntity(BrandWriteDto writeDto, BrandEntity entity)
     {
         var validationResult = entity.Update(
             name: writeDto.Name,

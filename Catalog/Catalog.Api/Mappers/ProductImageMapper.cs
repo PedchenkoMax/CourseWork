@@ -27,7 +27,7 @@ public static class ProductImageMapper
         return validationResult;
     }
 
-    public static ValidationResult TryUpdateEntity(ProductImageEntity entity, ProductImageWriteDto writeDto)
+    public static ValidationResult TryUpdateEntity(ProductImageWriteDto writeDto, ProductImageEntity entity)
     {
         var validationResult = entity.Update(displayOrder: writeDto.DisplayOrder);
 
