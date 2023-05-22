@@ -1,7 +1,7 @@
 using Catalog.Api.Controllers.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.Mappers;
 using Catalog.Api.ValidationAttributes;
-using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -43,20 +43,7 @@ public class ProductController : ControllerBase, IProductController
         if (productEntities.Count == 0)
             return NotFound();
 
-        var productDtos = productEntities.Select(productEntity => new ProductReadDto(
-            Id: productEntity.Id,
-            BrandId: productEntity.BrandId,
-            CategoryId: productEntity.CategoryId,
-            Name: productEntity.Name,
-            Description: productEntity.Description,
-            Price: productEntity.Price,
-            Discount: productEntity.Discount,
-            SKU: productEntity.SKU,
-            Stock: productEntity.Stock,
-            Availability: productEntity.Availability,
-            Brand: null,
-            Category: null,
-            Images: null));
+        var productDtos = productEntities.Select(productEntity => ProductMapper.MapToReadDto(productEntity));
 
         return Ok(productDtos);
     }
@@ -77,20 +64,7 @@ public class ProductController : ControllerBase, IProductController
         if (productEntity == null)
             return NotFound();
 
-        var productDto = new ProductReadDto(
-            Id: productEntity.Id,
-            BrandId: productEntity.BrandId,
-            CategoryId: productEntity.CategoryId,
-            Name: productEntity.Name,
-            Description: productEntity.Description,
-            Price: productEntity.Price,
-            Discount: productEntity.Discount,
-            SKU: productEntity.SKU,
-            Stock: productEntity.Stock,
-            Availability: productEntity.Availability,
-            Brand: null,
-            Category: null,
-            Images: null);
+        var productDto = ProductMapper.MapToReadDto(productEntity);
 
         return Ok(productDto);
     }
@@ -116,17 +90,7 @@ public class ProductController : ControllerBase, IProductController
         if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
             return NotFound();
 
-        var validationResult = ProductEntity.TryCreate(
-            brandId: productDto.BrandId,
-            categoryId: productDto.CategoryId,
-            name: productDto.Name,
-            description: productDto.Description,
-            price: productDto.Price,
-            discount: productDto.Discount,
-            sku: productDto.SKU,
-            stock: productDto.Stock,
-            availability: productDto.Availability,
-            out var productEntity);
+        var validationResult = ProductMapper.TryCreateEntity(productDto, out var productEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -163,16 +127,7 @@ public class ProductController : ControllerBase, IProductController
         if (productEntity == null)
             return NotFound();
 
-        var validationResult = productEntity.Update(
-            brandId: productDto.BrandId,
-            categoryId: productDto.CategoryId,
-            name: productDto.Name,
-            description: productDto.Description,
-            price: productDto.Price,
-            discount: productDto.Discount,
-            sku: productDto.SKU,
-            stock: productDto.Stock,
-            availability: productDto.Availability);
+        var validationResult = ProductMapper.TryUpdateEntity(productEntity, productDto);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -227,12 +182,7 @@ public class ProductController : ControllerBase, IProductController
         if (productImageEntities.Count == 0)
             return NotFound();
 
-        var productImageDtos = productImageEntities.Select(productImageEntity => new ProductImageReadDto(
-            Id: productImageEntity.Id,
-            ProductId: productImageEntity.ProductId,
-            ImageUrl: productImageEntity.ImageUrl,
-            DisplayOrder: productImageEntity.DisplayOrder,
-            Product: null));
+        var productImageDtos = productImageEntities.Select(productImageEntity => ProductImageMapper.MapToReadDto(productImageEntity));
 
         return Ok(productImageDtos);
     }
@@ -256,11 +206,7 @@ public class ProductController : ControllerBase, IProductController
         if (!await productRepository.ExistsAsync(productId))
             return NotFound();
 
-        var validationResult = ProductImageEntity.TryCreate(
-            productId: productId,
-            imageUrl: productImageDto.ImageUrl,
-            displayOrder: productImageDto.DisplayOrder,
-            out var productImageEntity);
+        var validationResult = ProductImageMapper.TryCreateEntity(productImageDto, out var productImageEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -292,7 +238,7 @@ public class ProductController : ControllerBase, IProductController
         if (productImageEntity == null)
             return NotFound();
 
-        var validationResult = productImageEntity.Update(displayOrder: productImageDto.DisplayOrder);
+        var validationResult = ProductImageMapper.TryUpdateEntity(productImageEntity, productImageDto);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
