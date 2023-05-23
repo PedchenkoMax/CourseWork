@@ -12,7 +12,7 @@ namespace Catalog.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/categories")]
-public class CategoryController : ControllerBase, ICategoryController
+public class CategoryController : ApiControllerBase<CategoryController>, ICategoryController
 {
     private readonly ICategoryRepository categoryRepository;
 
@@ -48,7 +48,7 @@ public class CategoryController : ControllerBase, ICategoryController
     public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await categoryRepository.ExistsAsync(id))
-            return NotFound();
+            return NotFound(nameof(id));
 
         var categoryEntities = await categoryRepository.GetChildrenByParentCategoryId(id);
 
@@ -71,7 +71,7 @@ public class CategoryController : ControllerBase, ICategoryController
         var categoryEntity = await categoryRepository.GetByIdAsync(id);
 
         if (categoryEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var categoryDto = CategoryMapper.MapToReadDto(categoryEntity);
 
@@ -94,7 +94,7 @@ public class CategoryController : ControllerBase, ICategoryController
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto categoryDto)
     {
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
-            return NotFound();
+            return NotFound(nameof(categoryDto.ParentCategoryId));
 
         var validationResult = CategoryMapper.TryCreateEntity(categoryDto, out var categoryEntity);
 
@@ -123,12 +123,12 @@ public class CategoryController : ControllerBase, ICategoryController
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid id, [FromBody] CategoryWriteDto categoryDto)
     {
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
-            return NotFound();
+            return NotFound(nameof(categoryDto.ParentCategoryId));
 
         var categoryEntity = await categoryRepository.GetByIdAsync(id);
 
         if (categoryEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var validationResult = CategoryMapper.TryUpdateEntity(categoryDto, categoryEntity);
 
@@ -154,7 +154,7 @@ public class CategoryController : ControllerBase, ICategoryController
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await categoryRepository.ExistsAsync(id))
-            return NotFound();
+            return NotFound(nameof(id));
 
         var isDeleted = await categoryRepository.RemoveByIdAsync(id);
 

@@ -12,7 +12,7 @@ namespace Catalog.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/products")]
-public class ProductController : ControllerBase, IProductController
+public class ProductController : ApiControllerBase<ProductController>, IProductController
 {
     private readonly IProductRepository productRepository;
     private readonly IProductImageRepository productImageRepository;
@@ -57,7 +57,7 @@ public class ProductController : ControllerBase, IProductController
         var productEntity = await productRepository.GetByIdAsync(id);
 
         if (productEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var productDto = ProductMapper.MapToReadDto(productEntity);
 
@@ -80,10 +80,10 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto productDto)
     {
         if (productDto.BrandId != null && !await brandRepository.ExistsAsync(productDto.BrandId.Value))
-            return NotFound();
+            return NotFound(nameof(productDto.BrandId));
 
         if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
-            return NotFound();
+            return NotFound(nameof(productDto.CategoryId));
 
         var validationResult = ProductMapper.TryCreateEntity(productDto, out var productEntity);
 
@@ -112,15 +112,15 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductWriteDto productDto)
     {
         if (productDto.BrandId != null && !await brandRepository.ExistsAsync(productDto.BrandId.Value))
-            return NotFound();
+            return NotFound(nameof(productDto.BrandId));
 
         if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
-            return NotFound();
+            return NotFound(nameof(productDto.CategoryId));
 
         var productEntity = await productRepository.GetByIdAsync(id);
 
         if (productEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var validationResult = ProductMapper.TryUpdateEntity(productDto, productEntity);
 
@@ -146,12 +146,12 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await productRepository.ExistsAsync(id))
-            return NotFound();
+            return NotFound(nameof(id));
 
         var productEntity = await productRepository.GetByIdAsync(id);
 
         if (productEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var isDeleted = await productRepository.RemoveByIdAsync(id);
 
@@ -170,7 +170,7 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> GetAllProductImagesByProductId([FromRoute] [NonZeroGuid] Guid productId)
     {
         if (!await productRepository.ExistsAsync(productId))
-            return NotFound();
+            return NotFound(nameof(productId));
 
         var productImageEntities = await productImageRepository.GetAllByProductIdAsync(productId);
 
@@ -196,7 +196,7 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductImageWriteDto productImageDto)
     {
         if (!await productRepository.ExistsAsync(productId))
-            return NotFound();
+            return NotFound(nameof(productId));
 
         var validationResult = ProductImageMapper.TryCreateEntity(productImageDto, out var productImageEntity);
 
@@ -228,7 +228,7 @@ public class ProductController : ControllerBase, IProductController
         var productImageEntity = await productImageRepository.GetByIdAsync(id);
 
         if (productImageEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var validationResult = ProductImageMapper.TryUpdateEntity(productImageDto, productImageEntity);
 
@@ -254,7 +254,7 @@ public class ProductController : ControllerBase, IProductController
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await productImageRepository.ExistsAsync(id))
-            return NotFound();
+            return NotFound(nameof(id));
 
         var isDeleted = await productImageRepository.RemoveByIdAsync(id);
 

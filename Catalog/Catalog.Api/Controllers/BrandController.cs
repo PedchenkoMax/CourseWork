@@ -12,7 +12,7 @@ namespace Catalog.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/brands")]
-public class BrandController : ControllerBase, IBrandController
+public class BrandController : ApiControllerBase<BrandController>, IBrandController
 {
     private readonly IBrandRepository brandRepository;
 
@@ -50,7 +50,7 @@ public class BrandController : ControllerBase, IBrandController
         var brandEntity = await brandRepository.GetByIdAsync(id);
 
         if (brandEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var brandDto = BrandMapper.MapToReadDto(brandEntity);
 
@@ -99,7 +99,7 @@ public class BrandController : ControllerBase, IBrandController
         var brandEntity = await brandRepository.GetByIdAsync(id);
 
         if (brandEntity == null)
-            return NotFound();
+            return NotFound(nameof(id));
 
         var validationResult = BrandMapper.TryUpdateEntity(brandDto, brandEntity);
 
@@ -125,7 +125,7 @@ public class BrandController : ControllerBase, IBrandController
     public async Task<IActionResult> DeleteBrand([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await brandRepository.ExistsAsync(id))
-            return NotFound();
+            return NotFound(nameof(id));
 
         var isDeleted = await brandRepository.RemoveByIdAsync(id);
 
