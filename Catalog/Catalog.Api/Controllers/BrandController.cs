@@ -25,16 +25,11 @@ public class BrandController : ControllerBase, IBrandController
     /// Gets all brands.
     /// </summary>
     /// <response code="200">Returns the list of brands.</response>
-    /// <response code="404">If the brands list is empty.</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllBrands()
     {
         var brandEntities = await brandRepository.GetAllAsync();
-
-        if (brandEntities.Count == 0)
-            return NotFound();
 
         var brandDtos = brandEntities.Select(brandEntity => BrandMapper.MapToReadDto(brandEntity));
 

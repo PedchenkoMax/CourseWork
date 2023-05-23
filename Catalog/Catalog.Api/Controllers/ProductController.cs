@@ -32,16 +32,11 @@ public class ProductController : ControllerBase, IProductController
     /// Gets all products.
     /// </summary>
     /// <response code="200">Returns the list of products.</response>
-    /// <response code="404">If the products list is empty.</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllProducts()
     {
         var productEntities = await productRepository.GetAllAsync();
-
-        if (productEntities.Count == 0)
-            return NotFound();
 
         var productDtos = productEntities.Select(productEntity => ProductMapper.MapToReadDto(productEntity));
 
@@ -168,7 +163,7 @@ public class ProductController : ControllerBase, IProductController
     /// </summary>
     /// <param name="productId">The id of the product.</param>
     /// <response code="200">Returns the list of product images.</response>
-    /// <response code="404">If the product or product images are not found.</response>
+    /// <response code="404">If the product is not found.</response>
     [HttpGet("{productId:guid}/images")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -178,9 +173,6 @@ public class ProductController : ControllerBase, IProductController
             return NotFound();
 
         var productImageEntities = await productImageRepository.GetAllByProductIdAsync(productId);
-
-        if (productImageEntities.Count == 0)
-            return NotFound();
 
         var productImageDtos = productImageEntities.Select(productImageEntity => ProductImageMapper.MapToReadDto(productImageEntity));
 

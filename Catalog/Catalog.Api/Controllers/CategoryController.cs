@@ -25,16 +25,11 @@ public class CategoryController : ControllerBase, ICategoryController
     /// Gets all categories.
     /// </summary>
     /// <response code="200">Returns the list of categories.</response>
-    /// <response code="404">If the categories list is empty.</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetAllCategories()
     {
         var categoryEntities = await categoryRepository.GetAllAsync();
-
-        if (categoryEntities.Count == 0)
-            return NotFound();
 
         var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
 
@@ -46,7 +41,7 @@ public class CategoryController : ControllerBase, ICategoryController
     /// </summary>
     /// <param name="id">The id of the parent category.</param>
     /// <response code="200">Returns the list of child categories.</response>
-    /// <response code="404">If the parent category is not found or there are no child categories.</response>
+    /// <response code="404">If the parent category is not found.</response>
     [HttpGet("{id:guid}/children")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -56,9 +51,6 @@ public class CategoryController : ControllerBase, ICategoryController
             return NotFound();
 
         var categoryEntities = await categoryRepository.GetChildrenByParentCategoryId(id);
-
-        if (categoryEntities.Count == 0)
-            return NotFound();
 
         var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
 
