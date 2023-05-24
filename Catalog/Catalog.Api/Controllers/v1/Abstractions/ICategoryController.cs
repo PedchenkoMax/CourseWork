@@ -1,7 +1,7 @@
 ﻿using Catalog.Api.DTO;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Catalog.Api.Controllers.Abstractions;
+namespace Catalog.Api.Controllers.v1.Abstractions;
 
 public interface ICategoryController
 {
