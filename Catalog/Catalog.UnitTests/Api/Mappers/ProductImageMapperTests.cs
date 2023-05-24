@@ -39,8 +39,7 @@ public class ProductImageMapperTests
         (
             ProductId: Guid.NewGuid(),
             ImageUrl: "",
-            DisplayOrder: 1,
-            Product: null
+            DisplayOrder: 1
         );
 
         // Act
@@ -64,8 +63,7 @@ public class ProductImageMapperTests
         (
             ProductId: entity.ProductId,
             ImageUrl: "",
-            DisplayOrder: 2,
-            Product: null
+            DisplayOrder: 2
         );
 
         // Act

@@ -12,5 +12,4 @@ public record ProductImageReadDto(
 public record ProductImageWriteDto(
     [NonZeroGuid] Guid ProductId,
     string ImageUrl,
-    int DisplayOrder,
-    ProductReadDto? Product);
+    int DisplayOrder);
