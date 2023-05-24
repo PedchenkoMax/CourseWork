@@ -1,17 +1,18 @@
-using Catalog.Api.Controllers.Abstractions;
+using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Catalog.Api.Controllers;
+namespace Catalog.Api.Controllers.v1;
 
 /// <summary>
 /// Controller responsible for Category entity.
 /// </summary>
 [ApiController]
-[Route("api/categories")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/categories")]
 public class CategoryController : ApiControllerBase<CategoryController>, ICategoryController
 {
     private readonly ICategoryRepository categoryRepository;

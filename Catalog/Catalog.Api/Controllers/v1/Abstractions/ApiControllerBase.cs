@@ -2,7 +2,7 @@
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Catalog.Api.Controllers.Abstractions;
+namespace Catalog.Api.Controllers.v1.Abstractions;
 
 public class ApiControllerBase<TController> : ControllerBase where TController : ControllerBase
 {
