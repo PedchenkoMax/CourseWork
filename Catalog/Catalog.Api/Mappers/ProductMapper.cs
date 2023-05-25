@@ -19,9 +19,9 @@ public static class ProductMapper
             SKU: entity.SKU,
             Stock: entity.Stock,
             Availability: entity.Availability,
-            Brand: null,
-            Category: null,
-            Images: null);
+            Brand: entity.Brand != null ? BrandMapper.MapToReadDto(entity.Brand) : null,
+            Category: entity.Category != null ? CategoryMapper.MapToReadDto(entity.Category) : null,
+            Images: entity.Images?.Select(imageEntity => ProductImageMapper.MapToReadDto(imageEntity)).ToList());
     }
 
     public static ValidationResult TryCreateEntity(ProductWriteDto writeDto, out ProductEntity entity)
