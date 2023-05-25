@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -27,6 +27,15 @@ public class ApiControllerBase<TController> : ControllerBase where TController :
             { { fieldName, new[] { "The requested resource was not found." } } };
 
         return NotFound(problemDetails);
+    }
+
+    protected new OkObjectResult Ok(object data)
+    {
+        var problemDetails = CreateProblemDetails(StatusCodes.Status200OK);
+
+        problemDetails.Extensions["data"] = data;
+
+        return base.Ok(problemDetails);
     }
 
     private ProblemDetails CreateProblemDetails(int status)
