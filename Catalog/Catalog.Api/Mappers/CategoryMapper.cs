@@ -14,9 +14,7 @@ public static class CategoryMapper
             Name: entity.Name,
             Description: entity.Description,
             ImageUrl: entity.ImageUrl,
-            DisplayOrder: entity.DisplayOrder,
-            ParentCategory: null,
-            Products: null);
+            DisplayOrder: entity.DisplayOrder);
     }
 
     public static ValidationResult TryCreateEntity(CategoryWriteDto writeDto, out CategoryEntity entity)

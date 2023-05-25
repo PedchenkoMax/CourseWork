@@ -5,8 +5,7 @@ public record BrandReadDto(
     string Name,
     string Description,
     string ImageUrl,
-    int DisplayOrder,
-    List<ProductReadDto>? Products);
+    int DisplayOrder);
 
 public record BrandWriteDto(
     string Name,

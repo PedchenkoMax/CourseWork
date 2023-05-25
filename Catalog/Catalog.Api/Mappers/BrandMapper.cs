@@ -13,8 +13,7 @@ public static class BrandMapper
             Name: entity.Name,
             Description: entity.Description,
             ImageUrl: entity.ImageUrl,
-            DisplayOrder: entity.DisplayOrder,
-            Products: null);
+            DisplayOrder: entity.DisplayOrder);
     }
 
     public static ValidationResult TryCreateEntity(BrandWriteDto writeDto, out BrandEntity entity)

@@ -9,7 +9,6 @@ public class ProductImageEntity
     public Guid ProductId { get; private set; }
     public string ImageUrl { get; private set; }
     public int DisplayOrder { get; private set; }
-    public ProductEntity? Product { get; private set; }
 
     private ProductImageEntity()
     {

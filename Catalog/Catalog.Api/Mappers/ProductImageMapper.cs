@@ -12,8 +12,7 @@ public static class ProductImageMapper
             Id: entity.Id,
             ProductId: entity.ProductId,
             ImageUrl: entity.ImageUrl,
-            DisplayOrder: entity.DisplayOrder,
-            Product: entity.Product != null ? ProductMapper.MapToReadDto(entity.Product) : null);
+            DisplayOrder: entity.DisplayOrder);
     }
 
     public static ValidationResult TryCreateEntity(ProductImageWriteDto writeDto, out ProductImageEntity entity)

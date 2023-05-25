@@ -8,9 +8,7 @@ public record CategoryReadDto(
     string Name,
     string Description,
     string ImageUrl,
-    int DisplayOrder,
-    CategoryReadDto? ParentCategory,
-    List<ProductReadDto>? Products);
+    int DisplayOrder);
 
 public record CategoryWriteDto(
     [NonZeroNullableGuid] Guid? ParentCategoryId,
