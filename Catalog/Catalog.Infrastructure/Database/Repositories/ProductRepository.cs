@@ -1,6 +1,7 @@
 using System.Data;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
 
 namespace Catalog.Infrastructure.Database.Repositories;
@@ -16,13 +17,16 @@ public class ProductRepository : IProductRepository
 
     public async Task<List<ProductEntity>> GetAllAsync()
     {
-        const string sql =
-            """
+        var sql =
+            $"""
             SELECT p.*, b.*, c.*, i.*
-            FROM products p
-            LEFT JOIN brands b ON p.brand_id = b.Id
-            LEFT JOIN categories c ON p.category_id = c.Id
-            LEFT JOIN product_images i ON p.Id = i.product_id
+            FROM {ProductSchema.Table} AS p
+            LEFT JOIN {BrandSchema.Table} AS b
+                ON p.{ProductSchema.Columns.BrandId} = b.{BrandSchema.Columns.Id}
+            LEFT JOIN {CategorySchema.Table} AS c
+                ON p.{ProductSchema.Columns.CategoryId} = c.{CategorySchema.Columns.Id}
+            LEFT JOIN {ProductImageSchema.Table} AS i
+                ON p.{ProductSchema.Columns.Id} = i.{ProductImageSchema.Columns.ProductId}
             """;
 
         var productDictionary = new Dictionary<Guid, ProductEntity>();
@@ -39,27 +43,30 @@ public class ProductRepository : IProductRepository
 
                 productEntry.Brand = brand;
                 productEntry.Category = category;
-                
+
                 if (image != null)
                     productEntry.Images.Add(image);
 
                 return productEntry;
             },
-            splitOn: "Id,Id,Id");
+            splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
 
         return productDictionary.Values.ToList();
     }
 
     public async Task<ProductEntity?> GetByIdAsync(Guid id)
     {
-        const string sql =
-            """
+        var sql =
+            $"""
             SELECT p.*, b.*, c.*, i.*
-            FROM products p
-            LEFT JOIN brands b ON p.brand_id = b.Id
-            LEFT JOIN categories c ON p.category_id = c.Id
-            LEFT JOIN product_images i ON p.Id = i.product_id
-            WHERE p.id = @Id
+            FROM {ProductSchema.Table} AS p
+            LEFT JOIN {BrandSchema.Table} AS b
+                ON p.{ProductSchema.Columns.BrandId} = b.{BrandSchema.Columns.Id}
+            LEFT JOIN {CategorySchema.Table} AS c
+                ON p.{ProductSchema.Columns.CategoryId} = c.{CategorySchema.Columns.Id}
+            LEFT JOIN {ProductImageSchema.Table} AS i
+                ON p.{ProductSchema.Columns.Id} = i.{ProductImageSchema.Columns.ProductId}
+            WHERE p.{ProductSchema.Columns.Id} = @{nameof(id)}
             """;
 
         var productDictionary = new Dictionary<Guid, ProductEntity>();
@@ -76,33 +83,33 @@ public class ProductRepository : IProductRepository
 
                 productEntry.Brand = brand;
                 productEntry.Category = category;
-                
+
                 if (image != null)
                     productEntry.Images.Add(image);
 
                 return productEntry;
             },
             new { Id = id },
-            splitOn: "Id,Id,Id");
+            splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
 
         return productDictionary.Values.FirstOrDefault();
     }
 
     public async Task<bool> UpdateAsync(ProductEntity product)
     {
-        const string sql =
-            """
-            UPDATE products SET
-                brand_Id = @BrandId,
-                category_Id = @CategoryId,
-                name = @Name,
-                description = @Description,
-                price = @Price,
-                discount = @Discount,
-                sku = @SKU,
-                stock = @Stock,
-                availability = @Availability
-            WHERE id = @Id
+        var sql =
+            $"""
+            UPDATE {ProductSchema.Table} SET
+                {ProductSchema.Columns.BrandId} = @{nameof(product.BrandId)},
+                {ProductSchema.Columns.CategoryId} = @{nameof(product.CategoryId)},
+                {ProductSchema.Columns.Name} = @{nameof(product.Name)},
+                {ProductSchema.Columns.Description} = @{nameof(product.Description)},
+                {ProductSchema.Columns.Price} = @{nameof(product.Price)},
+                {ProductSchema.Columns.Discount} = @{nameof(product.Discount)},
+                {ProductSchema.Columns.SKU} = @{nameof(product.SKU)},
+                {ProductSchema.Columns.Stock} = @{nameof(product.Stock)},
+                {ProductSchema.Columns.Availability} = @{nameof(product.Availability)}
+            WHERE {ProductSchema.Columns.Id} = @{nameof(product.Id)}
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, product);
@@ -112,12 +119,10 @@ public class ProductRepository : IProductRepository
 
     public async Task<bool> RemoveByIdAsync(Guid id)
     {
-        // TODO: should i delete productImages in cascade?
-        // do it in sql query or db configs
-
-        const string sql =
-            """
-            DELETE FROM products WHERE id = @Id
+        var sql =
+            $"""
+            DELETE FROM {ProductSchema.Table}
+            WHERE {ProductSchema.Columns.Id} = @{nameof(id)}
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
@@ -127,22 +132,44 @@ public class ProductRepository : IProductRepository
 
     public async Task<bool> AddAsync(ProductEntity product)
     {
-        const string sql =
-            """
-            INSERT INTO products (id, brand_id, category_id, name, description, price, discount, sku, stock, availability)
-            VALUES (@Id, @BrandId, @CategoryId, @Name, @Description, @Price, @Discount, @SKU, @Stock, @Availability)
+        var sql =
+            $"""
+            INSERT INTO {ProductSchema.Table}
+                ({ProductSchema.Columns.Id},
+                 {ProductSchema.Columns.BrandId},
+                 {ProductSchema.Columns.CategoryId},
+                 {ProductSchema.Columns.Name},
+                 {ProductSchema.Columns.Description},
+                 {ProductSchema.Columns.Price},
+                 {ProductSchema.Columns.Discount},
+                 {ProductSchema.Columns.SKU},
+                 {ProductSchema.Columns.Stock},
+                 {ProductSchema.Columns.Availability})
+            VALUES 
+                (@{nameof(product.Id)},
+                 @{nameof(product.BrandId)},
+                 @{nameof(product.CategoryId)},
+                 @{nameof(product.Name)},
+                 @{nameof(product.Description)},
+                 @{nameof(product.Price)},
+                 @{nameof(product.Discount)},
+                 @{nameof(product.SKU)},
+                 @{nameof(product.Stock)},
+                 @{nameof(product.Availability)})
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, product);
 
         return rowsAffected > 0;
     }
-    
+
     public async Task<bool> ExistsAsync(Guid id)
     {
-        const string sql =
-            """
-            SELECT EXISTS (SELECT 1 FROM products WHERE id = @Id)
+        var sql =
+            $"""
+            SELECT EXISTS (SELECT 1
+                           FROM {ProductSchema.Table}
+                           WHERE {ProductSchema.Columns.Id} = @{nameof(id)})
             """;
 
         var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });

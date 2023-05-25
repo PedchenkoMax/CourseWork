@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
 
 namespace Catalog.Infrastructure.Database.Repositories;
@@ -16,9 +17,10 @@ public class BrandRepository : IBrandRepository
 
     public async Task<List<BrandEntity>> GetAllAsync()
     {
-        const string sql =
-            """
-            SELECT * FROM brands
+        var sql =
+            $"""
+            SELECT *
+            FROM {BrandSchema.Table}
             """;
 
         var res = await connection.QueryAsync<BrandEntity>(sql);
@@ -28,27 +30,28 @@ public class BrandRepository : IBrandRepository
 
     public async Task<BrandEntity?> GetByIdAsync(Guid id)
     {
-        const string sql =
-            """
-            SELECT * FROM brands WHERE id = @Id
+        var sql =
+            $"""
+            SELECT *
+            FROM {BrandSchema.Table} 
+            WHERE {BrandSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<BrandEntity>(sql, new { Id = id });
+        var res = await connection.QuerySingleOrDefaultAsync<BrandEntity>(sql, new { id });
 
         return res;
     }
 
     public async Task<bool> UpdateAsync(BrandEntity brand)
     {
-        // TODO: only display order could be updatable  ??
-        const string sql =
-            """
-            UPDATE brands SET
-                name = @Name,
-                description = @Description,
-                image_url = @ImageUrl,
-                display_order = @DisplayOrder
-            WHERE id = @Id
+        var sql =
+            $"""
+            UPDATE {BrandSchema.Table} SET
+                {BrandSchema.Columns.Name} = @{nameof(brand.Name)},
+                {BrandSchema.Columns.Description} = @{nameof(brand.Description)},
+                {BrandSchema.Columns.ImageUrl} = @{nameof(brand.ImageUrl)},
+                {BrandSchema.Columns.DisplayOrder} = @{nameof(brand.DisplayOrder)}
+            WHERE {BrandSchema.Columns.Id} = @{nameof(brand.Id)}
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, brand);
@@ -58,22 +61,33 @@ public class BrandRepository : IBrandRepository
 
     public async Task<bool> RemoveByIdAsync(Guid id)
     {
-        const string sql =
-            """
-            DELETE FROM brands WHERE id = @Id
+        var sql =
+            $"""
+            DELETE FROM {BrandSchema.Table} 
+            WHERE {BrandSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
+        var rowsAffected = await connection.ExecuteAsync(sql, new { id });
 
         return rowsAffected > 0;
     }
 
     public async Task<bool> AddAsync(BrandEntity brand)
     {
-        const string sql =
-            """
-            INSERT INTO brands (id, name, description, image_url, display_order)
-            VALUES (@Id, @Name, @Description, @ImageUrl, @DisplayOrder)
+        var sql =
+            $"""
+            INSERT INTO {BrandSchema.Table} 
+                ({BrandSchema.Columns.Id}, 
+                 {BrandSchema.Columns.Name},
+                 {BrandSchema.Columns.Description},
+                 {BrandSchema.Columns.ImageUrl},
+                 {BrandSchema.Columns.DisplayOrder})
+            VALUES 
+                (@{nameof(brand.Id)},
+                 @{nameof(brand.Name)},
+                 @{nameof(brand.Description)},
+                 @{nameof(brand.ImageUrl)},
+                 @{nameof(brand.DisplayOrder)})
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, brand);
@@ -83,12 +97,14 @@ public class BrandRepository : IBrandRepository
 
     public async Task<bool> ExistsAsync(Guid id)
     {
-        const string sql =
-            """
-            SELECT EXISTS (SELECT 1 FROM brands WHERE id = @Id)
+        var sql =
+            $"""
+            SELECT EXISTS (SELECT 1 
+                           FROM {BrandSchema.Table}
+                           WHERE {BrandSchema.Columns.Id} = @{nameof(id)})
             """;
 
-        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
+        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
 
         return exists;
     }

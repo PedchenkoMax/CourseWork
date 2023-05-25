@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
 
 namespace Catalog.Infrastructure.Database.Repositories;
@@ -16,37 +17,41 @@ public class ProductImageRepository : IProductImageRepository
 
     public async Task<List<ProductImageEntity>> GetAllByProductIdAsync(Guid id)
     {
-        const string sql =
-            """
-            SELECT * FROM product_images WHERE product_id = @Id
+        var sql =
+            $"""
+            SELECT *
+            FROM {ProductImageSchema.Table} 
+            WHERE {ProductImageSchema.Columns.ProductId} = @{nameof(id)}
             """;
 
-        var res = await connection.QueryAsync<ProductImageEntity>(sql, new { Id = id });
+        var res = await connection.QueryAsync<ProductImageEntity>(sql, new { id });
 
         return res.ToList();
     }
 
     public async Task<ProductImageEntity?> GetByIdAsync(Guid id)
     {
-        const string sql =
-            """
-            SELECT * FROM product_images WHERE id = @Id
+        var sql =
+            $"""
+            SELECT *
+            FROM {ProductImageSchema.Table} 
+            WHERE {ProductImageSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { Id = id });
+        var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { id });
 
         return res;
     }
 
     public async Task<bool> UpdateAsync(ProductImageEntity productImage)
     {
-        const string sql =
-            """
-            UPDATE product_images SET
-                product_id = @ProductId,
-                image_url = @ImageUrl,
-                display_order = @DisplayOrder
-            WHERE id = @Id
+        var sql =
+            $"""
+            UPDATE {ProductImageSchema.Table} SET
+                {ProductImageSchema.Columns.ProductId} = @{nameof(productImage.ProductId)},
+                {ProductImageSchema.Columns.ImageUrl} = @{nameof(productImage.ImageUrl)},
+                {ProductImageSchema.Columns.DisplayOrder} = @{nameof(productImage.DisplayOrder)}
+            WHERE {ProductImageSchema.Columns.Id} = @{nameof(productImage.Id)}
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, productImage);
@@ -56,37 +61,48 @@ public class ProductImageRepository : IProductImageRepository
 
     public async Task<bool> RemoveByIdAsync(Guid id)
     {
-        const string sql =
-            """
-            DELETE FROM product_images WHERE id = @Id
+        var sql =
+            $"""
+            DELETE FROM {ProductImageSchema.Table} 
+            WHERE {ProductImageSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
+        var rowsAffected = await connection.ExecuteAsync(sql, new { id });
 
         return rowsAffected > 0;
     }
 
     public async Task<bool> AddAsync(ProductImageEntity productImage)
     {
-        const string sql =
-            """
-            INSERT INTO product_images (id, product_id, image_url, display_order)
-            VALUES (@Id, @ProductId, @ImageUrl, @DisplayOrder)
+        var sql =
+            $"""
+            INSERT INTO {ProductImageSchema.Table} 
+                ({ProductImageSchema.Columns.Id}, 
+                 {ProductImageSchema.Columns.ProductId},
+                 {ProductImageSchema.Columns.ImageUrl},
+                 {ProductImageSchema.Columns.DisplayOrder})
+            VALUES 
+                (@{nameof(productImage.Id)},
+                 @{nameof(productImage.ProductId)},
+                 @{nameof(productImage.ImageUrl)},
+                 @{nameof(productImage.DisplayOrder)})
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, productImage);
 
         return rowsAffected > 0;
     }
-    
+
     public async Task<bool> ExistsAsync(Guid id)
     {
-        const string sql =
-            """
-            SELECT EXISTS (SELECT 1 FROM product_images WHERE id = @Id)
+        var sql =
+            $"""
+            SELECT EXISTS (SELECT 1 
+                           FROM {ProductImageSchema.Table}
+                           WHERE {ProductImageSchema.Columns.Id} = @{nameof(id)})
             """;
 
-        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
+        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
 
         return exists;
     }
