@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Dapper;
@@ -18,24 +18,74 @@ public class ProductRepository : IProductRepository
     {
         const string sql =
             """
-            SELECT * FROM products
+            SELECT p.*, b.*, c.*, i.*
+            FROM products p
+            LEFT JOIN brands b ON p.brand_id = b.Id
+            LEFT JOIN categories c ON p.category_id = c.Id
+            LEFT JOIN product_images i ON p.Id = i.product_id
             """;
 
-        var res = await connection.QueryAsync<ProductEntity>(sql);
+        var productDictionary = new Dictionary<Guid, ProductEntity>();
 
-        return res.ToList();
+        await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
+            sql,
+            (product, brand, category, image) =>
+            {
+                if (!productDictionary.TryGetValue(product.Id, out var productEntry))
+                {
+                    productEntry = product;
+                    productDictionary.Add(productEntry.Id, productEntry);
+                }
+
+                productEntry.Brand = brand;
+                productEntry.Category = category;
+                
+                if (image != null)
+                    productEntry.Images.Add(image);
+
+                return productEntry;
+            },
+            splitOn: "Id,Id,Id");
+
+        return productDictionary.Values.ToList();
     }
 
     public async Task<ProductEntity?> GetByIdAsync(Guid id)
     {
         const string sql =
             """
-            SELECT * FROM products WHERE id = @Id
+            SELECT p.*, b.*, c.*, i.*
+            FROM products p
+            LEFT JOIN brands b ON p.brand_id = b.Id
+            LEFT JOIN categories c ON p.category_id = c.Id
+            LEFT JOIN product_images i ON p.Id = i.product_id
+            WHERE p.id = @Id
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<ProductEntity>(sql, new { Id = id });
+        var productDictionary = new Dictionary<Guid, ProductEntity>();
 
-        return res;
+        await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
+            sql,
+            (product, brand, category, image) =>
+            {
+                if (!productDictionary.TryGetValue(product.Id, out var productEntry))
+                {
+                    productEntry = product;
+                    productDictionary.Add(productEntry.Id, productEntry);
+                }
+
+                productEntry.Brand = brand;
+                productEntry.Category = category;
+                
+                if (image != null)
+                    productEntry.Images.Add(image);
+
+                return productEntry;
+            },
+            new { Id = id },
+            splitOn: "Id,Id,Id");
+
+        return productDictionary.Values.FirstOrDefault();
     }
 
     public async Task<bool> UpdateAsync(ProductEntity product)
