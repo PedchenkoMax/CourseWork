@@ -38,7 +38,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Gets all child categories for a parent category by parent id.
+    /// Gets all child categories by parent id.
     /// </summary>
     /// <param name="id">The id of the parent category.</param>
     /// <response code="200">Returns the list of child categories.</response>
