@@ -15,10 +15,9 @@ public class ProductEntity
     public string SKU { get; private set; }
     public int Stock { get; private set; }
     public bool Availability { get; private set; }
-    public BrandEntity? Brand { get; private set; }
-    public CategoryEntity? Category { get; private set; }
-    public IReadOnlyCollection<ProductImageEntity>? Images => images;
-    private List<ProductImageEntity>? images;
+    public BrandEntity? Brand { get; set; }
+    public CategoryEntity? Category { get; set; }
+    public List<ProductImageEntity> Images { get; set; } = new();
 
     private ProductEntity()
     {
