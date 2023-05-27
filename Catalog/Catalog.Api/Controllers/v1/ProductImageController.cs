@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Controllers.v1.Abstractions;
+using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
 using Catalog.Api.ValidationAttributes;
@@ -13,7 +13,7 @@ namespace Catalog.Api.Controllers.v1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/product-images")]
-public class ProductImageController : ApiControllerBase<ProductController>, IProductImageController 
+public class ProductImageController : ApiControllerBase<ProductImageController>, IProductImageController 
 {
     private readonly IProductImageRepository productImageRepository;
     private readonly IProductRepository productRepository;
