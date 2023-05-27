@@ -8,6 +8,9 @@ services:
             dockerfile: Dockerfile
         environment:
             - ConnectionString=${CONNECTION_STRING}
+            - MinioEndpoint=${MINIO_ENDPOINT}
+            - MinioAccessKey=${MINIO_ACCESS_KEY}
+            - MinioSecretKey=${MINIO_SECRET_KEY}
         ports:
             - "42000:80"
     
