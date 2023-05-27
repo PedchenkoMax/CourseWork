@@ -8,6 +8,7 @@ using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.OpenApi.Models;
+using Minio.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -20,6 +21,12 @@ var services = builder.Services;
     services.AddTransient<IBrandRepository, BrandRepository>();
     services.AddTransient<ICategoryRepository, CategoryRepository>();
     
+    services.AddMinio(options =>
+    {
+        options.Endpoint = configuration["MinioEndpoint"]!;
+        options.AccessKey = configuration["MinioAccessKey"]!;
+        options.SecretKey = configuration["MinioSecretKey"]!;
+    });
     services.AddTransient<IBlobStorage, MinioBlobStorage>();
     services.AddTransient<IBlobService, BlobService>();
 
