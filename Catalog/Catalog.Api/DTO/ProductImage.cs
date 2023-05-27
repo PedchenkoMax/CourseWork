@@ -1,5 +1,3 @@
-﻿using Catalog.Api.ValidationAttributes;
-
 namespace Catalog.Api.DTO;
 
 public record ProductImageReadDto(
@@ -8,7 +6,4 @@ public record ProductImageReadDto(
     string ImageUrl,
     int DisplayOrder);
 
-public record ProductImageWriteDto(
-    [NonZeroGuid] Guid ProductId,
-    string ImageUrl,
-    int DisplayOrder);
+public record ProductImageWriteDto(IFormFile ImageFile); // TODO: maybe add attributes to validate
