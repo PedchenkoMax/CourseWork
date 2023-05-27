@@ -50,28 +50,41 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     /// </summary>
     /// <param name="productId">The id of the product.</param>
     /// <param name="productImageDto">The product image to add.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the product image is null or invalid.</response>
+    /// <response code="200">Returns the URL to the added product image.</response>
+    /// <response code="400">If the product image is null, invalid, or the maximum limit of images has been reached.</response>
     /// <response code="404">If the product is not found.</response>
-    /// <response code="409">If there was a conflict while adding the product image.</response>
+    /// <response code="409">If there was a conflict while adding the product image to db or adding it to the blob storage.</response>
     [HttpPost("{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductImageWriteDto productImageDto)
+    public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageWriteDto productImageDto)
     {
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
 
-        var validationResult = ProductImageMapper.TryCreateEntity(productImageDto, out var productImageEntity);
-
+        var validationResult = await new ProductImageFileValidator().ValidateAsync(productImageDto.ImageFile);
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        var isAdded = await productImageRepository.AddAsync(productImageEntity);
+        const int maxCount = 10;
+        var imageCount = await productImageRepository.GetProductImageCount(productId);
+        if (imageCount > maxCount)
+            return BadRequest(nameof(imageCount), $"The maximum number of images {maxCount} for this product has been reached.");
 
-        return isAdded ? Ok() : Conflict();
+        var uniqueFileName = await blobService.UploadFileAsync(BucketName, productImageDto.ImageFile);
+        if (uniqueFileName == null)
+            return Conflict();
+
+        var imageUrl = $"{BlobAccess}/{BucketName}/{uniqueFileName}";
+
+        // No need for validation check as it always valid at this point
+        _ = ProductImageEntity.TryCreate(productId: productId, imageUrl: uniqueFileName, displayOrder: imageCount, out var entity);
+
+        var isAdded = await productImageRepository.AddAsync(entity);
+
+        return isAdded ? Ok(imageUrl) : Conflict();
     }
 
     /// <summary>
@@ -112,18 +125,23 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     /// <param name="id">The id of the product image to delete.</param>
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="404">If the product image is not found.</response>
-    /// <response code="409">If there was a conflict while deleting the product image.</response>
+    /// <response code="409">If there was a conflict while deleting the product image from db or deleting it from the blob storage.</response>
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid id)
     {
-        if (!await productImageRepository.ExistsAsync(id))
+        var productImageEntity = await productImageRepository.GetByIdAsync(id);
+        if (productImageEntity == null)
             return NotFound(nameof(id));
 
-        var isDeleted = await productImageRepository.RemoveByIdAsync(id);
+        var isDeleted = await blobService.DeleteFileAsync(BucketName, productImageEntity.ImageUrl);
+        if (!isDeleted)
+            return Conflict();
 
-        return isDeleted ? Ok() : Conflict();
+        var isRemoved = await productImageRepository.RemoveByIdAsync(id);
+
+        return isRemoved ? Ok() : Conflict();
     }
 }
