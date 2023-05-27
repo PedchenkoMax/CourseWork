@@ -16,6 +16,8 @@ namespace Catalog.Api.Controllers.v1;
 [Route("api/v{version:apiVersion}/product-images")]
 public class ProductImageController : ApiControllerBase<ProductImageController>, IProductImageController 
 {
+    private const string BucketName = "your-bucket-name";
+    private const string BlobAccess = "localhost:9000";
     private readonly IProductImageRepository productImageRepository;
     private readonly IProductRepository productRepository;
     private readonly IBlobService blobService;
