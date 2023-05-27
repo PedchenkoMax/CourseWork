@@ -1,3 +1,5 @@
+using Catalog.Api.Services;
+using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
 using Catalog.Infrastructure.BlobStorage.Abstractions;
 using Catalog.Infrastructure.Database;
@@ -19,6 +21,8 @@ var services = builder.Services;
     services.AddTransient<ICategoryRepository, CategoryRepository>();
     
     services.AddTransient<IBlobStorage, MinioBlobStorage>();
+    services.AddTransient<IBlobService, BlobService>();
+
     var migrationRunner = new MigrationRunner();
     migrationRunner.RunMigrations(configuration["ConnectionString"]!, true);
     
