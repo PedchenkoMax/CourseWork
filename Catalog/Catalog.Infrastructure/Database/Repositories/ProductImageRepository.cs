@@ -106,4 +106,18 @@ public class ProductImageRepository : IProductImageRepository
 
         return exists;
     }
+
+    public async Task<int> GetProductImageCount(Guid productId)
+    {
+        var sql =
+            $"""
+            SELECT COUNT(*)
+            FROM {ProductImageSchema.Table}
+            WHERE {ProductImageSchema.Columns.ProductId} = @{nameof(productId)}
+            """;
+
+        var count = await connection.ExecuteScalarAsync<int>(sql, new { productId });
+
+        return count;
+    }
 }
