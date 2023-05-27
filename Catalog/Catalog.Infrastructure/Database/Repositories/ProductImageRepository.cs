@@ -59,6 +59,22 @@ public class ProductImageRepository : IProductImageRepository
         return rowsAffected > 0;
     }
 
+    public async Task<bool> BatchUpdateAsync(List<ProductImageEntity> productImages)
+    {
+        var sql =
+            $"""
+            UPDATE {ProductImageSchema.Table} SET
+                {ProductImageSchema.Columns.ProductId} = @{nameof(ProductImageEntity.ProductId)},
+                {ProductImageSchema.Columns.ImageUrl} = @{nameof(ProductImageEntity.ImageUrl)},
+                {ProductImageSchema.Columns.DisplayOrder} = @{nameof(ProductImageEntity.DisplayOrder)}
+            WHERE {ProductImageSchema.Columns.Id} = @{nameof(ProductImageEntity.Id)}
+            """;
+
+        var rowsAffected = await connection.ExecuteAsync(sql, productImages);
+
+        return rowsAffected == productImages.Count;
+    }
+    
     public async Task<bool> RemoveByIdAsync(Guid id)
     {
         var sql =

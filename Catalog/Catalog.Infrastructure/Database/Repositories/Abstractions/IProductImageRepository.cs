@@ -7,6 +7,7 @@ public interface IProductImageRepository
     Task<List<ProductImageEntity>> GetAllByProductIdAsync(Guid id);
     Task<ProductImageEntity?> GetByIdAsync(Guid id);
     Task<bool> UpdateAsync(ProductImageEntity productImage);
+    Task<bool> BatchUpdateAsync(List<ProductImageEntity> productImages);
     Task<bool> RemoveByIdAsync(Guid id);
     Task<bool> AddAsync(ProductImageEntity productImage);
     Task<bool> ExistsAsync(Guid id);
