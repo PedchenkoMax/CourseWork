@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -17,11 +18,14 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
 {
     private readonly IProductImageRepository productImageRepository;
     private readonly IProductRepository productRepository;
+    private readonly IBlobService blobService;
     
-    public ProductImageController(IProductImageRepository productImageRepository, IProductRepository productRepository)
+    public ProductImageController(IProductImageRepository productImageRepository, IProductRepository productRepository,
+        IBlobService blobService)
     {
         this.productImageRepository = productImageRepository;
         this.productRepository = productRepository;
+        this.blobService = blobService;
     }
 
     /// <summary>
