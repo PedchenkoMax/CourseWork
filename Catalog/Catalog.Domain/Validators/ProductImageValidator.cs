@@ -7,7 +7,7 @@ public class ProductImageEntityValidator : AbstractValidator<ProductImageEntity>
 {
     public ProductImageEntityValidator()
     {
-        // RuleFor(x => x.ImageUrl)
+        // RuleFor(x => x.ImageFileName)
         // TODO: validate it when image urls are implemented
 
         RuleFor(x => x.DisplayOrder)

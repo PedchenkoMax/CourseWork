@@ -12,7 +12,7 @@ public class Initial : Migration
               .WithColumn("id").AsGuid().PrimaryKey()
               .WithColumn("name").AsString().NotNullable()
               .WithColumn("description").AsString().NotNullable()
-              .WithColumn("image_url").AsString().NotNullable()
+              .WithColumn("image_file_name").AsString().NotNullable()
               .WithColumn("display_order").AsInt32().NotNullable();
 
 
@@ -21,7 +21,7 @@ public class Initial : Migration
               .WithColumn("parent_category_id").AsGuid().Nullable()
               .WithColumn("name").AsString().NotNullable()
               .WithColumn("description").AsString().NotNullable()
-              .WithColumn("image_url").AsString().NotNullable()
+              .WithColumn("image_file_name").AsString().NotNullable()
               .WithColumn("display_order").AsInt32().NotNullable();
 
         Create.ForeignKey("fk_categories_parent_categories")
@@ -56,7 +56,7 @@ public class Initial : Migration
         Create.Table("product_images")
               .WithColumn("id").AsGuid().PrimaryKey()
               .WithColumn("product_id").AsGuid().NotNullable()
-              .WithColumn("image_url").AsString().NotNullable()
+              .WithColumn("image_file_name").AsString().NotNullable()
               .WithColumn("display_order").AsInt32().NotNullable();
 
         Create.ForeignKey("fk_product_images_products")

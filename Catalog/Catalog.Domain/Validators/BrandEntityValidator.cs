@@ -15,7 +15,7 @@ public class BrandEntityValidator : AbstractValidator<BrandEntity>
             .NotEmpty().WithMessage("Brand description is required")
             .Length(1, 1000).WithMessage("Brand description must be between 1 and 1000 characters");
 
-        // RuleFor(x => x.ImageUrl)
+        // RuleFor(x => x.ImageFileName)
         // TODO: validate it when image urls are implemented
 
         RuleFor(x => x.DisplayOrder)

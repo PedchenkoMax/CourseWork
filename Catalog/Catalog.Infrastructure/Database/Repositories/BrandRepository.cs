@@ -49,7 +49,7 @@ public class BrandRepository : IBrandRepository
             UPDATE {BrandSchema.Table} SET
                 {BrandSchema.Columns.Name} = @{nameof(brand.Name)},
                 {BrandSchema.Columns.Description} = @{nameof(brand.Description)},
-                {BrandSchema.Columns.ImageUrl} = @{nameof(brand.ImageUrl)},
+                {BrandSchema.Columns.ImageFileName} = @{nameof(brand.ImageFileName)},
                 {BrandSchema.Columns.DisplayOrder} = @{nameof(brand.DisplayOrder)}
             WHERE {BrandSchema.Columns.Id} = @{nameof(brand.Id)}
             """;
@@ -80,13 +80,13 @@ public class BrandRepository : IBrandRepository
                 ({BrandSchema.Columns.Id}, 
                  {BrandSchema.Columns.Name},
                  {BrandSchema.Columns.Description},
-                 {BrandSchema.Columns.ImageUrl},
+                 {BrandSchema.Columns.ImageFileName},
                  {BrandSchema.Columns.DisplayOrder})
             VALUES 
                 (@{nameof(brand.Id)},
                  @{nameof(brand.Name)},
                  @{nameof(brand.Description)},
-                 @{nameof(brand.ImageUrl)},
+                 @{nameof(brand.ImageFileName)},
                  @{nameof(brand.DisplayOrder)})
             """;
 

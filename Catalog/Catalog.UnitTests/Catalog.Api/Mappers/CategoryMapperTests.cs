@@ -17,7 +17,7 @@ public class CategoryMapperTests
             parentCategoryId: null,
             name: "Test Category",
             description: "Test Description",
-            imageUrl: "",
+            imageFileName: "",
             displayOrder: 1,
             out var entity
         );
@@ -31,7 +31,7 @@ public class CategoryMapperTests
         dto.ParentCategoryId.Should().Be(entity.ParentCategoryId);
         dto.Name.Should().Be(entity.Name);
         dto.Description.Should().Be(entity.Description);
-        dto.ImageUrl.Should().Be(entity.ImageUrl);
+        dto.ImageUrl.Should().Be(entity.ImageFileName);
         dto.DisplayOrder.Should().Be(entity.DisplayOrder);
     }
 
@@ -57,7 +57,7 @@ public class CategoryMapperTests
         entity.ParentCategoryId.Should().Be(dto.ParentCategoryId);
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
-        entity.ImageUrl.Should().Be(dto.ImageUrl);
+        entity.ImageFileName.Should().Be(dto.ImageUrl);
         entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 
@@ -84,7 +84,7 @@ public class CategoryMapperTests
         entity.ParentCategoryId.Should().Be(dto.ParentCategoryId);
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
-        entity.ImageUrl.Should().Be(dto.ImageUrl);
+        entity.ImageFileName.Should().Be(dto.ImageUrl);
         entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 }

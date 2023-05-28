@@ -9,7 +9,7 @@ public static class ProductImageTestHelper
     {
         ProductImageEntity.TryCreate(
             productId: Guid.NewGuid(),
-            imageUrl: "",
+            imageFileName: "",
             displayOrder: displayOrder,
             out var productImageEntity);
 

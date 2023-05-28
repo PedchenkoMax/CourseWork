@@ -88,7 +88,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
         var imageUrl = $"{BlobAccess}/{BucketName}/{uniqueFileName}";
 
         // No need for validation check as it always valid at this point
-        _ = ProductImageEntity.TryCreate(productId: productId, imageUrl: uniqueFileName, displayOrder: imageCount, out var entity);
+        _ = ProductImageEntity.TryCreate(productId: productId, imageFileName: uniqueFileName, displayOrder: imageCount, out var entity);
 
         var isAdded = await productImageRepository.AddAsync(entity);
 
@@ -153,7 +153,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
         if (productImageEntity == null)
             return NotFound(nameof(productImageId));
 
-        var isDeleted = await blobService.DeleteFileAsync(BucketName, productImageEntity.ImageUrl);
+        var isDeleted = await blobService.DeleteFileAsync(BucketName, productImageEntity.ImageFileName);
         if (!isDeleted)
             return Conflict();
 

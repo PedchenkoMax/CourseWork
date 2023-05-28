@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Mappers;
+using Catalog.Api.Mappers;
 using Catalog.Domain.Entities;
 using FluentAssertions;
 using Xunit;
@@ -14,7 +14,7 @@ public class ProductImageMapperTests
         ProductImageEntity.TryCreate
         (
             productId: Guid.NewGuid(),
-            imageUrl: "",
+            imageFileName: "",
             displayOrder: 1,
             out var entity
         );
@@ -26,7 +26,7 @@ public class ProductImageMapperTests
         dto.Should().NotBeNull();
         dto.Id.Should().Be(entity.Id);
         dto.ProductId.Should().Be(entity.ProductId);
-        dto.ImageUrl.Should().Be(entity.ImageUrl);
+        dto.ImageUrl.Should().Be(entity.ImageFileName);
         dto.DisplayOrder.Should().Be(entity.DisplayOrder);
     }
 
@@ -37,7 +37,7 @@ public class ProductImageMapperTests
         var dto = new ProductImageWriteDto
         (
             ProductId: Guid.NewGuid(),
-            ImageUrl: "",
+            ImageFileName: "",
             DisplayOrder: 1
         );
 
@@ -48,7 +48,7 @@ public class ProductImageMapperTests
         result.IsValid.Should().BeTrue();
         entity.Should().NotBeNull();
         entity.ProductId.Should().Be(dto.ProductId);
-        entity.ImageUrl.Should().Be(dto.ImageUrl);
+        entity.ImageFileName.Should().Be(dto.ImageFileName);
         entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 
@@ -61,7 +61,7 @@ public class ProductImageMapperTests
         var dto = new ProductImageWriteDto
         (
             ProductId: entity.ProductId,
-            ImageUrl: "",
+            ImageFileName: "",
             DisplayOrder: 2
         );
 

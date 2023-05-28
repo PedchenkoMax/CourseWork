@@ -8,7 +8,7 @@ public static class ProductImageTestHelper
     {
         var validationResult = ProductImageEntity.TryCreate(
             productId: productEntity.Id,
-            imageUrl: "productImage.ImageUrl",
+            imageFileName: "productImage.ImageFileName",
             displayOrder: 0,
             out var productImageEntity
         );
@@ -23,7 +23,7 @@ public static class ProductImageTestHelper
     {
         var validationResult = ProductImageEntity.TryCreate(
             productId: productEntity.Id,
-            imageUrl: "modified.productImage.ImageUrl",
+            imageFileName: "modified.productImage.ImageFileName",
             displayOrder: 1,
             out var productImageEntity
         );

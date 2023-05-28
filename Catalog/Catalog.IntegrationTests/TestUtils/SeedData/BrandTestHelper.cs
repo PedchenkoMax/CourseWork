@@ -9,7 +9,7 @@ public static class BrandTestHelper
         var validationResult = BrandEntity.TryCreate(
             name: "brandDto.Name",
             description: "brandDto.Description",
-            imageUrl: "brandDto.ImageUrl",
+            imageFileName: "brandDto.ImageFileName",
             displayOrder: 0,
             out var brandEntity
         );
@@ -25,7 +25,7 @@ public static class BrandTestHelper
         var validationResult = BrandEntity.TryCreate(
             name: "modified.brandDto.Name",
             description: "modified.brandDto.Description",
-            imageUrl: "modified.brandDto.ImageUrl",
+            imageFileName: "modified.brandDto.ImageFileName",
             displayOrder: 1,
             out var brandEntity
         );
@@ -41,7 +41,7 @@ public static class BrandTestHelper
         var validationResult = from.Update(
             name: to.Name,
             description: to.Description,
-            imageUrl: to.ImageUrl,
+            imageFileName: to.ImageFileName,
             displayOrder: to.DisplayOrder
         );
 

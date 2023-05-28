@@ -12,7 +12,7 @@ public static class CategoryTestHelper
             parentCategoryId: parentCategoryId,
             name: name,
             description: description,
-            imageUrl: imageUrl,
+            imageFileName: imageUrl,
             displayOrder: displayOrder,
             out var categoryEntity);
 
@@ -26,7 +26,7 @@ public static class CategoryTestHelper
             parentCategoryId: parentCategoryId,
             name: name,
             description: description,
-            imageUrl: imageUrl,
+            imageFileName: imageUrl,
             displayOrder: displayOrder);
 
         return validationResult;

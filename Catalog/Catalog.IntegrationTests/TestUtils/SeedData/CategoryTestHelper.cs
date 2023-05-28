@@ -10,7 +10,7 @@ public static class CategoryTestHelper
             parentCategoryId: null,
             name: "category.Name",
             description: "category.Description",
-            imageUrl: "category.ImageUrl",
+            imageFileName: "category.ImageFileName",
             displayOrder: 0,
             out var categoryEntity
         );
@@ -27,7 +27,7 @@ public static class CategoryTestHelper
             parentCategoryId: null,
             name: "modified.category.Name",
             description: "modified.category.Description",
-            imageUrl: "modified.category.ImageUrl",
+            imageFileName: "modified.category.ImageFileName",
             displayOrder: 1,
             out var categoryEntity
         );
@@ -44,7 +44,7 @@ public static class CategoryTestHelper
             parentCategoryId: to.ParentCategoryId,
             name: to.Name,
             description: to.Description,
-            imageUrl: to.ImageUrl,
+            imageFileName: to.ImageFileName,
             displayOrder: to.DisplayOrder
         );
 
@@ -58,7 +58,7 @@ public static class CategoryTestHelper
             parentCategoryId: parentCategory.Id,
             name: $"childOf.{parentCategory.Name}",
             description: $"childOf.{parentCategory.Description}",
-            imageUrl: $"childOf.{parentCategory.ImageUrl}",
+            imageFileName: $"childOf.{parentCategory.ImageFileName}",
             displayOrder: parentCategory.DisplayOrder,
             out var categoryEntity
         );

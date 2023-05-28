@@ -13,7 +13,7 @@ public static class BrandTestHelper
         BrandEntity.TryCreate(
             name: name,
             description: description,
-            imageUrl: imageUrl,
+            imageFileName: imageUrl,
             displayOrder: displayOrder,
             out var brandEntity);
 
@@ -29,7 +29,7 @@ public static class BrandTestHelper
         var validationResult = brandEntity.Update(
             name: name,
             description: description,
-            imageUrl: imageUrl,
+            imageFileName: imageUrl,
             displayOrder: displayOrder);
 
         return validationResult;

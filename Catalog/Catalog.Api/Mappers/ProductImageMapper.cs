@@ -1,4 +1,4 @@
-﻿using Catalog.Api.DTO;
+using Catalog.Api.DTO;
 using Catalog.Domain.Entities;
 using FluentValidation.Results;
 
@@ -11,7 +11,7 @@ public static class ProductImageMapper
         return new ProductImageReadDto(
             Id: entity.Id,
             ProductId: entity.ProductId,
-            ImageUrl: entity.ImageUrl,
+            ImageUrl: entity.ImageFileName,
             DisplayOrder: entity.DisplayOrder);
     }
 

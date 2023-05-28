@@ -9,7 +9,7 @@ public static class BrandSchema
         public static string Id => "id";
         public static string Name => "name";
         public static string Description => "description";
-        public static string ImageUrl => "image_url";
+        public static string ImageFileName => "image_file_name";
         public static string DisplayOrder => "display_order";
     }
 }

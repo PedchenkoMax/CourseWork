@@ -16,7 +16,7 @@ public class BrandMapperTests
         (
             name: "Test Brand",
             description: "Test Description",
-            imageUrl: "",
+            imageFileName: "",
             displayOrder: 1,
             out var entity
         );
@@ -29,7 +29,7 @@ public class BrandMapperTests
         dto.Id.Should().Be(entity.Id);
         dto.Name.Should().Be(entity.Name);
         dto.Description.Should().Be(entity.Description);
-        dto.ImageUrl.Should().Be(entity.ImageUrl);
+        dto.ImageUrl.Should().Be(entity.ImageFileName);
         dto.DisplayOrder.Should().Be(entity.DisplayOrder);
     }
 
@@ -53,7 +53,7 @@ public class BrandMapperTests
         entity.Should().NotBeNull();
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
-        entity.ImageUrl.Should().Be(dto.ImageUrl);
+        entity.ImageFileName.Should().Be(dto.ImageUrl);
         entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 
@@ -78,7 +78,7 @@ public class BrandMapperTests
         result.IsValid.Should().BeTrue();
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
-        entity.ImageUrl.Should().Be(dto.ImageUrl);
+        entity.ImageFileName.Should().Be(dto.ImageUrl);
         entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 }

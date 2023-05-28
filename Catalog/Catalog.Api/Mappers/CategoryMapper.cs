@@ -13,7 +13,7 @@ public static class CategoryMapper
             ParentCategoryId: entity.ParentCategoryId,
             Name: entity.Name,
             Description: entity.Description,
-            ImageUrl: entity.ImageUrl,
+            ImageUrl: entity.ImageFileName,
             DisplayOrder: entity.DisplayOrder);
     }
 
@@ -23,7 +23,7 @@ public static class CategoryMapper
             parentCategoryId: writeDto.ParentCategoryId,
             name: writeDto.Name,
             description: writeDto.Description,
-            imageUrl: writeDto.ImageUrl,
+            imageFileName: writeDto.ImageUrl,
             displayOrder: writeDto.DisplayOrder,
             out entity);
 
@@ -36,7 +36,7 @@ public static class CategoryMapper
             parentCategoryId: writeDto.ParentCategoryId,
             name: writeDto.Name,
             description: writeDto.Description,
-            imageUrl: writeDto.ImageUrl,
+            imageFileName: writeDto.ImageUrl,
             displayOrder: writeDto.DisplayOrder);
 
         return validationResult;

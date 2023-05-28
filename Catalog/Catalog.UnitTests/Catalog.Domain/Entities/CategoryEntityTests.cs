@@ -25,7 +25,7 @@ public class CategoryEntityTests
         entity.ParentCategoryId.Should().Be(parentCategoryId);
         entity.Name.Should().Be(name);
         entity.Description.Should().Be(description);
-        entity.ImageUrl.Should().Be(imageUrl);
+        entity.ImageFileName.Should().Be(imageUrl);
         entity.DisplayOrder.Should().Be(displayOrder);
     }
 
@@ -55,7 +55,7 @@ public class CategoryEntityTests
         entity.ParentCategoryId.Should().Be(newParentCategoryId);
         entity.Name.Should().Be(newName);
         entity.Description.Should().Be(newDescription);
-        entity.ImageUrl.Should().Be(newImageUrl);
+        entity.ImageFileName.Should().Be(newImageUrl);
         entity.DisplayOrder.Should().Be(newDisplayOrder);
     }
 }

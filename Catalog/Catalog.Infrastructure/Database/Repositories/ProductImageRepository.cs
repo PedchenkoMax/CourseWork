@@ -49,7 +49,7 @@ public class ProductImageRepository : IProductImageRepository
             $"""
             UPDATE {ProductImageSchema.Table} SET
                 {ProductImageSchema.Columns.ProductId} = @{nameof(productImage.ProductId)},
-                {ProductImageSchema.Columns.ImageUrl} = @{nameof(productImage.ImageUrl)},
+                {ProductImageSchema.Columns.ImageFileName} = @{nameof(productImage.ImageFileName)},
                 {ProductImageSchema.Columns.DisplayOrder} = @{nameof(productImage.DisplayOrder)}
             WHERE {ProductImageSchema.Columns.Id} = @{nameof(productImage.Id)}
             """;
@@ -65,7 +65,7 @@ public class ProductImageRepository : IProductImageRepository
             $"""
             UPDATE {ProductImageSchema.Table} SET
                 {ProductImageSchema.Columns.ProductId} = @{nameof(ProductImageEntity.ProductId)},
-                {ProductImageSchema.Columns.ImageUrl} = @{nameof(ProductImageEntity.ImageUrl)},
+                {ProductImageSchema.Columns.ImageFileName} = @{nameof(ProductImageEntity.ImageFileName)},
                 {ProductImageSchema.Columns.DisplayOrder} = @{nameof(ProductImageEntity.DisplayOrder)}
             WHERE {ProductImageSchema.Columns.Id} = @{nameof(ProductImageEntity.Id)}
             """;
@@ -95,12 +95,12 @@ public class ProductImageRepository : IProductImageRepository
             INSERT INTO {ProductImageSchema.Table} 
                 ({ProductImageSchema.Columns.Id}, 
                  {ProductImageSchema.Columns.ProductId},
-                 {ProductImageSchema.Columns.ImageUrl},
+                 {ProductImageSchema.Columns.ImageFileName},
                  {ProductImageSchema.Columns.DisplayOrder})
             VALUES 
                 (@{nameof(productImage.Id)},
                  @{nameof(productImage.ProductId)},
-                 @{nameof(productImage.ImageUrl)},
+                 @{nameof(productImage.ImageFileName)},
                  @{nameof(productImage.DisplayOrder)})
             """;
 

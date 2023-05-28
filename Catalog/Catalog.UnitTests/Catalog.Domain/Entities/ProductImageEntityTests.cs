@@ -21,7 +21,7 @@ public class ProductImageEntityTests
         result.IsValid.Should().BeTrue();
         entity.Should().NotBeNull();
         entity.ProductId.Should().Be(productId);
-        entity.ImageUrl.Should().Be(imageUrl);
+        entity.ImageFileName.Should().Be(imageUrl);
         entity.DisplayOrder.Should().Be(displayOrder);
     }
 
