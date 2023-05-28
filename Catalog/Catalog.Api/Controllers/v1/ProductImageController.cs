@@ -94,7 +94,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     }
 
     /// <summary>
-    /// Updates a specific product image.
+    /// Updates display order of the product image.
     /// </summary>
     /// <param name="id">The id of the product image to update.</param>
     /// <param name="productImageDto">The product image to update.</param>
@@ -107,20 +107,29 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> UpdateProductImage([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageUpdateOrderDto productImageDto)
+    public async Task<IActionResult> UpdateProductImageOrder([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageUpdateOrderDto productImageDto)
     {
-        // TODO: only 'DisplayOrder' could be updated, how to resolve when user tries to change 'ProductId'?
-        var productImageEntity = await productImageRepository.GetByIdAsync(id);
-
-        if (productImageEntity == null)
+        if (productImageDto.DisplayOrder < 0)
+            return BadRequest();
+        
+        var entity = await productImageRepository.GetByIdAsync(id);
+        if (entity == null)
             return NotFound(nameof(id));
 
-        var validationResult = ProductImageMapper.TryUpdateEntity(productImageDto, productImageEntity);
+        if (entity.DisplayOrder == productImageDto.DisplayOrder)
+            return Ok();
 
-        if (!validationResult.IsValid)
-            return BadRequest(validationResult);
+        var allImages = await productImageRepository.GetAllByProductIdAsync(entity.ProductId);
+        allImages.Remove(entity);
 
-        var isUpdated = await productImageRepository.UpdateAsync(productImageEntity);
+        var orderedImages = allImages.OrderBy(x => x.DisplayOrder).ToList();
+        orderedImages.Insert(Math.Min(productImageDto.DisplayOrder, orderedImages.Count), entity);
+        for (var i = 0; i < orderedImages.Count; i++)
+        {
+            orderedImages[i].Update(i);
+        }
+
+        var isUpdated = await productImageRepository.BatchUpdateAsync(orderedImages);
 
         return isUpdated ? Ok() : Conflict();
     }
