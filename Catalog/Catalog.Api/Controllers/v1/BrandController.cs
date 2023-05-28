@@ -26,8 +26,8 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// Gets all brands.
     /// </summary>
     /// <response code="200">Returns the list of brands.</response>
-    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet]
     public async Task<IActionResult> GetAllBrands()
     {
         var brandEntities = await brandRepository.GetAllAsync();
@@ -43,9 +43,9 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <param name="id">The id of the brand to get.</param>
     /// <response code="200">Returns the requested brand.</response>
     /// <response code="404">If the brand is not found.</response>
-    [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetBrandById([FromRoute] [NonZeroGuid] Guid id)
     {
         var brandEntity = await brandRepository.GetByIdAsync(id);
@@ -65,10 +65,10 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="400">If the brand is null or invalid.</response>
     /// <response code="409">If there was a conflict while adding the brand.</response>
-    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPost]
     public async Task<IActionResult> AddBrand([FromBody] BrandWriteDto brandDto)
     {
         var validationResult = BrandMapper.TryCreateEntity(brandDto, out var brandEntity);
@@ -90,11 +90,11 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <response code="400">If the brand is null or invalid.</response>
     /// <response code="404">If the brand is not found.</response>
     /// <response code="409">If there was a conflict while updating the brand.</response>
-    [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateBrand([FromRoute] [NonZeroGuid] Guid id, [FromBody] BrandWriteDto brandDto)
     {
         var brandEntity = await brandRepository.GetByIdAsync(id);
@@ -119,10 +119,10 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="404">If the brand is not found.</response>
     /// <response code="409">If there was a conflict while deleting the brand.</response>
-    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteBrand([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await brandRepository.ExistsAsync(id))

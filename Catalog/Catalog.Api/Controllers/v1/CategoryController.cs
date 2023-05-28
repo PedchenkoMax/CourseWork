@@ -26,8 +26,8 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// Gets all categories.
     /// </summary>
     /// <response code="200">Returns the list of categories.</response>
-    [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
         var categoryEntities = await categoryRepository.GetAllAsync();
@@ -43,9 +43,9 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <param name="id">The id of the parent category.</param>
     /// <response code="200">Returns the list of child categories.</response>
     /// <response code="404">If the parent category is not found.</response>
-    [HttpGet("{id:guid}/children")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{id:guid}/children")]
     public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await categoryRepository.ExistsAsync(id))
@@ -64,9 +64,9 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <param name="id">The id of the category to get.</param>
     /// <response code="200">Returns the requested category.</response>
     /// <response code="404">If the category is not found.</response>
-    [HttpGet("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetCategoryById([FromRoute] [NonZeroGuid] Guid id)
     {
         var categoryEntity = await categoryRepository.GetByIdAsync(id);
@@ -87,11 +87,11 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <response code="400">If the category is null or invalid.</response>
     /// <response code="404">If the parent category is not found.</response>
     /// <response code="409">If there was a conflict while adding the category.</response>
-    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto categoryDto)
     {
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
@@ -116,11 +116,11 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <response code="400">If the category is null or invalid.</response>
     /// <response code="404">If the category or parent category is not found.</response>
     /// <response code="409">If there was a conflict while updating the category.</response>
-    [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid id, [FromBody] CategoryWriteDto categoryDto)
     {
         if (categoryDto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(categoryDto.ParentCategoryId.Value))
@@ -148,10 +148,10 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="404">If the category is not found.</response>
     /// <response code="409">If there was a conflict while deleting the category.</response>
-    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid id)
     {
         if (!await categoryRepository.ExistsAsync(id))

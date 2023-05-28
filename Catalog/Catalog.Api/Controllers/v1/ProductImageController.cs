@@ -38,9 +38,9 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     /// <param name="productId">The id of the product.</param>
     /// <response code="200">Returns the list of product images.</response>
     /// <response code="404">If the product is not found.</response>
-    [HttpGet("{productId:guid}/all")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [HttpGet("{productId:guid}/all")]
     public async Task<IActionResult> GetAllProductImagesByProductId([FromRoute] [NonZeroGuid] Guid productId)
     {
         if (!await productRepository.ExistsAsync(productId))
@@ -62,11 +62,11 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     /// <response code="400">If the product image is null, invalid, or the maximum limit of images has been reached.</response>
     /// <response code="404">If the product is not found.</response>
     /// <response code="409">If there was a conflict while adding the product image to db or adding it to the blob storage.</response>
-    [HttpPost("{productId:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPost("{productId:guid}")]
     public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageCreateDto productImageDto)
     {
         if (!await productRepository.ExistsAsync(productId))
@@ -104,11 +104,11 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     /// <response code="400">If the product image is null or invalid.</response>
     /// <response code="404">If the product image is not found.</response>
     /// <response code="409">If there was a conflict while updating the product image.</response>
-    [HttpPut("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPut("{id:guid}")]
     public async Task<IActionResult> UpdateProductImageOrder([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageUpdateOrderDto productImageDto)
     {
         if (productImageDto.DisplayOrder < 0)
@@ -143,10 +143,10 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="404">If the product image is not found.</response>
     /// <response code="409">If there was a conflict while deleting the product image from db or deleting it from the blob storage.</response>
-    [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpDelete("{id:guid}")]
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid id)
     {
         var productImageEntity = await productImageRepository.GetByIdAsync(id);
