@@ -58,7 +58,7 @@ public class ProductImageMapperTests
     {
         // Arrange
         ProductImageEntity.TryCreate(Guid.NewGuid(), "", 1, out var entity);
-        
+
         var dto = new ProductImageWriteDto
         (
             ProductId: entity.ProductId,

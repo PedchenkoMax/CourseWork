@@ -18,7 +18,7 @@ public static class CategoryTestHelper
 
         return categoryEntity;
     }
-    
+
     public static ValidationResult UpdateEntity(CategoryEntity categoryEntity, Guid? parentCategoryId = null,
         string name = "name", string description = "description", string imageUrl = "", int displayOrder = 1)
     {

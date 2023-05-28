@@ -36,7 +36,7 @@ public class GetByIdAsyncTests : IClassFixture<DatabaseFixture>
     {
         // Arrange
         var nonExistentBrandId = Guid.Empty;
-        
+
         // Act
         var retrievedBrand = await brandRepository.GetByIdAsync(nonExistentBrandId);
 

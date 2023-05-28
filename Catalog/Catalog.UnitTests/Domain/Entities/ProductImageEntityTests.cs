@@ -32,7 +32,7 @@ public class ProductImageEntityTests
         var productId = Guid.NewGuid();
         var imageUrl = "";
         var displayOrder = 1;
-        
+
         ProductImageEntity.TryCreate(productId, imageUrl, displayOrder, out var entity);
 
         // Act

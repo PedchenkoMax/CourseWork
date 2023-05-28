@@ -16,14 +16,14 @@ namespace Catalog.Api.Controllers.v1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/product-images")]
-public class ProductImageController : ApiControllerBase<ProductImageController>, IProductImageController 
+public class ProductImageController : ApiControllerBase<ProductImageController>, IProductImageController
 {
     private const string BucketName = "your-bucket-name";
     private const string BlobAccess = "localhost:9000";
     private readonly IProductImageRepository productImageRepository;
     private readonly IProductRepository productRepository;
     private readonly IBlobService blobService;
-    
+
     public ProductImageController(IProductImageRepository productImageRepository, IProductRepository productRepository,
         IBlobService blobService)
     {
@@ -113,7 +113,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     {
         if (productImageDto.DisplayOrder < 0)
             return BadRequest();
-        
+
         var entity = await productImageRepository.GetByIdAsync(id);
         if (entity == null)
             return NotFound(nameof(id));

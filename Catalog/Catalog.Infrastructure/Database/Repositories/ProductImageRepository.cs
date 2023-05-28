@@ -74,7 +74,7 @@ public class ProductImageRepository : IProductImageRepository
 
         return rowsAffected == productImages.Count;
     }
-    
+
     public async Task<bool> RemoveByIdAsync(Guid id)
     {
         var sql =

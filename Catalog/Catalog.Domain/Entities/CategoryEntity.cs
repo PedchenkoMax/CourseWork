@@ -33,7 +33,7 @@ public class CategoryEntity
 
         return new CategoryEntityValidator().Validate(entity);
     }
-    
+
     public ValidationResult Update(Guid? parentCategoryId, string name, string description, string imageUrl, int displayOrder)
     {
         ParentCategoryId = parentCategoryId;

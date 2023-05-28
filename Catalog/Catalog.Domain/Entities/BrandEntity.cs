@@ -31,7 +31,7 @@ public class BrandEntity
 
         return new BrandEntityValidator().Validate(entity);
     }
-    
+
     public ValidationResult Update(string name, string description, string imageUrl, int displayOrder)
     {
         Name = name;

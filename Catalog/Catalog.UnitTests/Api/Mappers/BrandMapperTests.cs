@@ -62,7 +62,7 @@ public class BrandMapperTests
     {
         // Arrange
         BrandEntity.TryCreate("Test Brand", "Test Description", "", 1, out var entity);
-        
+
         var dto = new BrandWriteDto
         (
             Name: "Updated Test Brand",

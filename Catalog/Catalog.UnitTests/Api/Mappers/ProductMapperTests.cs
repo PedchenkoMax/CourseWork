@@ -80,12 +80,12 @@ public class ProductMapperTests
     public void TryUpdateEntity_ValidDto_ReturnsValidEntity()
     {
         // Arrange
-        ProductEntity.TryCreate(Guid.NewGuid(), Guid.NewGuid(), "Test Product", "Test Description", 
+        ProductEntity.TryCreate(Guid.NewGuid(), Guid.NewGuid(), "Test Product", "Test Description",
             100m, 0m, "1234567890", 10, false, out var entity);
-        
+
         var updatedDto = new ProductWriteDto
         (
-            BrandId: Guid.NewGuid(), 
+            BrandId: Guid.NewGuid(),
             CategoryId: Guid.NewGuid(),
             Name: "Updated Test Product",
             Description: "Updated Test Description",

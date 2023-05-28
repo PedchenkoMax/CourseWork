@@ -38,7 +38,7 @@ public class CategoryEntityTests
         var description = "Test Description";
         var imageUrl = "";
         var displayOrder = 1;
-        
+
         CategoryEntity.TryCreate(parentCategoryId, name, description, imageUrl, displayOrder, out var entity);
 
         // Act
