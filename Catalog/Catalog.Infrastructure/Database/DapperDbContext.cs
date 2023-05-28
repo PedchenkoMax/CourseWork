@@ -12,5 +12,6 @@ public class DapperDbContext
     public DapperDbContext(string connectionString)
     {
         this.connectionString = connectionString;
+        Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
     }
 }
