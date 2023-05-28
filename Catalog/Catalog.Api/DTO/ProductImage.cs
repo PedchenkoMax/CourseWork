@@ -6,6 +6,6 @@ public record ProductImageReadDto(
     string ImageUrl,
     int DisplayOrder);
 
-public record ProductImageWriteDto(IFormFile ImageFile); // TODO: maybe add attributes to validate
+public record ProductImageCreateDto(IFormFile ImageFile); // TODO: maybe add attributes to validate
 
-public record ProductImageUpdateDto(int DisplayOrder);
+public record ProductImageUpdateOrderDto(int DisplayOrder);

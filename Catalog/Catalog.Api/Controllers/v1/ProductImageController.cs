@@ -65,7 +65,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageWriteDto productImageDto)
+    public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageCreateDto productImageDto)
     {
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
@@ -107,7 +107,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<IActionResult> UpdateProductImage([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageWriteDto productImageDto)
+    public async Task<IActionResult> UpdateProductImage([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductImageUpdateOrderDto productImageDto)
     {
         // TODO: only 'DisplayOrder' could be updated, how to resolve when user tries to change 'ProductId'?
         var productImageEntity = await productImageRepository.GetByIdAsync(id);
