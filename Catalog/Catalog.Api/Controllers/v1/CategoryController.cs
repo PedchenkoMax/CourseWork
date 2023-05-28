@@ -46,7 +46,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{categoryId:guid}/children")]
-    public async Task<IActionResult> GetChildrenByParentCategoryId([FromRoute] [NonZeroGuid] Guid categoryId)
+    public async Task<IActionResult> GetCategoryChildren([FromRoute] [NonZeroGuid] Guid categoryId)
     {
         if (!await categoryRepository.ExistsAsync(categoryId))
             return NotFound(nameof(categoryId));
@@ -67,7 +67,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{categoryId:guid}")]
-    public async Task<IActionResult> GetCategoryById([FromRoute] [NonZeroGuid] Guid categoryId)
+    public async Task<IActionResult> GetCategory([FromRoute] [NonZeroGuid] Guid categoryId)
     {
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
 

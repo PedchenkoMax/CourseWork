@@ -46,7 +46,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{brandId:guid}")]
-    public async Task<IActionResult> GetBrandById([FromRoute] [NonZeroGuid] Guid brandId)
+    public async Task<IActionResult> GetBrand([FromRoute] [NonZeroGuid] Guid brandId)
     {
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
 

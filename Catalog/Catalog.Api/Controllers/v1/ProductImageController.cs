@@ -41,7 +41,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}/all")]
-    public async Task<IActionResult> GetAllProductImagesByProductId([FromRoute] [NonZeroGuid] Guid productId)
+    public async Task<IActionResult> GetProductImages([FromRoute] [NonZeroGuid] Guid productId)
     {
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
@@ -109,7 +109,7 @@ public class ProductImageController : ApiControllerBase<ProductImageController>,
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPut("{productImageId:guid}")]
-    public async Task<IActionResult> UpdateProductImageOrder([FromRoute] [NonZeroGuid] Guid productImageId, [FromBody] ProductImageUpdateOrderDto dto)
+    public async Task<IActionResult> UpdateImageOrder([FromRoute] [NonZeroGuid] Guid productImageId, [FromBody] ProductImageUpdateOrderDto dto)
     {
         if (dto.DisplayOrder < 0)
             return BadRequest();

@@ -51,7 +51,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}")]
-    public async Task<IActionResult> GetProductById([FromRoute] [NonZeroGuid] Guid productId)
+    public async Task<IActionResult> GetProduct([FromRoute] [NonZeroGuid] Guid productId)
     {
         var productEntity = await productRepository.GetByIdAsync(productId);
 
