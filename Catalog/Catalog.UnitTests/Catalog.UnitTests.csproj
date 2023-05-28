@@ -27,4 +27,10 @@
       <ProjectReference Include="..\Catalog.IntegrationTests\Catalog.IntegrationTests.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Catalog.Api\Services\" />
+      <Folder Include="Catalog.Api\Validators\" />
+      <Folder Include="TestUtils\" />
+    </ItemGroup>
+
 </Project>

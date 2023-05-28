@@ -10,7 +10,7 @@ public class CategoryRepository : ICategoryRepository
 {
     private readonly IDbConnection connection;
 
-    public CategoryRepository(DbContext context)
+    public CategoryRepository(DapperDbContext context)
     {
         connection = context.Connection;
     }

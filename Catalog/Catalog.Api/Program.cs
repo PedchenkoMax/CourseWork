@@ -15,24 +15,25 @@ var configuration = builder.Configuration;
 
 var services = builder.Services;
 {
-    services.AddSingleton<DbContext>(_ => new DbContext(configuration["ConnectionString"]!));
+    services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["ConnectionString"]!));
     services.AddTransient<IProductRepository, ProductRepository>();
     services.AddTransient<IProductImageRepository, ProductImageRepository>();
     services.AddTransient<IBrandRepository, BrandRepository>();
     services.AddTransient<ICategoryRepository, CategoryRepository>();
-    
+
     services.AddMinio(options =>
     {
         options.Endpoint = configuration["MinioEndpoint"]!;
         options.AccessKey = configuration["MinioAccessKey"]!;
         options.SecretKey = configuration["MinioSecretKey"]!;
     });
+
     services.AddTransient<IBlobStorage, MinioBlobStorage>();
     services.AddTransient<IBlobService, BlobService>();
 
     var migrationRunner = new MigrationRunner();
     migrationRunner.RunMigrations(configuration["ConnectionString"]!, true);
-    
+
     services.AddControllers();
     services.AddEndpointsApiExplorer();
 

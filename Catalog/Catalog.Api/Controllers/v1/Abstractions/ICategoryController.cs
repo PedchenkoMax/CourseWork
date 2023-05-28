@@ -6,9 +6,9 @@ namespace Catalog.Api.Controllers.v1.Abstractions;
 public interface ICategoryController
 {
     Task<IActionResult> GetAllCategories();
-    Task<IActionResult> GetChildrenByParentCategoryId(Guid id);
-    Task<IActionResult> GetCategoryById(Guid id);
-    Task<IActionResult> AddCategory(CategoryWriteDto categoryDto);
-    Task<IActionResult> UpdateCategory(Guid id, CategoryWriteDto categoryDto);
-    Task<IActionResult> DeleteCategory(Guid id);
+    Task<IActionResult> GetCategoryChildren(Guid categoryId);
+    Task<IActionResult> GetCategory(Guid categoryId);
+    Task<IActionResult> AddCategory(CategoryWriteDto dto);
+    Task<IActionResult> UpdateCategory(Guid categoryId, CategoryWriteDto dto);
+    Task<IActionResult> DeleteCategory(Guid categoryId);
 }

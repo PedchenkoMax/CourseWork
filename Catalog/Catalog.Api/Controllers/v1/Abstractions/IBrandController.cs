@@ -6,8 +6,8 @@ namespace Catalog.Api.Controllers.v1.Abstractions;
 public interface IBrandController
 {
     Task<IActionResult> GetAllBrands();
-    Task<IActionResult> GetBrandById(Guid id);
-    Task<IActionResult> AddBrand(BrandWriteDto brandDto);
-    Task<IActionResult> UpdateBrand(Guid id, BrandWriteDto brandDto);
-    Task<IActionResult> DeleteBrand(Guid id);
+    Task<IActionResult> GetBrand(Guid brandId);
+    Task<IActionResult> AddBrand(BrandWriteDto dto);
+    Task<IActionResult> UpdateBrand(Guid brandId, BrandWriteDto dto);
+    Task<IActionResult> DeleteBrand(Guid brandId);
 }

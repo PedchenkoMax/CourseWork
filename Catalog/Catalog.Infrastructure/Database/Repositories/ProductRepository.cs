@@ -10,7 +10,7 @@ public class ProductRepository : IProductRepository
 {
     private readonly IDbConnection connection;
 
-    public ProductRepository(DbContext context)
+    public ProductRepository(DapperDbContext context)
     {
         connection = context.Connection;
     }
