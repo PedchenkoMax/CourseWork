@@ -19,6 +19,17 @@ public class ApiControllerBase<TController> : ControllerBase where TController :
         return BadRequest(problemDetails);
     }
 
+    protected IActionResult BadRequest(string fieldName, string message)
+    {
+        var problemDetails = CreateProblemDetails(StatusCodes.Status400BadRequest);
+
+        problemDetails.Extensions["errors"] = new Dictionary<string, string[]>
+            { { fieldName, new[] { message } } };
+
+
+        return BadRequest(problemDetails);
+    }
+
     protected IActionResult NotFound(string fieldName)
     {
         var problemDetails = CreateProblemDetails(StatusCodes.Status404NotFound);
