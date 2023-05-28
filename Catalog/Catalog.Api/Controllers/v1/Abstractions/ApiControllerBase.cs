@@ -7,7 +7,7 @@ namespace Catalog.Api.Controllers.v1.Abstractions;
 
 public class ApiControllerBase<TController> : ControllerBase where TController : ControllerBase
 {
-    protected BadRequestObjectResult BadRequest(ValidationResult validationResult)
+    protected IActionResult BadRequest(ValidationResult validationResult)
     {
         var problemDetails = CreateProblemDetails(StatusCodes.Status400BadRequest);
 
@@ -19,7 +19,7 @@ public class ApiControllerBase<TController> : ControllerBase where TController :
         return BadRequest(problemDetails);
     }
 
-    protected NotFoundObjectResult NotFound(string fieldName)
+    protected IActionResult NotFound(string fieldName)
     {
         var problemDetails = CreateProblemDetails(StatusCodes.Status404NotFound);
 
@@ -29,7 +29,7 @@ public class ApiControllerBase<TController> : ControllerBase where TController :
         return NotFound(problemDetails);
     }
 
-    protected new OkObjectResult Ok(object data)
+    protected new IActionResult Ok(object data)
     {
         var problemDetails = CreateProblemDetails(StatusCodes.Status200OK);
 
