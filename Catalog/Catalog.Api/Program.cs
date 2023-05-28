@@ -15,7 +15,7 @@ var configuration = builder.Configuration;
 
 var services = builder.Services;
 {
-    services.AddSingleton<DbContext>(_ => new DbContext(configuration["ConnectionString"]!));
+    services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["ConnectionString"]!));
     services.AddTransient<IProductRepository, ProductRepository>();
     services.AddTransient<IProductImageRepository, ProductImageRepository>();
     services.AddTransient<IBrandRepository, BrandRepository>();

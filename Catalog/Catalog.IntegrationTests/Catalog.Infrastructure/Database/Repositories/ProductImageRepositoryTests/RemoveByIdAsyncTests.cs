@@ -15,7 +15,7 @@ public class RemoveByIdAsyncTests : IClassFixture<DatabaseFixture>
 
     public RemoveByIdAsyncTests(DatabaseFixture fixture)
     {
-        var context = new DbContext(fixture.ConnectionString);
+        var context = new DapperDbContext(fixture.ConnectionString);
         productImageRepository = new ProductImageRepository(context);
         productRepository = new ProductRepository(context);
     }

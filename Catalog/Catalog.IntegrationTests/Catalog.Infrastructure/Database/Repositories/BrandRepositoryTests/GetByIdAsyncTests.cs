@@ -14,7 +14,7 @@ public class GetByIdAsyncTests : IClassFixture<DatabaseFixture>
 
     public GetByIdAsyncTests(DatabaseFixture fixture)
     {
-        var context = new DbContext(fixture.ConnectionString);
+        var context = new DapperDbContext(fixture.ConnectionString);
         brandRepository = new BrandRepository(context);
     }
 

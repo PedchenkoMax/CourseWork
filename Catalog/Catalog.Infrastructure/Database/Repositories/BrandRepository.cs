@@ -10,7 +10,7 @@ public class BrandRepository : IBrandRepository
 {
     private readonly IDbConnection connection;
 
-    public BrandRepository(DbContext context)
+    public BrandRepository(DapperDbContext context)
     {
         connection = context.Connection;
     }

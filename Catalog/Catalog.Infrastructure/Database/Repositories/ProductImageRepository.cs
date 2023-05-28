@@ -10,7 +10,7 @@ public class ProductImageRepository : IProductImageRepository
 {
     private readonly IDbConnection connection;
 
-    public ProductImageRepository(DbContext context)
+    public ProductImageRepository(DapperDbContext context)
     {
         connection = context.Connection;
     }

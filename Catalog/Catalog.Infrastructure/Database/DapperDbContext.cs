@@ -3,13 +3,13 @@ using Npgsql;
 
 namespace Catalog.Infrastructure.Database;
 
-public class DbContext
+public class DapperDbContext
 {
     private readonly string connectionString;
 
     public IDbConnection Connection => new NpgsqlConnection(connectionString);
 
-    public DbContext(string connectionString)
+    public DapperDbContext(string connectionString)
     {
         this.connectionString = connectionString;
     }
