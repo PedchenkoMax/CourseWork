@@ -3,6 +3,8 @@ using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
+using Catalog.Api.Validators;
+using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
