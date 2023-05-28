@@ -29,6 +29,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Catalog.Api\Controllers\" />
+      <Folder Include="Catalog.Api\Services\" />
+      <Folder Include="Catalog.Infrastructure\BlobStorage\" />
       <Folder Include="Catalog.Infrastructure\Database\" />
     </ItemGroup>
 
