@@ -45,18 +45,18 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Gets a specific product.
     /// </summary>
-    /// <param name="id">The id of the product to get.</param>
+    /// <param name="productId">The productId of the product to get.</param>
     /// <response code="200">Returns the requested product.</response>
     /// <response code="404">If the product is not found.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetProductById([FromRoute] [NonZeroGuid] Guid id)
+    [HttpGet("{productId:guid}")]
+    public async Task<IActionResult> GetProductById([FromRoute] [NonZeroGuid] Guid productId)
     {
-        var productEntity = await productRepository.GetByIdAsync(id);
+        var productEntity = await productRepository.GetByIdAsync(productId);
 
         if (productEntity == null)
-            return NotFound(nameof(id));
+            return NotFound(nameof(productId));
 
         var productDto = ProductMapper.MapToReadDto(productEntity);
 
@@ -66,7 +66,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Creates a new product.
     /// </summary>
-    /// <param name="productDto">The product to create.</param>
+    /// <param name="dto">The product to create.</param>
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="400">If the product is null or invalid.</response>
     /// <response code="404">If the brand or category is not found.</response>
@@ -76,15 +76,15 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPost]
-    public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto productDto)
+    public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto dto)
     {
-        if (productDto.BrandId != null && !await brandRepository.ExistsAsync(productDto.BrandId.Value))
-            return NotFound(nameof(productDto.BrandId));
+        if (dto.BrandId != null && !await brandRepository.ExistsAsync(dto.BrandId.Value))
+            return NotFound(nameof(dto.BrandId));
 
-        if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
-            return NotFound(nameof(productDto.CategoryId));
+        if (dto.CategoryId != null && !await categoryRepository.ExistsAsync(dto.CategoryId.Value))
+            return NotFound(nameof(dto.CategoryId));
 
-        var validationResult = ProductMapper.TryCreateEntity(productDto, out var productEntity);
+        var validationResult = ProductMapper.TryCreateEntity(dto, out var productEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -97,8 +97,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Updates a specific product.
     /// </summary>
-    /// <param name="id">The id of the product to update.</param>
-    /// <param name="productDto">The product to update.</param>
+    /// <param name="productId">The productId of the product to update.</param>
+    /// <param name="dto">The product to update.</param>
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="400">If the product is null or invalid.</response>
     /// <response code="404">If the product, brand, or category is not found.</response>
@@ -107,21 +107,21 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [HttpPut("{id:guid}")]
-    public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid id, [FromBody] ProductWriteDto productDto)
+    [HttpPut("{productId:guid}")]
+    public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductWriteDto dto)
     {
-        if (productDto.BrandId != null && !await brandRepository.ExistsAsync(productDto.BrandId.Value))
-            return NotFound(nameof(productDto.BrandId));
+        if (dto.BrandId != null && !await brandRepository.ExistsAsync(dto.BrandId.Value))
+            return NotFound(nameof(dto.BrandId));
 
-        if (productDto.CategoryId != null && !await categoryRepository.ExistsAsync(productDto.CategoryId.Value))
-            return NotFound(nameof(productDto.CategoryId));
+        if (dto.CategoryId != null && !await categoryRepository.ExistsAsync(dto.CategoryId.Value))
+            return NotFound(nameof(dto.CategoryId));
 
-        var productEntity = await productRepository.GetByIdAsync(id);
+        var productEntity = await productRepository.GetByIdAsync(productId);
 
         if (productEntity == null)
-            return NotFound(nameof(id));
+            return NotFound(nameof(productId));
 
-        var validationResult = ProductMapper.TryUpdateEntity(productDto, productEntity);
+        var validationResult = ProductMapper.TryUpdateEntity(dto, productEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -134,25 +134,25 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Deletes a specific product.
     /// </summary>
-    /// <param name="id">The id of the product to delete.</param>
+    /// <param name="productId">The productId of the product to delete.</param>
     /// <response code="200">Returns a confirmation of action.</response>
     /// <response code="404">If the product is not found.</response>
     /// <response code="409">If there was a conflict while deleting the product.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid id)
+    [HttpDelete("{productId:guid}")]
+    public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid productId)
     {
-        if (!await productRepository.ExistsAsync(id))
-            return NotFound(nameof(id));
+        if (!await productRepository.ExistsAsync(productId))
+            return NotFound(nameof(productId));
 
-        var productEntity = await productRepository.GetByIdAsync(id);
+        var productEntity = await productRepository.GetByIdAsync(productId);
 
         if (productEntity == null)
-            return NotFound(nameof(id));
+            return NotFound(nameof(productId));
 
-        var isDeleted = await productRepository.RemoveByIdAsync(id);
+        var isDeleted = await productRepository.RemoveByIdAsync(productId);
 
         return isDeleted ? Ok() : Conflict();
     }
