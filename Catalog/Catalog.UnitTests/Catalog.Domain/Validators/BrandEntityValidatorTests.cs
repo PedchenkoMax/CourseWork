@@ -1,9 +1,9 @@
 ﻿using Catalog.Domain.Validators;
 using FluentAssertions;
 using Xunit;
-using BrandTestHelper = Catalog.UnitTests.SeedData.BrandTestHelper;
+using BrandTestHelper = Catalog.UnitTests.TestUtils.SeedData.BrandTestHelper;
 
-namespace Catalog.UnitTests.Domain.Validators;
+namespace Catalog.UnitTests.Catalog.Domain.Validators;
 
 public class BrandEntityValidatorTests
 {

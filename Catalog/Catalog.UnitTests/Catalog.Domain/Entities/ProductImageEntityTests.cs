@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace Catalog.UnitTests.Domain.Entities;
+namespace Catalog.UnitTests.Catalog.Domain.Entities;
 
 public class ProductImageEntityTests
 {

@@ -1,10 +1,9 @@
 ﻿using Catalog.Domain.Validators;
-using Catalog.IntegrationTests.SeedData;
 using FluentAssertions;
 using Xunit;
-using ProductImageTestHelper = Catalog.UnitTests.SeedData.ProductImageTestHelper;
+using ProductImageTestHelper = Catalog.UnitTests.TestUtils.SeedData.ProductImageTestHelper;
 
-namespace Catalog.UnitTests.Domain.Validators;
+namespace Catalog.UnitTests.Catalog.Domain.Validators;
 
 public class ProductImageEntityValidatorTests
 {

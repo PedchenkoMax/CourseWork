@@ -2,11 +2,11 @@
 using FluentAssertions;
 using Xunit;
 
-namespace Catalog.UnitTests.Api.ValidationAttributes;
+namespace Catalog.UnitTests.Catalog.Api.ValidationAttributes;
 
-public class NonZeroNullableGuidAttributeTests
+public class NonZeroGuidAttributeTests
 {
-    private readonly NonZeroNullableGuidAttribute attribute = new();
+    private readonly NonZeroGuidAttribute attribute = new();
 
     [Fact]
     public void IsValid_ShouldReturnTrue_WhenValueIsNonEmptyGuid()
@@ -16,10 +16,10 @@ public class NonZeroNullableGuidAttributeTests
     }
 
     [Fact]
-    public void IsValid_ShouldReturnTrue_WhenValueIsNull()
+    public void IsValid_ShouldReturnFalse_WhenValueIsNull()
     {
         var isValid = attribute.IsValid(null);
-        isValid.Should().Be(true);
+        isValid.Should().Be(false);
     }
 
     [Fact]

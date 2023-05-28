@@ -1,7 +1,7 @@
 ﻿using Catalog.Domain.Entities;
 using FluentValidation.Results;
 
-namespace Catalog.UnitTests.SeedData;
+namespace Catalog.UnitTests.TestUtils.SeedData;
 
 public static class CategoryTestHelper
 {

@@ -1,10 +1,9 @@
-﻿using Catalog.Api.DTO;
-using Catalog.Api.Mappers;
+﻿using Catalog.Api.Mappers;
 using Catalog.Domain.Entities;
 using FluentAssertions;
 using Xunit;
 
-namespace Catalog.UnitTests.Api.Mappers;
+namespace Catalog.UnitTests.Catalog.Api.Mappers;
 
 public class ProductImageMapperTests
 {

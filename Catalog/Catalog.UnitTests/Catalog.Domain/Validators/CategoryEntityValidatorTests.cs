@@ -1,9 +1,9 @@
 ﻿using Catalog.Domain.Validators;
 using FluentAssertions;
 using Xunit;
-using CategoryTestHelper = Catalog.UnitTests.SeedData.CategoryTestHelper;
+using CategoryTestHelper = Catalog.UnitTests.TestUtils.SeedData.CategoryTestHelper;
 
-namespace Catalog.UnitTests.Domain.Validators;
+namespace Catalog.UnitTests.Catalog.Domain.Validators;
 
 public class CategoryEntityValidatorTests
 {
