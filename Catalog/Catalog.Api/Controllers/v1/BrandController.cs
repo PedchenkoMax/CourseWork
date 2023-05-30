@@ -25,7 +25,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <summary>
     /// Gets all brands.
     /// </summary>
-    /// <response code="200">Returns the list of brands.</response>
+    /// <response code="200">Brands successfully retrieved, returns a list of all brands.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllBrands()
@@ -38,11 +38,11 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     }
 
     /// <summary>
-    /// Gets a specific brand.
+    /// Retrieves a specific brand by its ID.
     /// </summary>
-    /// <param name="brandId">The brandId of the brand to get.</param>
-    /// <response code="200">Returns the requested brand.</response>
-    /// <response code="404">If the brand is not found.</response>
+    /// <param name="brandId">ID of the desired brand.</param>
+    /// <response code="200">Brand found and returned successfully.</response>
+    /// <response code="404">Brand with the given ID does not exist.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{brandId:guid}")]
@@ -59,12 +59,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     }
 
     /// <summary>
-    /// Creates a new brand.
+    /// Adds a new brand.
     /// </summary>
-    /// <param name="dto">The brand to create.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the brand is null or invalid.</response>
-    /// <response code="409">If there was a conflict while adding the brand.</response>
+    /// <param name="dto">Object containing the details of the new brand.</param>
+    /// <response code="200">Brand created successfully.</response>
+    /// <response code="400">Invalid brand data or brand data is null.</response>
+    /// <response code="409">Conflict occurred while adding the brand.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -82,14 +82,14 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     }
 
     /// <summary>
-    /// Updates a specific brand.
+    /// Updates an existing brand.
     /// </summary>
-    /// <param name="brandId">The brandId of the brand to update.</param>
-    /// <param name="dto">The brand to update.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the brand is null or invalid.</response>
-    /// <response code="404">If the brand is not found.</response>
-    /// <response code="409">If there was a conflict while updating the brand.</response>
+    /// <param name="brandId">ID of the brand to update.</param>
+    /// <param name="dto">Object containing the updated details of the brand.</param>
+    /// <response code="200">Brand updated successfully.</response>
+    /// <response code="400">Invalid brand data or brand data is null.</response>
+    /// <response code="404">Brand with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while updating the brand.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -113,12 +113,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     }
 
     /// <summary>
-    /// Deletes a specific brand.
+    /// Deletes an existing brand.
     /// </summary>
     /// <param name="brandId">The brandId of the brand to delete.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="404">If the brand is not found.</response>
-    /// <response code="409">If there was a conflict while deleting the brand.</response>
+    /// <response code="200">Brand deleted successfully, returns a confirmation of action.</response>
+    /// <response code="404">Brand with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while deleting the brand.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
