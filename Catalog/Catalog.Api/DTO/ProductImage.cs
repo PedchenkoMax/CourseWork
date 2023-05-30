@@ -8,4 +8,4 @@ public record ProductImageReadDto(
 
 public record ProductImageCreateDto(IFormFile ImageFile); // TODO: maybe add attributes to validate
 
-public record ProductImageUpdateOrderDto(int DisplayOrder);
+public record ProductImageUpdateDto(int DisplayOrder);

@@ -25,7 +25,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <summary>
     /// Gets all categories.
     /// </summary>
-    /// <response code="200">Returns the list of categories.</response>
+    /// <response code="200">Products successfully retrieved, returns a list of all categories.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
@@ -38,20 +38,20 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Gets all child categories by parent categoryId.
+    /// Retrieves all subcategories by parent category ID.
     /// </summary>
-    /// <param name="categoryId">The categoryId of the parent category.</param>
-    /// <response code="200">Returns the list of child categories.</response>
-    /// <response code="404">If the parent category is not found.</response>
+    /// <param name="categoryId">ID of the parent category.</param>
+    /// <response code="200">Subcategories found and returned successfully.</response>
+    /// <response code="404">Parent category with the given ID does not exist.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpGet("{categoryId:guid}/children")]
-    public async Task<IActionResult> GetCategoryChildren([FromRoute] [NonZeroGuid] Guid categoryId)
+    [HttpGet("{categoryId:guid}/subcategories")]
+    public async Task<IActionResult> GetCategorySubcategories([FromRoute] [NonZeroGuid] Guid categoryId)
     {
         if (!await categoryRepository.ExistsAsync(categoryId))
             return NotFound(nameof(categoryId));
 
-        var categoryEntities = await categoryRepository.GetChildrenByParentCategoryId(categoryId);
+        var categoryEntities = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(categoryId);
 
         var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
 
@@ -59,11 +59,11 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Gets a specific category.
+    /// Retrieves a specific category by its ID.
     /// </summary>
-    /// <param name="categoryId">The categoryId of the category to get.</param>
-    /// <response code="200">Returns the requested category.</response>
-    /// <response code="404">If the category is not found.</response>
+    /// <param name="categoryId">ID of the desired category.</param>
+    /// <response code="200">Category found and returned successfully.</response>
+    /// <response code="404">Category with the given ID does not exist.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{categoryId:guid}")]
@@ -80,13 +80,13 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Creates a new category.
+    /// Adds a new category.
     /// </summary>
-    /// <param name="dto">The category to create.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the category is null or invalid.</response>
-    /// <response code="404">If the parent category is not found.</response>
-    /// <response code="409">If there was a conflict while adding the category.</response>
+    /// <param name="dto">Object containing the details of the new category.</param>
+    /// <response code="200">Category created successfully.</response>
+    /// <response code="400">Invalid category data or category data is null.</response>
+    /// <response code="404">Parent category with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while adding the category.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -108,14 +108,14 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Updates a specific category.
+    /// Updates an existing category.
     /// </summary>
-    /// <param name="categoryId">The categoryId of the category to update.</param>
-    /// <param name="dto">The category to update.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the category is null or invalid.</response>
-    /// <response code="404">If the category or parent category is not found.</response>
-    /// <response code="409">If there was a conflict while updating the category.</response>
+    /// <param name="categoryId">ID of the category to update.</param>
+    /// <param name="dto">Object containing the updated details of the category.</param>
+    /// <response code="200">Category updated successfully.</response>
+    /// <response code="400">Invalid category data or category data is null.</response>
+    /// <response code="404">Category or parent category with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while updating the category.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -142,12 +142,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Deletes a specific category.
+    /// Deletes an existing category.
     /// </summary>
     /// <param name="categoryId">The categoryId of the category to delete.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="404">If the category is not found.</response>
-    /// <response code="409">If there was a conflict while deleting the category.</response>
+    /// <response code="200">Category deleted successfully, returns a confirmation of action.</response>
+    /// <response code="404">Category with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while deleting the category.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]

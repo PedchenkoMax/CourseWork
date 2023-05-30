@@ -28,7 +28,7 @@ public class CategoryRepository : ICategoryRepository
         return res.ToList();
     }
 
-    public async Task<List<CategoryEntity>> GetChildrenByParentCategoryId(Guid parentCategoryId)
+    public async Task<List<CategoryEntity>> GetSubcategoriesByParentCategoryIdAsync(Guid parentCategoryId)
     {
         var sql =
             $"""
