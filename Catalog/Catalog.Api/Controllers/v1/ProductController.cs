@@ -306,9 +306,9 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Deletes an existing product image.
     /// </summary>
+    /// <param name="productId">ID of the product to which the image belongs.</param>
     /// <param name="productImageId">ID of the product image to delete.</param>
     /// <response code="200">Product image deleted successfully.</response>
-    /// <param name="productId">ID of the product to which the image belongs.</param>
     /// <response code="400">Provided product ID does not match with the product ID associated with the image.</response>
     /// <response code="404">Product image with the given ID does not exist</response>
     /// <response code="409">Conflict occurred while deleting the product image from db or deleting it from the blob storage.</response>
