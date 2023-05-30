@@ -175,7 +175,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <response code="404">If the product is not found.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpGet("{productId:guid}/all")]
+    [HttpGet("{productId:guid}/images")]
     public async Task<IActionResult> GetProductImages([FromRoute] [NonZeroGuid] Guid productId)
     {
         if (!await productRepository.ExistsAsync(productId))
@@ -201,7 +201,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [HttpPost("{productId:guid}")]
+    [HttpPost("{productId:guid}/images")]
     public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageCreateDto dto)
     {
         if (!await productRepository.ExistsAsync(productId))
@@ -243,7 +243,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [HttpPut("{productImageId:guid}")]
+    [HttpPut("{productId:guid}/images/{productImageId:guid}")]
     public async Task<IActionResult> UpdateImageOrder([FromRoute] [NonZeroGuid] Guid productImageId, [FromBody] ProductImageUpdateOrderDto dto)
     {
         if (dto.DisplayOrder < 0)
@@ -281,7 +281,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [HttpDelete("{productImageId:guid}")]
+    [HttpDelete("{productId:guid}/images/{productImageId:guid}")]
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid productImageId)
     {
         var productImageEntity = await productImageRepository.GetByIdAsync(productImageId);
