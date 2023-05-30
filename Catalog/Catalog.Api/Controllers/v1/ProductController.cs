@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Catalog.Api.Controllers.v1;
 
 /// <summary>
-/// Controller responsible for Product entity.
+/// Controller responsible for Product entity and Product Image entity.
 /// </summary>
 [ApiController]
 [ApiVersion("1.0")]
@@ -40,7 +40,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Gets all products.
     /// </summary>
-    /// <response code="200">Returns the list of products.</response>
+    /// <response code="200">Products successfully retrieved, returns a list of all products.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllProducts()
@@ -53,11 +53,11 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Gets a specific product.
+    /// Retrieves a specific product by its ID.
     /// </summary>
-    /// <param name="productId">The productId of the product to get.</param>
-    /// <response code="200">Returns the requested product.</response>
-    /// <response code="404">If the product is not found.</response>
+    /// <param name="productId">ID of the desired product.</param>
+    /// <response code="200">Product found and returned successfully.</response>
+    /// <response code="404">Product with the given ID does not exist.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}")]
@@ -74,13 +74,13 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Creates a new product.
+    /// Adds a new product.
     /// </summary>
-    /// <param name="dto">The product to create.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the product is null or invalid.</response>
-    /// <response code="404">If the brand or category is not found.</response>
-    /// <response code="409">If there was a conflict while adding the product.</response>
+    /// <param name="dto">Object containing the details of the new product.</param>
+    /// <response code="200">Product created successfully.</response>
+    /// <response code="400">Invalid product data or product data is null.</response>
+    /// <response code="404">Brand, or category with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while updating the product.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -105,14 +105,14 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Updates a specific product.
+    /// Updates an existing product.
     /// </summary>
-    /// <param name="productId">The productId of the product to update.</param>
-    /// <param name="dto">The product to update.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the product is null or invalid.</response>
-    /// <response code="404">If the product, brand, or category is not found.</response>
-    /// <response code="409">If there was a conflict while updating the product.</response>
+    /// <param name="productId">ID of the product to update.</param>
+    /// <param name="dto">Object containing the updated details of the product.</param>
+    /// <response code="200">Product updated successfully.</response>
+    /// <response code="400">Invalid product data or product data is null.</response>
+    /// <response code="404">Product, brand, or category with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while updating the product.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -142,12 +142,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Deletes a specific product.
+    /// Deletes an existing product.
     /// </summary>
-    /// <param name="productId">The productId of the product to delete.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="404">If the product is not found.</response>
-    /// <response code="409">If there was a conflict while deleting the product.</response>
+    /// <param name="productId">ID of the product to delete.</param>
+    /// <response code="200">Product deleted successfully.</response>
+    /// <response code="404">Product with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while deleting the product.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -168,11 +168,11 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Gets all product images by product productId.
+    /// Retrieves all images for a specified product.
     /// </summary>
-    /// <param name="productId">The productId of the product.</param>
-    /// <response code="200">Returns the list of product images.</response>
-    /// <response code="404">If the product is not found.</response>
+    /// <param name="productId">ID of the product.</param>
+    /// <response code="200">Images successfully retrieved, returns a list of all product images.</response>
+    /// <response code="404">Product with the given ID does not exist.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}/images")]
@@ -189,14 +189,14 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Adds a new product image.
+    /// Adds a new image to the specified product.
     /// </summary>
-    /// <param name="productId">The productId of the product.</param>
-    /// <param name="dto">The product image to add.</param>
-    /// <response code="200">Returns the URL to the added product image.</response>
-    /// <response code="400">If the product image is null, invalid, or the maximum limit of images has been reached.</response>
-    /// <response code="404">If the product is not found.</response>
-    /// <response code="409">If there was a conflict while adding the product image to db or adding it to the blob storage.</response>
+    /// <param name="productId">ID of the product.</param>
+    /// <param name="dto">Object containing the new image details.</param>
+    /// <response code="200">Image added successfully, returns the URL of the added image.</response>
+    /// <response code="400">Invalid image data, image data is null, or maximum limit of images has been reached.</response>
+    /// <response code="404">Product with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while adding the product image to the database or adding it to the blob storage.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -231,14 +231,14 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Updates display order of the product image.
+    /// Updates an existing product image.
     /// </summary>
-    /// <param name="productImageId">The productImageId of the product image to update.</param>
-    /// <param name="dto">The product image to update.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="400">If the product image is null or invalid.</response>
-    /// <response code="404">If the product image is not found.</response>
-    /// <response code="409">If there was a conflict while updating the product image.</response>
+    /// <param name="productImageId">ID of the product image to update.</param>
+    /// <param name="dto">Object containing the updated details of the product image.</param>
+    /// <response code="200">Product image updated successfully.</response>
+    /// <response code="400">Invalid product image data or product image data is null.</response>
+    /// <response code="404">Product image with the given ID does not exist. </response>
+    /// <response code="409">Conflict occurred while updating the product image.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -272,12 +272,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     }
 
     /// <summary>
-    /// Deletes a specific product image.
+    /// Deletes an existing product image.
     /// </summary>
-    /// <param name="productImageId">The productImageId of the product image to delete.</param>
-    /// <response code="200">Returns a confirmation of action.</response>
-    /// <response code="404">If the product image is not found.</response>
-    /// <response code="409">If there was a conflict while deleting the product image from db or deleting it from the blob storage.</response>
+    /// <param name="productImageId">ID of the product image to delete.</param>
+    /// <response code="200">Product image deleted successfully.</response>
+    /// <response code="404">Product image with the given ID does not exist</response>
+    /// <response code="409">Conflict occurred while deleting the product image from db or deleting it from the blob storage.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
