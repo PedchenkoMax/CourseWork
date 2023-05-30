@@ -12,6 +12,6 @@ public interface IProductController
     Task<IActionResult> DeleteProduct(Guid productId);
     Task<IActionResult> GetProductImages(Guid productId);
     Task<IActionResult> AddProductImage(Guid productId, ProductImageCreateDto dto);
-    Task<IActionResult> UpdateImageOrder(Guid productImageId, ProductImageUpdateOrderDto dto);
+    Task<IActionResult> UpdateImage(Guid productImageId, ProductImageUpdateDto dto);
     Task<IActionResult> DeleteProductImage(Guid productImageId);
 }

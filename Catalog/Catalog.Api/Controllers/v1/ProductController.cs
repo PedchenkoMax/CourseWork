@@ -244,7 +244,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPut("{productId:guid}/images/{productImageId:guid}")]
-    public async Task<IActionResult> UpdateImageOrder([FromRoute] [NonZeroGuid] Guid productImageId, [FromBody] ProductImageUpdateOrderDto dto)
+    public async Task<IActionResult> UpdateImage([FromRoute] [NonZeroGuid] Guid productImageId, [FromBody] ProductImageUpdateDto dto)
     {
         if (dto.DisplayOrder < 0)
             return BadRequest();
