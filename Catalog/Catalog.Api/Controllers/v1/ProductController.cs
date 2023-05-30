@@ -233,10 +233,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <summary>
     /// Updates an existing product image.
     /// </summary>
+    /// <param name="productId">ID of the product to which the image belongs.</param>
     /// <param name="productImageId">ID of the product image to update.</param>
     /// <param name="dto">Object containing the updated details of the product image.</param>
     /// <response code="200">Product image updated successfully.</response>
-    /// <response code="400">Invalid product image data or product image data is null.</response>
+    /// <response code="400">Invalid product image data, product image data is null
+    /// or provided product ID does not match with the product ID associated with the image.</response>
     /// <response code="404">Product image with the given ID does not exist. </response>
     /// <response code="409">Conflict occurred while updating the product image.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -244,7 +246,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPut("{productId:guid}/images/{productImageId:guid}")]
-    public async Task<IActionResult> UpdateImage([FromRoute] [NonZeroGuid] Guid productImageId, [FromBody] ProductImageUpdateDto dto)
+    public async Task<IActionResult> UpdateImage([FromRoute] [NonZeroGuid] Guid productId, [FromRoute] [NonZeroGuid] Guid productImageId,
+        [FromBody] ProductImageUpdateDto dto)
     {
         if (dto.DisplayOrder < 0)
             return BadRequest();
@@ -252,6 +255,9 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         var entity = await productImageRepository.GetByIdAsync(productImageId);
         if (entity == null)
             return NotFound(nameof(productImageId));
+
+        if (entity.ProductId != productId)
+            return BadRequest("The product ID provided does not match the product ID associated with the image.");
 
         if (entity.DisplayOrder == dto.DisplayOrder)
             return Ok();
@@ -276,18 +282,24 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// </summary>
     /// <param name="productImageId">ID of the product image to delete.</param>
     /// <response code="200">Product image deleted successfully.</response>
+    /// <param name="productId">ID of the product to which the image belongs.</param>
+    /// <response code="400">Provided product ID does not match with the product ID associated with the image.</response>
     /// <response code="404">Product image with the given ID does not exist</response>
     /// <response code="409">Conflict occurred while deleting the product image from db or deleting it from the blob storage.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpDelete("{productId:guid}/images/{productImageId:guid}")]
-    public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid productImageId)
+    public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromRoute] [NonZeroGuid] Guid productImageId)
     {
         var productImageEntity = await productImageRepository.GetByIdAsync(productImageId);
         if (productImageEntity == null)
             return NotFound(nameof(productImageId));
 
+        if (productImageEntity.ProductId != productId)
+            return BadRequest("The product ID provided does not match the product ID associated with the image.");
+        
         var isDeleted = await blobService.DeleteFileAsync(BucketName, productImageEntity.ImageFileName);
         if (!isDeleted)
             return Conflict();
