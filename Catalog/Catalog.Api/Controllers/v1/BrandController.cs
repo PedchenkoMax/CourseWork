@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,15 @@ namespace Catalog.Api.Controllers.v1;
 public class BrandController : ApiControllerBase<BrandController>, IBrandController
 {
     private readonly IBrandRepository brandRepository;
+    private readonly IBlobService blobService;
+    private readonly IBlobServiceSettings blobServiceSettings;
 
-    public BrandController(IBrandRepository brandRepository)
+    public BrandController(IBrandRepository brandRepository, IBlobService blobService,
+        IBlobServiceSettings blobServiceSettings)
     {
         this.brandRepository = brandRepository;
+        this.blobService = blobService;
+        this.blobServiceSettings = blobServiceSettings;
     }
 
     /// <summary>

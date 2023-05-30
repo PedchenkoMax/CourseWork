@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,15 @@ namespace Catalog.Api.Controllers.v1;
 public class CategoryController : ApiControllerBase<CategoryController>, ICategoryController
 {
     private readonly ICategoryRepository categoryRepository;
+    private readonly IBlobService blobService;
+    private readonly IBlobServiceSettings blobServiceSettings;
 
-    public CategoryController(ICategoryRepository categoryRepository)
+    public CategoryController(ICategoryRepository categoryRepository, IBlobService blobService,
+        IBlobServiceSettings blobServiceSettings)
     {
         this.categoryRepository = categoryRepository;
+        this.blobService = blobService;
+        this.blobServiceSettings = blobServiceSettings;
     }
 
     /// <summary>
