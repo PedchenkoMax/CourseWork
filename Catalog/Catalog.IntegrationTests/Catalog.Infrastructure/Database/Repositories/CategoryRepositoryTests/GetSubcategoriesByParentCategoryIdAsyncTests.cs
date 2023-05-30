@@ -8,18 +8,18 @@ using Xunit;
 
 namespace Catalog.IntegrationTests.Catalog.Infrastructure.Database.Repositories.CategoryRepositoryTests;
 
-public class GetChildrenByParentCategoryIdAsyncTests : IClassFixture<DatabaseFixture>
+public class GetSubcategoriesByParentCategoryIdAsyncTests : IClassFixture<DatabaseFixture>
 {
     private readonly ICategoryRepository categoryRepository;
 
-    public GetChildrenByParentCategoryIdAsyncTests(DatabaseFixture fixture)
+    public GetSubcategoriesByParentCategoryIdAsyncTests(DatabaseFixture fixture)
     {
         var context = new DapperDbContext(fixture.ConnectionString);
         categoryRepository = new CategoryRepository(context);
     }
 
     [Fact]
-    public async Task GetChildrenByParentCategoryId_ShouldReturnChildrenCategories_WhenChildrenExist()
+    public async Task GetSubcategoriesByParentCategoryIdAsync_ShouldReturnChildrenCategories_WhenChildrenExist()
     {
         // Arrange
         var parentCategory = CategoryTestHelper.Default();
@@ -32,7 +32,7 @@ public class GetChildrenByParentCategoryIdAsyncTests : IClassFixture<DatabaseFix
         await categoryRepository.AddAsync(childCategory2);
 
         // Act
-        var childrenCategories = await categoryRepository.GetChildrenByParentCategoryId(parentCategory.Id);
+        var childrenCategories = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(parentCategory.Id);
 
         // Assert
         childrenCategories.Should().NotBeNull();
@@ -42,14 +42,14 @@ public class GetChildrenByParentCategoryIdAsyncTests : IClassFixture<DatabaseFix
     }
 
     [Fact]
-    public async Task GetChildrenByParentCategoryId_ShouldReturnEmptyList_WhenNoChildrenExist()
+    public async Task GetSubcategoriesByParentCategoryIdAsync_ShouldReturnEmptyList_WhenNoChildrenExist()
     {
         // Arrange
         var testCategory = CategoryTestHelper.Default();
         await categoryRepository.AddAsync(testCategory);
 
         // Act
-        var childrenCategories = await categoryRepository.GetChildrenByParentCategoryId(testCategory.Id);
+        var childrenCategories = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(testCategory.Id);
 
         // Assert
         childrenCategories.Should().BeEmpty();

@@ -38,20 +38,20 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     }
 
     /// <summary>
-    /// Gets all child categories by parent categoryId.
+    /// Gets all subcategories by parent categoryId.
     /// </summary>
     /// <param name="categoryId">The categoryId of the parent category.</param>
-    /// <response code="200">Returns the list of child categories.</response>
+    /// <response code="200">Returns the list of subcategories.</response>
     /// <response code="404">If the parent category is not found.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [HttpGet("{categoryId:guid}/children")]
-    public async Task<IActionResult> GetCategoryChildren([FromRoute] [NonZeroGuid] Guid categoryId)
+    [HttpGet("{categoryId:guid}/subcategories")]
+    public async Task<IActionResult> GetCategorySubcategories([FromRoute] [NonZeroGuid] Guid categoryId)
     {
         if (!await categoryRepository.ExistsAsync(categoryId))
             return NotFound(nameof(categoryId));
 
-        var categoryEntities = await categoryRepository.GetChildrenByParentCategoryId(categoryId);
+        var categoryEntities = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(categoryId);
 
         var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
 
