@@ -2,6 +2,6 @@
 
 public interface IBlobService
 {
-    public Task UploadFileAsync(string bucketName, IFormFile file);
+    public Task UploadFileAsync(string bucketName, string uniqueFileName, IFormFile file);
     public Task DeleteFileAsync(string bucketName, string imageName);
 }
