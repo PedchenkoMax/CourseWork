@@ -14,10 +14,9 @@ public class CategoryEntityTests
         var name = "Test Category";
         var description = "Test Description";
         var imageUrl = "";
-        var displayOrder = 1;
 
         // Act
-        var result = CategoryEntity.TryCreate(parentCategoryId, name, description, imageUrl, displayOrder, out var entity);
+        var result = CategoryEntity.TryCreate(parentCategoryId, name, description, imageUrl, out var entity);
 
         // Assert
         result.IsValid.Should().BeTrue();
@@ -26,7 +25,6 @@ public class CategoryEntityTests
         entity.Name.Should().Be(name);
         entity.Description.Should().Be(description);
         entity.ImageFileName.Should().Be(imageUrl);
-        entity.DisplayOrder.Should().Be(displayOrder);
     }
 
     [Fact]
@@ -37,18 +35,16 @@ public class CategoryEntityTests
         var name = "Test Category";
         var description = "Test Description";
         var imageUrl = "";
-        var displayOrder = 1;
 
-        CategoryEntity.TryCreate(parentCategoryId, name, description, imageUrl, displayOrder, out var entity);
+        CategoryEntity.TryCreate(parentCategoryId, name, description, imageUrl, out var entity);
 
         // Act
         Guid? newParentCategoryId = null;
         var newName = "Updated Category";
         var newDescription = "Updated Description";
         var newImageUrl = "";
-        var newDisplayOrder = 2;
 
-        var result = entity.Update(newParentCategoryId, newName, newDescription, newImageUrl, newDisplayOrder);
+        var result = entity.Update(newParentCategoryId, newName, newDescription, newImageUrl);
 
         // Assert
         result.IsValid.Should().BeTrue();
@@ -56,6 +52,5 @@ public class CategoryEntityTests
         entity.Name.Should().Be(newName);
         entity.Description.Should().Be(newDescription);
         entity.ImageFileName.Should().Be(newImageUrl);
-        entity.DisplayOrder.Should().Be(newDisplayOrder);
     }
 }

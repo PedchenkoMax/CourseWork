@@ -88,19 +88,4 @@ public class CategoryEntityValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(categoryEntity.Description));
     }
-
-    [Fact]
-    public void Validate_NegativeDisplayOrder_ShouldHaveValidationError()
-    {
-        // Arrange
-        var categoryEntity = CategoryTestHelper.GetEntity(displayOrder: -1);
-
-
-        // Act
-        var result = validator.Validate(categoryEntity);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == nameof(categoryEntity.DisplayOrder));
-    }
 }

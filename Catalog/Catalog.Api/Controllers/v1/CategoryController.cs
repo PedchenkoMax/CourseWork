@@ -124,7 +124,6 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             parentCategoryId: dto.ParentCategoryId,
             description: dto.Description,
             imageFileName: fileName ?? "default.png", // TODO: replace with value from config
-            displayOrder: dto.DisplayOrder,
             entity: out var categoryEntity);
 
         if (!validationResult.IsValid)
@@ -177,8 +176,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             name: dto.Name,
             parentCategoryId: dto.ParentCategoryId,
             description: dto.Description,
-            imageFileName: fileName ?? "default.png", // TODO: replace with value from config
-            displayOrder: dto.DisplayOrder);
+            imageFileName: fileName ?? "default.png"); // TODO: replace with value from config
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

@@ -88,18 +88,4 @@ public class BrandEntityValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().Contain(e => e.PropertyName == nameof(brandEntity.Description));
     }
-
-    [Fact]
-    public void Validate_NegativeDisplayOrder_ShouldHaveValidationError()
-    {
-        // Arrange
-        var brandEntity = BrandTestHelper.GetEntity(displayOrder: -1);
-
-        // Act
-        var result = validator.Validate(brandEntity);
-
-        // Assert
-        result.IsValid.Should().BeFalse();
-        result.Errors.Should().Contain(e => e.PropertyName == nameof(brandEntity.DisplayOrder));
-    }
 }

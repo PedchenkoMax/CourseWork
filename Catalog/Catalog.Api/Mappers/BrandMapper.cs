@@ -12,8 +12,7 @@ public static class BrandMapper
             Id: entity.Id,
             Name: entity.Name,
             Description: entity.Description,
-            ImageUrl: entity.ImageFileName,
-            DisplayOrder: entity.DisplayOrder);
+            ImageUrl: entity.ImageFileName);
     }
 
     public static ValidationResult TryCreateEntity(BrandWriteDto writeDto, out BrandEntity entity)
@@ -22,7 +21,6 @@ public static class BrandMapper
             name: writeDto.Name,
             description: writeDto.Description,
             imageFileName: writeDto.ImageUrl,
-            displayOrder: writeDto.DisplayOrder,
             out entity);
 
         return validationResult;
@@ -33,8 +31,7 @@ public static class BrandMapper
         var validationResult = entity.Update(
             name: writeDto.Name,
             description: writeDto.Description,
-            imageFileName: writeDto.ImageUrl,
-            displayOrder: writeDto.DisplayOrder);
+            imageFileName: writeDto.ImageUrl);
 
         return validationResult;
     }

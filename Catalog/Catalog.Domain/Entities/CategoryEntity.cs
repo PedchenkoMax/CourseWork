@@ -10,37 +10,34 @@ public class CategoryEntity
     public string Name { get; private set; }
     public string Description { get; private set; }
     public string ImageFileName { get; private set; }
-    public int DisplayOrder { get; private set; }
 
     private CategoryEntity()
     {
     }
 
-    private CategoryEntity(Guid? parentCategoryId, string name, string description, string imageFileName, int displayOrder)
+    private CategoryEntity(Guid? parentCategoryId, string name, string description, string imageFileName)
     {
         Id = Guid.NewGuid();
         ParentCategoryId = parentCategoryId;
         Name = name;
         Description = description;
         ImageFileName = imageFileName;
-        DisplayOrder = displayOrder;
     }
 
     public static ValidationResult TryCreate(Guid? parentCategoryId, string name, string description, string imageFileName,
-        int displayOrder, out CategoryEntity entity)
+        out CategoryEntity entity)
     {
-        entity = new CategoryEntity(parentCategoryId, name, description, imageFileName, displayOrder);
+        entity = new CategoryEntity(parentCategoryId, name, description, imageFileName);
 
         return new CategoryEntityValidator().Validate(entity);
     }
 
-    public ValidationResult Update(Guid? parentCategoryId, string name, string description, string imageFileName, int displayOrder)
+    public ValidationResult Update(Guid? parentCategoryId, string name, string description, string imageFileName)
     {
         ParentCategoryId = parentCategoryId;
         Name = name;
         Description = description;
         ImageFileName = imageFileName;
-        DisplayOrder = displayOrder;
 
         return new CategoryEntityValidator().Validate(this);
     }

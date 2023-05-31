@@ -4,11 +4,9 @@ public record BrandReadDto(
     Guid Id,
     string Name,
     string Description,
-    string ImageUrl,
-    int DisplayOrder);
+    string ImageUrl);
 
 public record BrandWriteDto(
     string Name,
     string Description,
-    IFormFile? ImageFile,
-    int DisplayOrder);
+    IFormFile? ImageFile);

@@ -9,35 +9,31 @@ public class BrandEntity
     public string Name { get; private set; }
     public string Description { get; private set; }
     public string ImageFileName { get; private set; }
-    public int DisplayOrder { get; private set; }
 
     private BrandEntity()
     {
     }
 
-    private BrandEntity(string name, string description, string imageFileName, int displayOrder)
+    private BrandEntity(string name, string description, string imageFileName)
     {
         Id = Guid.NewGuid();
         Name = name;
         Description = description;
         ImageFileName = imageFileName;
-        DisplayOrder = displayOrder;
     }
 
-    public static ValidationResult TryCreate(string name, string description, string imageFileName, int displayOrder,
-        out BrandEntity entity)
+    public static ValidationResult TryCreate(string name, string description, string imageFileName, out BrandEntity entity)
     {
-        entity = new BrandEntity(name, description, imageFileName, displayOrder);
+        entity = new BrandEntity(name, description, imageFileName);
 
         return new BrandEntityValidator().Validate(entity);
     }
 
-    public ValidationResult Update(string name, string description, string imageFileName, int displayOrder)
+    public ValidationResult Update(string name, string description, string imageFileName)
     {
         Name = name;
         Description = description;
         ImageFileName = imageFileName;
-        DisplayOrder = displayOrder;
 
         return new BrandEntityValidator().Validate(this);
     }

@@ -18,7 +18,6 @@ public class CategoryMapperTests
             name: "Test Category",
             description: "Test Description",
             imageFileName: "",
-            displayOrder: 1,
             out var entity
         );
 
@@ -32,7 +31,6 @@ public class CategoryMapperTests
         dto.Name.Should().Be(entity.Name);
         dto.Description.Should().Be(entity.Description);
         dto.ImageUrl.Should().Be(entity.ImageFileName);
-        dto.DisplayOrder.Should().Be(entity.DisplayOrder);
     }
 
     [Fact]
@@ -44,8 +42,7 @@ public class CategoryMapperTests
             ParentCategoryId: null,
             Name: "Test Category",
             Description: "Test Description",
-            ImageUrl: "",
-            DisplayOrder: 1
+            ImageUrl: ""
         );
 
         // Act
@@ -58,22 +55,20 @@ public class CategoryMapperTests
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
         entity.ImageFileName.Should().Be(dto.ImageUrl);
-        entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 
     [Fact]
     public void TryUpdateEntity_ValidDto_ReturnsValidEntity()
     {
         // Arrange
-        CategoryEntity.TryCreate(null, "Test Category", "Test Description", "", 1, out var entity);
+        CategoryEntity.TryCreate(null, "Test Category", "Test Description", "", out var entity);
 
         var dto = new CategoryWriteDto
         (
             ParentCategoryId: null,
             Name: "Updated Test Category",
             Description: "Updated Test Description",
-            ImageUrl: "",
-            DisplayOrder: 2
+            ImageUrl: ""
         );
 
         // Act
@@ -85,6 +80,5 @@ public class CategoryMapperTests
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
         entity.ImageFileName.Should().Be(dto.ImageUrl);
-        entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 }

@@ -97,7 +97,6 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
             name: dto.Name,
             description: dto.Description,
             imageFileName: fileName ?? "default.png", // TODO: replace with value from config
-            displayOrder: 0,
             entity: out var brandEntity);
 
         if (!validationResult.IsValid)
@@ -146,8 +145,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         var validationResult = brandEntity.Update(
             name: dto.Name,
             description: dto.Description,
-            imageFileName: fileName ?? brandEntity.ImageFileName,
-            displayOrder: dto.DisplayOrder);
+            imageFileName: fileName ?? brandEntity.ImageFileName);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

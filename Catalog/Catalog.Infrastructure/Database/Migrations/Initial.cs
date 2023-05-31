@@ -12,8 +12,7 @@ public class Initial : Migration
               .WithColumn("id").AsGuid().PrimaryKey()
               .WithColumn("name").AsString().NotNullable()
               .WithColumn("description").AsString().NotNullable()
-              .WithColumn("image_file_name").AsString().NotNullable()
-              .WithColumn("display_order").AsInt32().NotNullable();
+              .WithColumn("image_file_name").AsString().NotNullable();
 
 
         Create.Table("categories")
@@ -21,8 +20,7 @@ public class Initial : Migration
               .WithColumn("parent_category_id").AsGuid().Nullable()
               .WithColumn("name").AsString().NotNullable()
               .WithColumn("description").AsString().NotNullable()
-              .WithColumn("image_file_name").AsString().NotNullable()
-              .WithColumn("display_order").AsInt32().NotNullable();
+              .WithColumn("image_file_name").AsString().NotNullable();
 
         Create.ForeignKey("fk_categories_parent_categories")
               .FromTable("categories").ForeignColumn("parent_category_id")
