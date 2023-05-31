@@ -95,13 +95,13 @@ public class CategoryRepository : ICategoryRepository
                  {CategorySchema.Columns.ParentCategoryId},
                  {CategorySchema.Columns.Name},
                  {CategorySchema.Columns.Description},
-                 {CategorySchema.Columns.ImageFileName}
+                 {CategorySchema.Columns.ImageFileName})
             VALUES 
                 (@{nameof(category.Id)},
                  @{nameof(category.ParentCategoryId)},
                  @{nameof(category.Name)},
                  @{nameof(category.Description)},
-                 @{nameof(category.ImageFileName)}
+                 @{nameof(category.ImageFileName)})
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, category);

@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
@@ -79,12 +79,12 @@ public class BrandRepository : IBrandRepository
                 ({BrandSchema.Columns.Id}, 
                  {BrandSchema.Columns.Name},
                  {BrandSchema.Columns.Description},
-                 {BrandSchema.Columns.ImageFileName}
+                 {BrandSchema.Columns.ImageFileName})
             VALUES 
                 (@{nameof(brand.Id)},
                  @{nameof(brand.Name)},
                  @{nameof(brand.Description)},
-                 @{nameof(brand.ImageFileName)}
+                 @{nameof(brand.ImageFileName)})
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, brand);
