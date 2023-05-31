@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Api.Validators;
@@ -178,13 +179,14 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
             return NotFound(nameof(brandId));
 
         // TODO: upload after TryCreate
-        var fileName = await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, dto.ImageFile);
+        var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
+        await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, uniqueFileName, dto.ImageFile);
         await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
 
         var validationResult = brandEntity.Update(
             name: brandEntity.Name,
             description: brandEntity.Description,
-            imageFileName: fileName);
+            imageFileName: uniqueFileName);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

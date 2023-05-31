@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Api.Validators;
@@ -207,7 +208,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         var validationResult = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
-        
+
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
 
@@ -216,9 +217,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (imageCount > maxCount)
             return BadRequest(nameof(imageCount), $"The maximum number of images {maxCount} for this product has been reached.");
 
-        var uniqueFileName = await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, dto.ImageFile);
-        if (uniqueFileName == null)
-            return Conflict();
+        var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
+        await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
 
         var imageUrl = $"{blobServiceSettings.Endpoint}/{blobServiceSettings.ProductImageBucketName}/{uniqueFileName}";
 
