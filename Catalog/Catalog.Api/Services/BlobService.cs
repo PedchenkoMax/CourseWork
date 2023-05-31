@@ -12,18 +12,16 @@ public class BlobService : IBlobService
         this.blobStorage = blobStorage;
     }
 
-    public async Task<string?> UploadFileAsync(string bucketName, IFormFile file)
+    public async Task UploadFileAsync(string bucketName, IFormFile file)
     {
         var uniqueFileName = GenerateUniqueFileName(file);
 
-        var objectName = await blobStorage.UploadFileAsync(bucketName, file.OpenReadStream(), uniqueFileName, file.ContentType);
-
-        return objectName;
+        await blobStorage.UploadFileAsync(bucketName, file.OpenReadStream(), uniqueFileName, file.ContentType);
     }
 
-    public async Task<bool> DeleteFileAsync(string bucketName, string imageName)
+    public async Task DeleteFileAsync(string bucketName, string imageName)
     {
-        return await blobStorage.DeleteFileAsync(bucketName, imageName);
+        await blobStorage.DeleteFileAsync(bucketName, imageName);
     }
 
     private static string GenerateUniqueFileName(IFormFile file)
