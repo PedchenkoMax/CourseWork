@@ -1,4 +1,5 @@
-﻿using Catalog.Api.Services;
+﻿using Catalog.Api.Middlewares;
+using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
 using Catalog.Infrastructure.BlobStorage.Abstractions;
@@ -72,6 +73,8 @@ var app = builder.Build();
 {
     app.UseSwagger(options => options.RouteTemplate = "swagger/{documentName}/swagger.json");
     app.UseSwaggerUI(options => { options.SwaggerEndpoint($"/swagger/v1/swagger.json", $"v1"); });
+
+    app.UseExceptionHandlingMiddleware();
 
     app.MapControllers();
 }
