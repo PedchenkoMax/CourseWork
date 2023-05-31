@@ -1,7 +1,10 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
+using Catalog.Api.Validators;
+using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,10 +19,15 @@ namespace Catalog.Api.Controllers.v1;
 public class CategoryController : ApiControllerBase<CategoryController>, ICategoryController
 {
     private readonly ICategoryRepository categoryRepository;
+    private readonly IBlobService blobService;
+    private readonly IBlobServiceSettings blobServiceSettings;
 
-    public CategoryController(ICategoryRepository categoryRepository)
+    public CategoryController(ICategoryRepository categoryRepository, IBlobService blobService,
+        IBlobServiceSettings blobServiceSettings)
     {
         this.categoryRepository = categoryRepository;
+        this.blobService = blobService;
+        this.blobServiceSettings = blobServiceSettings;
     }
 
     /// <summary>
@@ -86,7 +94,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <response code="200">Category created successfully.</response>
     /// <response code="400">Invalid category data or category data is null.</response>
     /// <response code="404">Parent category with the given ID does not exist.</response>
-    /// <response code="409">Conflict occurred while adding the category.</response>
+    /// <response code="409">Conflict occurred while adding the category to db or adding image to blob storage.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -94,10 +102,30 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto dto)
     {
+        string? fileName = null;
+        if (dto.ImageFile != null)
+        {
+            var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
+            if (!result.IsValid)
+                return BadRequest(result);
+
+            // TODO: upload after TryCreate
+            fileName = await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, dto.ImageFile);
+
+            if (fileName == null)
+                return Conflict();
+        }
+
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
 
-        var validationResult = CategoryMapper.TryCreateEntity(dto, out var categoryEntity);
+        var validationResult = CategoryEntity.TryCreate(
+            name: dto.Name,
+            parentCategoryId: dto.ParentCategoryId,
+            description: dto.Description,
+            imageFileName: fileName ?? "default.png", // TODO: replace with value from config
+            displayOrder: dto.DisplayOrder,
+            entity: out var categoryEntity);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -115,7 +143,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <response code="200">Category updated successfully.</response>
     /// <response code="400">Invalid category data or category data is null.</response>
     /// <response code="404">Category or parent category with the given ID does not exist.</response>
-    /// <response code="409">Conflict occurred while updating the category.</response>
+    /// <response code="409">Conflict occurred while updating the category in db or updating image in blob storage.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -123,6 +151,20 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}")]
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid categoryId, [FromBody] CategoryWriteDto dto)
     {
+        string? fileName = null;
+        if (dto.ImageFile != null)
+        {
+            var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
+            if (!result.IsValid)
+                return BadRequest(result);
+
+            // TODO: upload after Update
+            fileName = await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, dto.ImageFile);
+
+            if (fileName == null)
+                return Conflict();
+        }
+
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
 
@@ -131,7 +173,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        var validationResult = CategoryMapper.TryUpdateEntity(dto, categoryEntity);
+        var validationResult = categoryEntity.Update(
+            name: dto.Name,
+            parentCategoryId: dto.ParentCategoryId,
+            description: dto.Description,
+            imageFileName: fileName ?? "default.png", // TODO: replace with value from config
+            displayOrder: dto.DisplayOrder);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -145,20 +192,28 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// Deletes an existing category.
     /// </summary>
     /// <param name="categoryId">The categoryId of the category to delete.</param>
-    /// <response code="200">Category deleted successfully, returns a confirmation of action.</response>
+    /// <response code="200">Category deleted successfully.</response>
     /// <response code="404">Category with the given ID does not exist.</response>
-    /// <response code="409">Conflict occurred while deleting the category.</response>
+    /// <response code="409">Conflict occurred while deleting the category from db or deleting image from blob storage.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpDelete("{categoryId:guid}")]
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid categoryId)
     {
-        if (!await categoryRepository.ExistsAsync(categoryId))
+        var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
+        if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        var isDeleted = await categoryRepository.RemoveByIdAsync(categoryId);
+        if (categoryEntity.Name != "default.png") // TODO: replace with value from config
+        {
+            var isDeleted = await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
+            if (!isDeleted)
+                return Conflict();
+        }
 
-        return isDeleted ? Ok() : Conflict();
+        var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
+
+        return isRemoved ? Ok() : Conflict();
     }
 }

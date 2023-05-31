@@ -1,4 +1,4 @@
-using Catalog.Api.Services;
+﻿using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
 using Catalog.Infrastructure.BlobStorage.Abstractions;
@@ -27,6 +27,9 @@ var services = builder.Services;
         options.AccessKey = configuration["MinioAccessKey"]!;
         options.SecretKey = configuration["MinioSecretKey"]!;
     });
+
+    var blobServiceSettings = configuration.GetSection("MinioBlobServiceSettings").Get<BlobServiceSettings>()!;
+    services.AddSingleton<IBlobServiceSettings, BlobServiceSettings>(_ => blobServiceSettings);
 
     services.AddTransient<IBlobStorage, MinioBlobStorage>();
     services.AddTransient<IBlobService, BlobService>();

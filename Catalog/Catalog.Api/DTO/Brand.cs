@@ -10,5 +10,5 @@ public record BrandReadDto(
 public record BrandWriteDto(
     string Name,
     string Description,
-    string ImageUrl,
+    IFormFile? ImageFile,
     int DisplayOrder);

@@ -18,23 +18,23 @@ namespace Catalog.Api.Controllers.v1;
 [Route("api/v{version:apiVersion}/products")]
 public class ProductController : ApiControllerBase<ProductController>, IProductController
 {
-    private const string BlobAccess = "VALUE";
-    private const string BucketName = "VALUE";
-
     private readonly IProductRepository productRepository;
     private readonly IProductImageRepository productImageRepository;
     private readonly IBrandRepository brandRepository;
     private readonly ICategoryRepository categoryRepository;
     private readonly IBlobService blobService;
+    private readonly IBlobServiceSettings blobServiceSettings;
 
     public ProductController(IProductRepository productRepository, IProductImageRepository productImageRepository,
-        IBrandRepository brandRepository, ICategoryRepository categoryRepository, IBlobService blobService)
+        IBrandRepository brandRepository, ICategoryRepository categoryRepository, IBlobService blobService,
+        IBlobServiceSettings blobServiceSettings)
     {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
         this.brandRepository = brandRepository;
         this.categoryRepository = categoryRepository;
         this.blobService = blobService;
+        this.blobServiceSettings = blobServiceSettings;
     }
 
     /// <summary>
@@ -204,23 +204,23 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpPost("{productId:guid}/images")]
     public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageCreateDto dto)
     {
-        if (!await productRepository.ExistsAsync(productId))
-            return NotFound(nameof(productId));
-
         var validationResult = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
+        
+        if (!await productRepository.ExistsAsync(productId))
+            return NotFound(nameof(productId));
 
         const int maxCount = 10;
         var imageCount = await productImageRepository.GetProductImageCount(productId);
         if (imageCount > maxCount)
             return BadRequest(nameof(imageCount), $"The maximum number of images {maxCount} for this product has been reached.");
 
-        var uniqueFileName = await blobService.UploadFileAsync(BucketName, dto.ImageFile);
+        var uniqueFileName = await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, dto.ImageFile);
         if (uniqueFileName == null)
             return Conflict();
 
-        var imageUrl = $"{BlobAccess}/{BucketName}/{uniqueFileName}";
+        var imageUrl = $"{blobServiceSettings.Endpoint}/{blobServiceSettings.ProductImageBucketName}/{uniqueFileName}";
 
         // No need for validation check as it always valid at this point
         _ = ProductImageEntity.TryCreate(productId: productId, imageFileName: uniqueFileName, displayOrder: imageCount, out var entity);
@@ -326,7 +326,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productImageEntity.ProductId != productId)
             return BadRequest("The product ID provided does not match the product ID associated with the image.");
 
-        var isDeleted = await blobService.DeleteFileAsync(BucketName, productImageEntity.ImageFileName);
+        var isDeleted = await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
         if (!isDeleted)
             return Conflict();
 
