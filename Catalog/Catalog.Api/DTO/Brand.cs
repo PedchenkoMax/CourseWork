@@ -8,5 +8,6 @@ public record BrandReadDto(
 
 public record BrandWriteDto(
     string Name,
-    string Description,
-    IFormFile? ImageFile);
+    string Description);
+    
+public record BrandImageUpdateDto(IFormFile ImageFile);

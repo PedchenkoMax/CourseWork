@@ -12,5 +12,6 @@ public record CategoryReadDto(
 public record CategoryWriteDto(
     [NonZeroNullableGuid] Guid? ParentCategoryId,
     string Name,
-    string Description,
-    IFormFile? ImageFile);
+    string Description);
+    
+public record CategoryImageUpdateDto(IFormFile ImageFile);
