@@ -204,12 +204,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpPost("{productId:guid}/images")]
     public async Task<IActionResult> AddProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromForm] ProductImageCreateDto dto)
     {
-        if (!await productRepository.ExistsAsync(productId))
-            return NotFound(nameof(productId));
-
         var validationResult = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
+        
+        if (!await productRepository.ExistsAsync(productId))
+            return NotFound(nameof(productId));
 
         const int maxCount = 10;
         var imageCount = await productImageRepository.GetProductImageCount(productId);
