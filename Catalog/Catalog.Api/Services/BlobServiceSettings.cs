@@ -8,4 +8,8 @@ public class BlobServiceSettings : IBlobServiceSettings
     public string BrandImageBucketName { get; init; } = null!;
     public string CategoryImageBucketName { get; init; } = null!;
     public string ProductImageBucketName { get; init; } = null!;
+    public int MaxProductImages { get; init; }
+    public string DefaultCategoryImageName { get; init; } = null!;
+    public string DefaultBrandImageName { get; init; } = null!;
+    public string DefaultProductImageName { get; init; } = null!;
 }
