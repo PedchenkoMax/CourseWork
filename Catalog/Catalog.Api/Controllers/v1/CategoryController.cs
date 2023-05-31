@@ -110,7 +110,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             parentCategoryId: dto.ParentCategoryId,
             name: dto.Name,
             description: dto.Description,
-            imageFileName: "default.png",
+            imageFileName: blobServiceSettings.DefaultCategoryImageName,
             out var categoryEntity);
 
         if (!validationResult.IsValid)
@@ -176,7 +176,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        if (categoryEntity.Name != "default.png") // TODO: replace with value from config
+        if (categoryEntity.Name != blobServiceSettings.DefaultCategoryImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
@@ -251,7 +251,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             parentCategoryId: categoryEntity.ParentCategoryId,
             name: categoryEntity.Name,
             description: categoryEntity.Description,
-            imageFileName: "default.png");
+            imageFileName: blobServiceSettings.DefaultCategoryImageName);
 
         var isRemoved = await categoryRepository.UpdateAsync(categoryEntity);
 

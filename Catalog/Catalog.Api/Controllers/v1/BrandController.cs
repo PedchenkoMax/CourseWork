@@ -83,7 +83,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         var validationResult = BrandEntity.TryCreate(
             name: dto.Name,
             description: dto.Description,
-            imageFileName: "default.png", // TODO: replace with value from config
+            imageFileName: blobServiceSettings.DefaultBrandImageName,
             entity: out var brandEntity);
 
         if (!validationResult.IsValid)
@@ -145,7 +145,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (brandEntity == null)
             return NotFound(nameof(brandId));
 
-        if (brandEntity.Name != "default.png") // TODO: replace with value from config
+        if (brandEntity.Name != blobServiceSettings.DefaultBrandImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
 
 
@@ -219,7 +219,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         brandEntity.Update(
             name: brandEntity.Name,
             description: brandEntity.Description,
-            imageFileName: "default.png");
+            imageFileName: blobServiceSettings.DefaultBrandImageName);
 
         var isRemoved = await brandRepository.UpdateAsync(brandEntity);
 

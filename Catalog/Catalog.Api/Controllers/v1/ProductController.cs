@@ -212,10 +212,9 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
 
-        const int maxCount = 10;
         var imageCount = await productImageRepository.GetProductImageCount(productId);
-        if (imageCount > maxCount)
-            return BadRequest(nameof(imageCount), $"The maximum number of images {maxCount} for this product has been reached.");
+        if (imageCount > blobServiceSettings.MaxProductImages)
+            return BadRequest(nameof(imageCount), $"The maximum number of images {blobServiceSettings.MaxProductImages} for this product has been reached.");
 
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
         await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
