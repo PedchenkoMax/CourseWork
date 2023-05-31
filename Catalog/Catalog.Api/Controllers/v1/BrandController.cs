@@ -145,11 +145,8 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
             return NotFound(nameof(brandId));
 
         if (brandEntity.Name != "default.png") // TODO: replace with value from config
-        {
-            var isDeleted = await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
-            if (!isDeleted)
-                return Conflict();
-        }
+            await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
+
 
         var isRemoved = await brandRepository.RemoveByIdAsync(brandId);
 

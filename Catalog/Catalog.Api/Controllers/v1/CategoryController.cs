@@ -176,11 +176,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             return NotFound(nameof(categoryId));
 
         if (categoryEntity.Name != "default.png") // TODO: replace with value from config
-        {
-            var isDeleted = await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
-            if (!isDeleted)
-                return Conflict();
-        }
+            await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
 

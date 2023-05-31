@@ -326,9 +326,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productImageEntity.ProductId != productId)
             return BadRequest("The product ID provided does not match the product ID associated with the image.");
 
-        var isDeleted = await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
-        if (!isDeleted)
-            return Conflict();
+        await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
 
         var isRemoved = await productImageRepository.RemoveByIdAsync(productImageId);
 
