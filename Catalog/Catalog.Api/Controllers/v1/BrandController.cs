@@ -22,13 +22,15 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     private readonly IBrandRepository brandRepository;
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
+    private readonly IImageHandlingSettings imageHandlingSettings;
 
     public BrandController(IBrandRepository brandRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings)
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
     {
         this.brandRepository = brandRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
+        this.imageHandlingSettings = imageHandlingSettings;
     }
 
     /// <summary>
@@ -83,7 +85,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         var validationResult = BrandEntity.TryCreate(
             name: dto.Name,
             description: dto.Description,
-            imageFileName: blobServiceSettings.DefaultBrandImageName,
+            imageFileName: imageHandlingSettings.DefaultBrandImageName,
             entity: out var brandEntity);
 
         if (!validationResult.IsValid)
@@ -145,7 +147,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (brandEntity == null)
             return NotFound(nameof(brandId));
 
-        if (brandEntity.Name != blobServiceSettings.DefaultBrandImageName)
+        if (brandEntity.Name != imageHandlingSettings.DefaultBrandImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
 
 
@@ -219,7 +221,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         brandEntity.Update(
             name: brandEntity.Name,
             description: brandEntity.Description,
-            imageFileName: blobServiceSettings.DefaultBrandImageName);
+            imageFileName: imageHandlingSettings.DefaultBrandImageName);
 
         var isRemoved = await brandRepository.UpdateAsync(brandEntity);
 

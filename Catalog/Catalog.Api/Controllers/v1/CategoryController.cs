@@ -22,13 +22,15 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     private readonly ICategoryRepository categoryRepository;
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
+    private readonly IImageHandlingSettings imageHandlingSettings;
 
     public CategoryController(ICategoryRepository categoryRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings)
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
     {
         this.categoryRepository = categoryRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
+        this.imageHandlingSettings = imageHandlingSettings;
     }
 
     /// <summary>
@@ -110,7 +112,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             parentCategoryId: dto.ParentCategoryId,
             name: dto.Name,
             description: dto.Description,
-            imageFileName: blobServiceSettings.DefaultCategoryImageName,
+            imageFileName: imageHandlingSettings.DefaultCategoryImageName,
             out var categoryEntity);
 
         if (!validationResult.IsValid)
@@ -176,7 +178,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        if (categoryEntity.Name != blobServiceSettings.DefaultCategoryImageName)
+        if (categoryEntity.Name != imageHandlingSettings.DefaultCategoryImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
@@ -251,7 +253,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             parentCategoryId: categoryEntity.ParentCategoryId,
             name: categoryEntity.Name,
             description: categoryEntity.Description,
-            imageFileName: blobServiceSettings.DefaultCategoryImageName);
+            imageFileName: imageHandlingSettings.DefaultCategoryImageName);
 
         var isRemoved = await categoryRepository.UpdateAsync(categoryEntity);
 

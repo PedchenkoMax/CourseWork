@@ -25,10 +25,11 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     private readonly ICategoryRepository categoryRepository;
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
+    private readonly IImageHandlingSettings imageHandlingSettings;
 
     public ProductController(IProductRepository productRepository, IProductImageRepository productImageRepository,
         IBrandRepository brandRepository, ICategoryRepository categoryRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings)
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
     {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
@@ -36,6 +37,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         this.categoryRepository = categoryRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
+        this.imageHandlingSettings = imageHandlingSettings;
     }
 
     /// <summary>
@@ -213,8 +215,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
             return NotFound(nameof(productId));
 
         var imageCount = await productImageRepository.GetProductImageCount(productId);
-        if (imageCount > blobServiceSettings.MaxProductImages)
-            return BadRequest(nameof(imageCount), $"The maximum number of images {blobServiceSettings.MaxProductImages} for this product has been reached.");
+        if (imageCount > imageHandlingSettings.MaxProductImages)
+            return BadRequest(nameof(imageCount), $"The maximum number of images {imageHandlingSettings.MaxProductImages} for this product has been reached.");
 
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
         await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
