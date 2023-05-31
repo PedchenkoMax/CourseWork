@@ -24,9 +24,16 @@ public class ProductImageRepository : IProductImageRepository
             WHERE {ProductImageSchema.Columns.ProductId} = @{nameof(id)}
             """;
 
-        var res = await connection.QueryAsync<ProductImageEntity>(sql, new { id });
+        try
+        {
+            var res = await connection.QueryAsync<ProductImageEntity>(sql, new { id });
 
-        return res.ToList();
+            return res.ToList();
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<ProductImageEntity?> GetByIdAsync(Guid id)
@@ -38,9 +45,16 @@ public class ProductImageRepository : IProductImageRepository
             WHERE {ProductImageSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { id });
+        try
+        {
+            var res = await connection.QuerySingleOrDefaultAsync<ProductImageEntity>(sql, new { id });
 
-        return res;
+            return res;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> UpdateAsync(ProductImageEntity productImage)
@@ -54,9 +68,16 @@ public class ProductImageRepository : IProductImageRepository
             WHERE {ProductImageSchema.Columns.Id} = @{nameof(productImage.Id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, productImage);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, productImage);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> BatchUpdateAsync(List<ProductImageEntity> productImages)
@@ -70,9 +91,16 @@ public class ProductImageRepository : IProductImageRepository
             WHERE {ProductImageSchema.Columns.Id} = @{nameof(ProductImageEntity.Id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, productImages);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, productImages);
 
-        return rowsAffected == productImages.Count;
+            return rowsAffected == productImages.Count;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> RemoveByIdAsync(Guid id)
@@ -83,9 +111,16 @@ public class ProductImageRepository : IProductImageRepository
             WHERE {ProductImageSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, new { id });
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, new { id });
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> AddAsync(ProductImageEntity productImage)
@@ -104,9 +139,16 @@ public class ProductImageRepository : IProductImageRepository
                  @{nameof(productImage.DisplayOrder)})
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, productImage);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, productImage);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<bool> ExistsAsync(Guid id)
@@ -118,9 +160,16 @@ public class ProductImageRepository : IProductImageRepository
                            WHERE {ProductImageSchema.Columns.Id} = @{nameof(id)})
             """;
 
-        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
+        try
+        {
+            var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
 
-        return exists;
+            return exists;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 
     public async Task<int> GetProductImageCount(Guid productId)
@@ -132,8 +181,15 @@ public class ProductImageRepository : IProductImageRepository
             WHERE {ProductImageSchema.Columns.ProductId} = @{nameof(productId)}
             """;
 
-        var count = await connection.ExecuteScalarAsync<int>(sql, new { productId });
+        try
+        {
+            var count = await connection.ExecuteScalarAsync<int>(sql, new { productId });
 
-        return count;
+            return count;
+        }
+        catch (Exception e)
+        {
+            throw;
+        }
     }
 }
