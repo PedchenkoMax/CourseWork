@@ -11,6 +11,5 @@ public static class CategorySchema
         public static string Name => "name";
         public static string Description => "description";
         public static string ImageFileName => "image_file_name";
-        public static string DisplayOrder => "display_order";
     }
 }

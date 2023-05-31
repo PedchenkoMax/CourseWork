@@ -17,8 +17,5 @@ public class CategoryEntityValidator : AbstractValidator<CategoryEntity>
 
         // RuleFor(x => x.ImageFileName)
         // TODO: validate it when image urls are implemented
-
-        RuleFor(x => x.DisplayOrder)
-            .GreaterThanOrEqualTo(0).WithMessage("Display order must be a non-negative integer");
     }
 }

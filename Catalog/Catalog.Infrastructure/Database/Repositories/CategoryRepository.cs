@@ -64,8 +64,7 @@ public class CategoryRepository : ICategoryRepository
                 {CategorySchema.Columns.ParentCategoryId} = @{nameof(category.ParentCategoryId)},
                 {CategorySchema.Columns.Name} = @{nameof(category.Name)},
                 {CategorySchema.Columns.Description} = @{nameof(category.Description)},
-                {CategorySchema.Columns.ImageFileName} = @{nameof(category.ImageFileName)},
-                {CategorySchema.Columns.DisplayOrder} = @{nameof(category.DisplayOrder)}
+                {CategorySchema.Columns.ImageFileName} = @{nameof(category.ImageFileName)}
             WHERE {CategorySchema.Columns.Id} = @{nameof(category.Id)}
             """;
 
@@ -96,15 +95,13 @@ public class CategoryRepository : ICategoryRepository
                  {CategorySchema.Columns.ParentCategoryId},
                  {CategorySchema.Columns.Name},
                  {CategorySchema.Columns.Description},
-                 {CategorySchema.Columns.ImageFileName},
-                 {CategorySchema.Columns.DisplayOrder})
+                 {CategorySchema.Columns.ImageFileName}
             VALUES 
                 (@{nameof(category.Id)},
                  @{nameof(category.ParentCategoryId)},
                  @{nameof(category.Name)},
                  @{nameof(category.Description)},
-                 @{nameof(category.ImageFileName)},
-                 @{nameof(category.DisplayOrder)})
+                 @{nameof(category.ImageFileName)}
             """;
 
         var rowsAffected = await connection.ExecuteAsync(sql, category);

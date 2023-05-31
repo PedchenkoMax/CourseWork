@@ -7,14 +7,12 @@ public static class BrandTestHelper
 {
     public static BrandEntity GetEntity(string name = "name",
         string description = "description",
-        string imageUrl = "",
-        int displayOrder = 1)
+        string imageUrl = "")
     {
         BrandEntity.TryCreate(
             name: name,
             description: description,
             imageFileName: imageUrl,
-            displayOrder: displayOrder,
             out var brandEntity);
 
         return brandEntity;
@@ -23,14 +21,12 @@ public static class BrandTestHelper
     public static ValidationResult UpdateEntity(BrandEntity brandEntity,
         string name = "name",
         string description = "description",
-        string imageUrl = "",
-        int displayOrder = 1)
+        string imageUrl = "")
     {
         var validationResult = brandEntity.Update(
             name: name,
             description: description,
-            imageFileName: imageUrl,
-            displayOrder: displayOrder);
+            imageFileName: imageUrl);
 
         return validationResult;
     }

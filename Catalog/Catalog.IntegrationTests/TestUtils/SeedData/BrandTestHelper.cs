@@ -10,7 +10,6 @@ public static class BrandTestHelper
             name: "brandDto.Name",
             description: "brandDto.Description",
             imageFileName: "brandDto.ImageFileName",
-            displayOrder: 0,
             out var brandEntity
         );
 
@@ -26,7 +25,6 @@ public static class BrandTestHelper
             name: "modified.brandDto.Name",
             description: "modified.brandDto.Description",
             imageFileName: "modified.brandDto.ImageFileName",
-            displayOrder: 1,
             out var brandEntity
         );
 
@@ -41,8 +39,7 @@ public static class BrandTestHelper
         var validationResult = from.Update(
             name: to.Name,
             description: to.Description,
-            imageFileName: to.ImageFileName,
-            displayOrder: to.DisplayOrder
+            imageFileName: to.ImageFileName
         );
 
         if (!validationResult.IsValid)

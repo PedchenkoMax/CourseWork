@@ -17,7 +17,6 @@ public class BrandMapperTests
             name: "Test Brand",
             description: "Test Description",
             imageFileName: "",
-            displayOrder: 1,
             out var entity
         );
 
@@ -30,7 +29,6 @@ public class BrandMapperTests
         dto.Name.Should().Be(entity.Name);
         dto.Description.Should().Be(entity.Description);
         dto.ImageUrl.Should().Be(entity.ImageFileName);
-        dto.DisplayOrder.Should().Be(entity.DisplayOrder);
     }
 
     [Fact]
@@ -41,8 +39,7 @@ public class BrandMapperTests
         (
             Name: "Test Brand",
             Description: "Test Description",
-            ImageUrl: "",
-            DisplayOrder: 1
+            ImageUrl: ""
         );
 
         // Act
@@ -54,21 +51,19 @@ public class BrandMapperTests
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
         entity.ImageFileName.Should().Be(dto.ImageUrl);
-        entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 
     [Fact]
     public void TryUpdateEntity_ValidDto_ReturnsValidEntity()
     {
         // Arrange
-        BrandEntity.TryCreate("Test Brand", "Test Description", "", 1, out var entity);
+        BrandEntity.TryCreate("Test Brand", "Test Description", "", out var entity);
 
         var dto = new BrandWriteDto
         (
             Name: "Updated Test Brand",
             Description: "Updated Test Description",
             ImageUrl: "",
-            DisplayOrder: 2
         );
 
         // Act
@@ -79,6 +74,5 @@ public class BrandMapperTests
         entity.Name.Should().Be(dto.Name);
         entity.Description.Should().Be(dto.Description);
         entity.ImageFileName.Should().Be(dto.ImageUrl);
-        entity.DisplayOrder.Should().Be(dto.DisplayOrder);
     }
 }
