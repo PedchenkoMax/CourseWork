@@ -13,7 +13,7 @@ public class MinioBlobStorage : IBlobStorage
         this.minioClient = minioClient;
     }
 
-    public async Task<string?> UploadFileAsync(string bucketName, Stream stream, string uniqueFileName, string contentType)
+    public async Task UploadFileAsync(string bucketName, Stream stream, string uniqueFileName, string contentType)
     {
         try
         {
@@ -24,28 +24,16 @@ public class MinioBlobStorage : IBlobStorage
                                 .WithContentType(contentType)
                                 .WithObject(uniqueFileName);
 
-            var response = await minioClient.PutObjectAsync(putObjectArgs);
-
-            return response.ObjectName;
+            await minioClient.PutObjectAsync(putObjectArgs);
         }
         catch (MinioException ex)
         {
-            // TODO: do i even need try catch here?
-            // I see scenarios:
-            // 1. blob is down -> error occurs -> error handler -> 500 Internal Error | seems good
-            // 2. blob is working, but something is wrong -> ??? same or return null string | seems bad or not?
-            // handle exception
-
-            return null;
-
-            // For example, you can log the error or return a custom error message
-            // this is also the place where you could potentially throw a custom exception that 
-            // your application is designed to handle
-            // return null; // or throw new CustomException("Error uploading image", ex);
+            // log here
+            throw;
         }
     }
 
-    public async Task<bool> DeleteFileAsync(string bucketName, string fileName)
+    public async Task DeleteFileAsync(string bucketName, string fileName)
     {
         try
         {
@@ -54,12 +42,11 @@ public class MinioBlobStorage : IBlobStorage
                                    .WithObject(fileName);
 
             await minioClient.RemoveObjectAsync(removeObjectArgs);
-            return true;
         }
         catch (MinioException ex)
         {
-            // TODO: same as above
-            return false;
+            // log here
+            throw;
         }
     }
 }

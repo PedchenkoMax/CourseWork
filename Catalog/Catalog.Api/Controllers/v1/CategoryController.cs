@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Api.Validators;
@@ -176,11 +177,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             return NotFound(nameof(categoryId));
 
         if (categoryEntity.Name != "default.png") // TODO: replace with value from config
-        {
-            var isDeleted = await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
-            if (!isDeleted)
-                return Conflict();
-        }
+            await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
 
@@ -212,14 +209,15 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             return NotFound(nameof(categoryId));
 
         // TODO: upload after TryCreate
-        var fileName = await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, dto.ImageFile);
+        var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
+        await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, uniqueFileName, dto.ImageFile);
         await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var validationResult = categoryEntity.Update(
             parentCategoryId: categoryEntity.ParentCategoryId,
             name: categoryEntity.Name,
             description: categoryEntity.Description,
-            imageFileName: fileName);
+            imageFileName: uniqueFileName);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
