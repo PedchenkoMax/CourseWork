@@ -32,6 +32,9 @@ var services = builder.Services;
     var blobServiceSettings = configuration.GetSection("MinioBlobServiceSettings").Get<BlobServiceSettings>()!;
     services.AddSingleton<IBlobServiceSettings, BlobServiceSettings>(_ => blobServiceSettings);
 
+    var imageHandlingSettings = configuration.GetSection("ImageHandlingSettings").Get<ImageHandlingSettings>()!;
+    services.AddSingleton<IImageHandlingSettings, ImageHandlingSettings>(_ => imageHandlingSettings);
+
     services.AddTransient<IBlobStorage, MinioBlobStorage>();
     services.AddTransient<IBlobService, BlobService>();
 
