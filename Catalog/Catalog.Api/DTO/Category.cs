@@ -14,5 +14,5 @@ public record CategoryWriteDto(
     [NonZeroNullableGuid] Guid? ParentCategoryId,
     string Name,
     string Description,
-    string ImageUrl,
+    IFormFile? ImageFile,
     int DisplayOrder);
