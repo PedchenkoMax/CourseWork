@@ -72,31 +72,17 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <param name="dto">Object containing the details of the new brand.</param>
     /// <response code="200">Brand created successfully.</response>
     /// <response code="400">Invalid brand data or brand data is null.</response>
-    /// <response code="409">Conflict occurred while adding the brand to db or adding image to blob storage.</response>
+    /// <response code="409">Conflict occurred while adding the brand to db.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPost]
     public async Task<IActionResult> AddBrand([FromBody] BrandWriteDto dto)
     {
-        string? fileName = null;
-        if (dto.ImageFile != null)
-        {
-            var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
-            if (!result.IsValid)
-                return BadRequest(result);
-
-            // TODO: upload after TryCreate
-            fileName = await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, dto.ImageFile);
-
-            if (fileName == null)
-                return Conflict();
-        }
-
         var validationResult = BrandEntity.TryCreate(
             name: dto.Name,
             description: dto.Description,
-            imageFileName: fileName ?? "default.png", // TODO: replace with value from config
+            imageFileName: "default.png", // TODO: replace with value from config
             entity: out var brandEntity);
 
         if (!validationResult.IsValid)
@@ -115,7 +101,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <response code="200">Brand updated successfully.</response>
     /// <response code="400">Invalid brand data or brand data is null.</response>
     /// <response code="404">Brand with the given ID does not exist.</response>
-    /// <response code="409">Conflict occurred while updating the brand in db or updating image in blob storage.</response>
+    /// <response code="409">Conflict occurred while updating the brand in db.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -123,20 +109,6 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpPut("{brandId:guid}")]
     public async Task<IActionResult> UpdateBrand([FromRoute] [NonZeroGuid] Guid brandId, [FromBody] BrandWriteDto dto)
     {
-        string? fileName = null;
-        if (dto.ImageFile != null)
-        {
-            var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
-            if (!result.IsValid)
-                return BadRequest(result);
-
-            // TODO: upload after Update
-            fileName = await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, dto.ImageFile);
-
-            if (fileName == null)
-                return Conflict();
-        }
-
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
 
         if (brandEntity == null)
@@ -145,7 +117,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         var validationResult = brandEntity.Update(
             name: dto.Name,
             description: dto.Description,
-            imageFileName: fileName ?? brandEntity.ImageFileName);
+            imageFileName: brandEntity.ImageFileName);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -180,6 +152,77 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         }
 
         var isRemoved = await brandRepository.RemoveByIdAsync(brandId);
+
+        return isRemoved ? Ok() : Conflict();
+    }
+
+    /// <summary>
+    /// Updates an image of a specific brand.
+    /// </summary>
+    /// <param name="brandId">ID of the brand for which the image is to be updated.</param>
+    /// <param name="dto">Object containing the file data of the image.</param>
+    /// <response code="200">Brand image added successfully.</response>
+    /// <response code="400">Invalid image data, image data is null.</response>
+    /// <response code="404">Brand with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while uploading the image to blob storage or updating the brand in db.</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpPut("{brandId:guid}/image/")]
+    public async Task<IActionResult> UpdateBrandImage(Guid brandId, [FromForm] BrandImageUpdateDto dto)
+    {
+        var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
+        if (!result.IsValid)
+            return BadRequest(result);
+
+        var brandEntity = await brandRepository.GetByIdAsync(brandId);
+        if (brandEntity == null)
+            return NotFound(nameof(brandId));
+
+        // TODO: upload after TryCreate
+        var fileName = await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, dto.ImageFile);
+        await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
+
+        var validationResult = brandEntity.Update(
+            name: brandEntity.Name,
+            description: brandEntity.Description,
+            imageFileName: fileName);
+
+        if (!validationResult.IsValid)
+            return BadRequest(validationResult);
+
+        var isUpdated = await brandRepository.UpdateAsync(brandEntity);
+
+        return isUpdated ? Ok() : Conflict();
+    }
+
+    /// <summary>
+    /// Deletes an image from a specific brand.
+    /// </summary>
+    /// <param name="brandId">ID of the brand from which the image is to be deleted.</param>
+    /// <response code="200">Brand image deleted successfully.</response>
+    /// <response code="404">Brand with the given ID does not exist.</response>
+    /// <response code="409">Conflict occurred while deleting the image from blob storage or updating the brand in db.</response>
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [HttpDelete("{brandId:guid}/image/")]
+    public async Task<IActionResult> DeleteBrandImage(Guid brandId)
+    {
+        var brandEntity = await brandRepository.GetByIdAsync(brandId);
+        if (brandEntity == null)
+            return NotFound(nameof(brandId));
+
+        // TODO: upload after TryCreate
+        await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
+
+        brandEntity.Update(
+            name: brandEntity.Name,
+            description: brandEntity.Description,
+            imageFileName: "default.png");
+
+        var isRemoved = await brandRepository.UpdateAsync(brandEntity);
 
         return isRemoved ? Ok() : Conflict();
     }

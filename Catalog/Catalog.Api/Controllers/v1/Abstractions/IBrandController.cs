@@ -10,4 +10,6 @@ public interface IBrandController
     Task<IActionResult> AddBrand(BrandWriteDto dto);
     Task<IActionResult> UpdateBrand(Guid brandId, BrandWriteDto dto);
     Task<IActionResult> DeleteBrand(Guid brandId);
+    Task<IActionResult> UpdateBrandImage(Guid brandId, BrandImageUpdateDto dto);
+    Task<IActionResult> DeleteBrandImage(Guid brandId);
 }

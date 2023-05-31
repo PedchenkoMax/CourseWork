@@ -11,4 +11,6 @@ public interface ICategoryController
     Task<IActionResult> AddCategory(CategoryWriteDto dto);
     Task<IActionResult> UpdateCategory(Guid categoryId, CategoryWriteDto dto);
     Task<IActionResult> DeleteCategory(Guid categoryId);
+    Task<IActionResult> UpdateCategoryImage(Guid categoryId, CategoryImageUpdateDto dto);
+    Task<IActionResult> DeleteCategoryImage(Guid categoryId);
 }
