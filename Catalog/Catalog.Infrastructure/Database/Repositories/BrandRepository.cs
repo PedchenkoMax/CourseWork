@@ -15,6 +15,12 @@ public class BrandRepository : IBrandRepository
         connection = context.Connection;
     }
 
+    public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+    {
+        connection.Open();
+        return connection.BeginTransaction(isolationLevel);
+    }
+
     public async Task<List<BrandEntity>> GetAllAsync()
     {
         var sql =

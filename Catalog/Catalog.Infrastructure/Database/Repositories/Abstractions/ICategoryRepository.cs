@@ -1,9 +1,11 @@
-﻿using Catalog.Domain.Entities;
+﻿using System.Data;
+using Catalog.Domain.Entities;
 
 namespace Catalog.Infrastructure.Database.Repositories.Abstractions;
 
 public interface ICategoryRepository
 {
+    IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted);
     Task<List<CategoryEntity>> GetAllAsync();
     Task<List<CategoryEntity>> GetSubcategoriesByParentCategoryIdAsync(Guid parentCategoryId);
     Task<CategoryEntity?> GetByIdAsync(Guid id);
