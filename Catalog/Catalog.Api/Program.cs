@@ -24,9 +24,9 @@ var services = builder.Services;
 
     services.AddMinio(options =>
     {
-        options.Endpoint = configuration["MinioEndpoint"]!;
-        options.AccessKey = configuration["MinioAccessKey"]!;
-        options.SecretKey = configuration["MinioSecretKey"]!;
+        options.Endpoint = configuration["MinioOptions:Endpoint"]!;
+        options.AccessKey = configuration["MinioOptions:AccessKey"]!;
+        options.SecretKey = configuration["MinioOptions:SecretKey"]!;
     });
 
     var blobServiceSettings = configuration.GetSection("MinioBlobServiceSettings").Get<BlobServiceSettings>()!;
