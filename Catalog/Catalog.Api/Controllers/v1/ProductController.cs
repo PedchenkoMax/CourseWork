@@ -337,10 +337,10 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
             return Ok();
 
         var allImages = await productImageRepository.GetAllByProductIdAsync(entity.ProductId);
-        allImages.Remove(entity);
+        allImages.RemoveAll(x => x.Id == entity.Id);
 
         var orderedImages = allImages.OrderBy(x => x.DisplayOrder).ToList();
-        orderedImages.Insert(Math.Min(dto.DisplayOrder, orderedImages.Count), entity);
+        orderedImages.Insert(Math.Min(dto.DisplayOrder, orderedImages.Count) - 1, entity);
         for (var i = 0; i < orderedImages.Count; i++)
         {
             orderedImages[i].Update(i);
@@ -385,9 +385,19 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productImageEntity.ProductId != productId)
             return BadRequest("The product ID provided does not match the product ID associated with the image.");
 
-        var isRemoved = await productImageRepository.RemoveByIdAsync(productImageId);
+        var allImages = await productImageRepository.GetAllByProductIdAsync(productImageEntity.ProductId);
+        allImages.RemoveAll(x => x.Id == productImageEntity.Id);
 
-        if (isRemoved)
+        var orderedImages = allImages.OrderBy(x => x.DisplayOrder).ToList();
+        for (var i = 0; i < orderedImages.Count; i++)
+        {
+            orderedImages[i].Update(i);
+        }
+
+        var isRemoved = await productImageRepository.RemoveByIdAsync(productImageId);
+        var isUpdated = await productImageRepository.BatchUpdateAsync(orderedImages);
+
+        if (isRemoved && isUpdated)
         {
             await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
 
