@@ -80,7 +80,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// Adds a new product.
     /// </summary>
     /// <param name="dto">Object containing the details of the new product.</param>
-    /// <response code="200">Product created successfully.</response>
+    /// <response code="200">Product created successfully, returns the ID of created product.</response>
     /// <response code="400">Invalid product data or product data is null.</response>
     /// <response code="404">Brand, or category with the given ID does not exist.</response>
     /// <response code="409">Conflict occurred while updating the product.</response>
@@ -109,7 +109,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (isAdded)
         {
             transaction.Commit();
-            return Ok();
+            return Ok(productEntity.Id);
         }
         else
         {
@@ -229,7 +229,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// </summary>
     /// <param name="productId">ID of the product.</param>
     /// <param name="dto">Object containing the new image details.</param>
-    /// <response code="200">Image added successfully, returns the URL of the added image.</response>
+    /// <response code="200">Image added successfully, returns the ID of created Image.</response>
     /// <response code="400">Invalid image data, image data is null, or maximum limit of images has been reached.</response>
     /// <response code="404">Product with the given ID does not exist.</response>
     /// <response code="409">Conflict occurred while adding the product image to the database or adding it to the blob storage.</response>
@@ -267,7 +267,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
             await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
 
             transaction.Commit();
-            return Ok(imageUrl);
+            return Ok(entity.Id); // TODO: should i return link or id? or both?
         }
         else
         {

@@ -73,7 +73,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// Adds a new brand.
     /// </summary>
     /// <param name="dto">Object containing the details of the new brand.</param>
-    /// <response code="200">Brand created successfully.</response>
+    /// <response code="200">Brand created successfully, returns the ID of created brand.</response>
     /// <response code="400">Invalid brand data or brand data is null.</response>
     /// <response code="409">Conflict occurred while adding the brand to db.</response>
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -98,7 +98,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (isAdded)
         {
             transaction.Commit();
-            return Ok();
+            return Ok(brandEntity.Id);
         }
         else
         {
