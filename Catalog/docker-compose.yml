@@ -8,9 +8,17 @@ services:
             dockerfile: Dockerfile
         environment:
             - ConnectionString=${CONNECTION_STRING}
-            - MinioEndpoint=${MINIO_ENDPOINT}
-            - MinioAccessKey=${MINIO_ACCESS_KEY}
-            - MinioSecretKey=${MINIO_SECRET_KEY}
+            - MinioOptions__Endpoint=${MINIO_OPTIONS__ENDPOINT}
+            - MinioOptions__AccessKey=${MINIO_OPTIONS__ACCESS_KEY}
+            - MinioOptions__SecretKey=${MINIO_OPTIONS__SECRET_KEY}
+            - MinioBlobServiceSettings__Endpoint=${MINIO_BLOB_SERVICE_SETTINGS__ENDPOINT}
+            - MinioBlobServiceSettings__BrandImageBucketName=${MINIO_BLOB_SERVICE_SETTINGS__BRAND_IMAGE_BUCKET_NAME}
+            - MinioBlobServiceSettings__CategoryImageBucketName=${MINIO_BLOB_SERVICE_SETTINGS__CATEGORY_IMAGE_BUCKET_NAME}
+            - MinioBlobServiceSettings__ProductImageBucketName=${MINIO_BLOB_SERVICE_SETTINGS__PRODUCT_IMAGE_BUCKET_NAME}
+            - ImageHandlingSettings__MaxProductImages=${IMAGE_HANDLING_SETTINGS__MAX_PRODUCT_IMAGES}
+            - ImageHandlingSettings__DefaultCategoryImageName=${IMAGE_HANDLING_SETTINGS__DEFAULT_CATEGORY_IMAGE_NAME}
+            - ImageHandlingSettings__DefaultBrandImageName=${IMAGE_HANDLING_SETTINGS__DEFAULT_BRAND_IMAGE_NAME}
+            - ImageHandlingSettings__DefaultProductImageName=${IMAGE_HANDLING_SETTINGS__DEFAULT_PRODUCT_IMAGE_NAME}
         ports:
             - "42000:80"
     
