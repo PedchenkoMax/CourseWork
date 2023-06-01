@@ -105,6 +105,8 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto dto)
     {
+        using var transaction = categoryRepository.BeginTransaction();
+
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
 
@@ -120,7 +122,16 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var isAdded = await categoryRepository.AddAsync(categoryEntity);
 
-        return isAdded ? Ok() : Conflict();
+        if (isAdded)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -139,6 +150,8 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}")]
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid categoryId, [FromBody] CategoryWriteDto dto)
     {
+        using var transaction = categoryRepository.BeginTransaction();
+
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
 
@@ -158,7 +171,16 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var isUpdated = await categoryRepository.UpdateAsync(categoryEntity);
 
-        return isUpdated ? Ok() : Conflict();
+        if (isUpdated)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -174,6 +196,8 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpDelete("{categoryId:guid}")]
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid categoryId)
     {
+        using var transaction = categoryRepository.BeginTransaction();
+
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
@@ -183,7 +207,16 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
 
-        return isRemoved ? Ok() : Conflict();
+        if (isRemoved)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -202,6 +235,8 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}/image/")]
     public async Task<IActionResult> UpdateCategoryImage(Guid categoryId, [FromForm] CategoryImageUpdateDto dto)
     {
+        using var transaction = categoryRepository.BeginTransaction();
+
         var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!result.IsValid)
             return BadRequest(result);
@@ -210,10 +245,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        // TODO: upload after TryCreate
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
-        await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, uniqueFileName, dto.ImageFile);
-        await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var validationResult = categoryEntity.Update(
             parentCategoryId: categoryEntity.ParentCategoryId,
@@ -226,7 +258,19 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var isUpdated = await categoryRepository.UpdateAsync(categoryEntity);
 
-        return isUpdated ? Ok() : Conflict();
+        if (isUpdated)
+        {
+            await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, uniqueFileName, dto.ImageFile);
+            await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
+
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -242,12 +286,11 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpDelete("{categoryId:guid}/image/")]
     public async Task<IActionResult> DeleteCategoryImage(Guid categoryId)
     {
+        using var transaction = categoryRepository.BeginTransaction();
+
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
-
-        // TODO: upload after TryCreate
-        await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         categoryEntity.Update(
             parentCategoryId: categoryEntity.ParentCategoryId,
@@ -257,6 +300,17 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var isRemoved = await categoryRepository.UpdateAsync(categoryEntity);
 
-        return isRemoved ? Ok() : Conflict();
+        if (isRemoved)
+        {
+            await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
+
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 }

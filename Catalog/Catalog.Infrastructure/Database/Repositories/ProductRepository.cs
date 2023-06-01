@@ -1,5 +1,6 @@
 using System.Data;
 using Catalog.Domain.Entities;
+using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
@@ -15,6 +16,12 @@ public class ProductRepository : IProductRepository
         connection = context.Connection;
     }
 
+    public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+    {
+        connection.Open();
+        return connection.BeginTransaction(isolationLevel);
+    }
+    
     public async Task<List<ProductEntity>> GetAllAsync()
     {
         var sql =
@@ -29,29 +36,36 @@ public class ProductRepository : IProductRepository
                 ON p.{ProductSchema.Columns.Id} = i.{ProductImageSchema.Columns.ProductId}
             """;
 
-        var productDictionary = new Dictionary<Guid, ProductEntity>();
+        try
+        {
+            var productDictionary = new Dictionary<Guid, ProductEntity>();
 
-        await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
-            sql,
-            (product, brand, category, image) =>
-            {
-                if (!productDictionary.TryGetValue(product.Id, out var productEntry))
+            await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
+                sql,
+                (product, brand, category, image) =>
                 {
-                    productEntry = product;
-                    productDictionary.Add(productEntry.Id, productEntry);
-                }
+                    if (!productDictionary.TryGetValue(product.Id, out var productEntry))
+                    {
+                        productEntry = product;
+                        productDictionary.Add(productEntry.Id, productEntry);
+                    }
 
-                productEntry.Brand = brand;
-                productEntry.Category = category;
+                    productEntry.Brand = brand;
+                    productEntry.Category = category;
 
-                if (image != null)
-                    productEntry.Images.Add(image);
+                    if (image != null)
+                        productEntry.Images.Add(image);
 
-                return productEntry;
-            },
-            splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
+                    return productEntry;
+                },
+                splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
 
-        return productDictionary.Values.ToList();
+            return productDictionary.Values.ToList();
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<ProductEntity?> GetByIdAsync(Guid id)
@@ -69,30 +83,37 @@ public class ProductRepository : IProductRepository
             WHERE p.{ProductSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var productDictionary = new Dictionary<Guid, ProductEntity>();
+        try
+        {
+            var productDictionary = new Dictionary<Guid, ProductEntity>();
 
-        await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
-            sql,
-            (product, brand, category, image) =>
-            {
-                if (!productDictionary.TryGetValue(product.Id, out var productEntry))
+            await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
+                sql,
+                (product, brand, category, image) =>
                 {
-                    productEntry = product;
-                    productDictionary.Add(productEntry.Id, productEntry);
-                }
+                    if (!productDictionary.TryGetValue(product.Id, out var productEntry))
+                    {
+                        productEntry = product;
+                        productDictionary.Add(productEntry.Id, productEntry);
+                    }
 
-                productEntry.Brand = brand;
-                productEntry.Category = category;
+                    productEntry.Brand = brand;
+                    productEntry.Category = category;
 
-                if (image != null)
-                    productEntry.Images.Add(image);
+                    if (image != null)
+                        productEntry.Images.Add(image);
 
-                return productEntry;
-            },
-            new { Id = id },
-            splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
+                    return productEntry;
+                },
+                new { Id = id },
+                splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
 
-        return productDictionary.Values.FirstOrDefault();
+            return productDictionary.Values.FirstOrDefault();
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> UpdateAsync(ProductEntity product)
@@ -112,9 +133,16 @@ public class ProductRepository : IProductRepository
             WHERE {ProductSchema.Columns.Id} = @{nameof(product.Id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, product);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, product);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> RemoveByIdAsync(Guid id)
@@ -125,9 +153,16 @@ public class ProductRepository : IProductRepository
             WHERE {ProductSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> AddAsync(ProductEntity product)
@@ -158,9 +193,16 @@ public class ProductRepository : IProductRepository
                  @{nameof(product.Availability)})
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, product);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, product);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> ExistsAsync(Guid id)
@@ -172,8 +214,15 @@ public class ProductRepository : IProductRepository
                            WHERE {ProductSchema.Columns.Id} = @{nameof(id)})
             """;
 
-        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
+        try
+        {
+            var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
 
-        return exists;
+            return exists;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 }

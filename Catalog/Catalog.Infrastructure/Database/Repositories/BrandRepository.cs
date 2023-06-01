@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
+using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
@@ -15,6 +16,12 @@ public class BrandRepository : IBrandRepository
         connection = context.Connection;
     }
 
+    public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+    {
+        connection.Open();
+        return connection.BeginTransaction(isolationLevel);
+    }
+
     public async Task<List<BrandEntity>> GetAllAsync()
     {
         var sql =
@@ -23,9 +30,16 @@ public class BrandRepository : IBrandRepository
             FROM {BrandSchema.Table}
             """;
 
-        var res = await connection.QueryAsync<BrandEntity>(sql);
+        try
+        {
+            var res = await connection.QueryAsync<BrandEntity>(sql);
 
-        return res.ToList();
+            return res.ToList();
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<BrandEntity?> GetByIdAsync(Guid id)
@@ -37,9 +51,16 @@ public class BrandRepository : IBrandRepository
             WHERE {BrandSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<BrandEntity>(sql, new { id });
+        try
+        {
+            var res = await connection.QuerySingleOrDefaultAsync<BrandEntity>(sql, new { id });
 
-        return res;
+            return res;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> UpdateAsync(BrandEntity brand)
@@ -53,9 +74,16 @@ public class BrandRepository : IBrandRepository
             WHERE {BrandSchema.Columns.Id} = @{nameof(brand.Id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, brand);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, brand);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> RemoveByIdAsync(Guid id)
@@ -66,9 +94,16 @@ public class BrandRepository : IBrandRepository
             WHERE {BrandSchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, new { id });
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, new { id });
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> AddAsync(BrandEntity brand)
@@ -79,17 +114,24 @@ public class BrandRepository : IBrandRepository
                 ({BrandSchema.Columns.Id}, 
                  {BrandSchema.Columns.Name},
                  {BrandSchema.Columns.Description},
-                 {BrandSchema.Columns.ImageFileName}
+                 {BrandSchema.Columns.ImageFileName})
             VALUES 
                 (@{nameof(brand.Id)},
                  @{nameof(brand.Name)},
                  @{nameof(brand.Description)},
-                 @{nameof(brand.ImageFileName)}
+                 @{nameof(brand.ImageFileName)})
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, brand);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, brand);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> ExistsAsync(Guid id)
@@ -101,8 +143,15 @@ public class BrandRepository : IBrandRepository
                            WHERE {BrandSchema.Columns.Id} = @{nameof(id)})
             """;
 
-        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
+        try
+        {
+            var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
 
-        return exists;
+            return exists;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
+using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
@@ -15,6 +16,12 @@ public class CategoryRepository : ICategoryRepository
         connection = context.Connection;
     }
 
+    public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
+    {
+        connection.Open();
+        return connection.BeginTransaction(isolationLevel);
+    }
+
     public async Task<List<CategoryEntity>> GetAllAsync()
     {
         var sql =
@@ -23,9 +30,16 @@ public class CategoryRepository : ICategoryRepository
             FROM {CategorySchema.Table}
             """;
 
-        var res = await connection.QueryAsync<CategoryEntity>(sql);
+        try
+        {
+            var res = await connection.QueryAsync<CategoryEntity>(sql);
 
-        return res.ToList();
+            return res.ToList();
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<List<CategoryEntity>> GetSubcategoriesByParentCategoryIdAsync(Guid parentCategoryId)
@@ -37,9 +51,16 @@ public class CategoryRepository : ICategoryRepository
             WHERE {CategorySchema.Columns.ParentCategoryId} = @{nameof(parentCategoryId)}
             """;
 
-        var res = await connection.QueryAsync<CategoryEntity>(sql, new { parentCategoryId });
+        try
+        {
+            var res = await connection.QueryAsync<CategoryEntity>(sql, new { parentCategoryId });
 
-        return res.ToList();
+            return res.ToList();
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<CategoryEntity?> GetByIdAsync(Guid id)
@@ -51,9 +72,16 @@ public class CategoryRepository : ICategoryRepository
             WHERE {CategorySchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var res = await connection.QuerySingleOrDefaultAsync<CategoryEntity>(sql, new { id });
+        try
+        {
+            var res = await connection.QuerySingleOrDefaultAsync<CategoryEntity>(sql, new { id });
 
-        return res;
+            return res;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> UpdateAsync(CategoryEntity category)
@@ -68,9 +96,16 @@ public class CategoryRepository : ICategoryRepository
             WHERE {CategorySchema.Columns.Id} = @{nameof(category.Id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, category);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, category);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> RemoveByIdAsync(Guid id)
@@ -81,9 +116,16 @@ public class CategoryRepository : ICategoryRepository
             WHERE {CategorySchema.Columns.Id} = @{nameof(id)}
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, new { id });
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, new { id });
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> AddAsync(CategoryEntity category)
@@ -95,18 +137,25 @@ public class CategoryRepository : ICategoryRepository
                  {CategorySchema.Columns.ParentCategoryId},
                  {CategorySchema.Columns.Name},
                  {CategorySchema.Columns.Description},
-                 {CategorySchema.Columns.ImageFileName}
+                 {CategorySchema.Columns.ImageFileName})
             VALUES 
                 (@{nameof(category.Id)},
                  @{nameof(category.ParentCategoryId)},
                  @{nameof(category.Name)},
                  @{nameof(category.Description)},
-                 @{nameof(category.ImageFileName)}
+                 @{nameof(category.ImageFileName)})
             """;
 
-        var rowsAffected = await connection.ExecuteAsync(sql, category);
+        try
+        {
+            var rowsAffected = await connection.ExecuteAsync(sql, category);
 
-        return rowsAffected > 0;
+            return rowsAffected > 0;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 
     public async Task<bool> ExistsAsync(Guid id)
@@ -118,8 +167,15 @@ public class CategoryRepository : ICategoryRepository
                            WHERE {CategorySchema.Columns.Id} = @{nameof(id)})
             """;
 
-        var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
+        try
+        {
+            var exists = await connection.ExecuteScalarAsync<bool>(sql, new { id });
 
-        return exists;
+            return exists;
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 }

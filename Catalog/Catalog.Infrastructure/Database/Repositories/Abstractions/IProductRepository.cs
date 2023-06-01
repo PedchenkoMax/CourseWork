@@ -1,9 +1,11 @@
-﻿using Catalog.Domain.Entities;
+﻿using System.Data;
+using Catalog.Domain.Entities;
 
 namespace Catalog.Infrastructure.Database.Repositories.Abstractions;
 
 public interface IProductRepository
 {
+    IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted);
     Task<List<ProductEntity>> GetAllAsync();
     Task<ProductEntity?> GetByIdAsync(Guid id);
     Task<bool> UpdateAsync(ProductEntity product);
