@@ -245,6 +245,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
+        var fileNameToDelete = categoryEntity.ImageFileName;
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
 
         var validationResult = categoryEntity.Update(
@@ -260,8 +261,8 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         if (isUpdated)
         {
+            await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, fileNameToDelete);
             await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, uniqueFileName, dto.ImageFile);
-            await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
             transaction.Commit();
             return Ok();

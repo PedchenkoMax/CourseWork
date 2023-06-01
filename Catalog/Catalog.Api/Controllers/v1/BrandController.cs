@@ -214,6 +214,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (brandEntity == null)
             return NotFound(nameof(brandId));
 
+        var fileNameToDelete = brandEntity.ImageFileName;
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
 
         var validationResult = brandEntity.Update(
@@ -228,8 +229,8 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
 
         if (isUpdated)
         {
+            await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, fileNameToDelete);
             await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, uniqueFileName, dto.ImageFile);
-            await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
 
             transaction.Commit();
             return Ok();
