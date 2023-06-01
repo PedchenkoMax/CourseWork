@@ -94,7 +94,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// Adds a new category.
     /// </summary>
     /// <param name="dto">Object containing the details of the new category.</param>
-    /// <response code="200">Category created successfully.</response>
+    /// <response code="200">Category created successfully, returns the ID of created category.</response>
     /// <response code="400">Invalid category data or category data is null.</response>
     /// <response code="404">Parent category with the given ID does not exist.</response>
     /// <response code="409">Conflict occurred while adding the category to db.</response>
@@ -125,7 +125,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (isAdded)
         {
             transaction.Commit();
-            return Ok();
+            return Ok(categoryEntity.Id);
         }
         else
         {
