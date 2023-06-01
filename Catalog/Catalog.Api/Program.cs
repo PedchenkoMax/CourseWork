@@ -1,4 +1,4 @@
-using Catalog.Api.Middlewares;
+﻿using Catalog.Api.Middlewares;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
@@ -43,6 +43,9 @@ var services = builder.Services;
                 factory: sp => sp.GetRequiredService<MinioClient>(),
                 name: "Minio",
                 failureStatus: HealthStatus.Unhealthy);
+
+    services.AddHealthChecksUI()
+            .AddInMemoryStorage();
 
     var blobServiceSettings = configuration.GetSection("MinioBlobServiceSettings").Get<BlobServiceSettings>()!;
     services.AddSingleton<IBlobServiceSettings, BlobServiceSettings>(_ => blobServiceSettings);
@@ -96,6 +99,12 @@ var app = builder.Build();
     {
         Predicate = _ => true,
         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
+
+    app.UseHealthChecksUI(config =>
+    {
+        config.UIPath = "/health-ui";
+        config.ApiPath = "/health-ui-api";
     });
 
     app.UseExceptionHandlingMiddleware();
