@@ -91,6 +91,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpPost]
     public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto dto)
     {
+        using var transaction = productRepository.BeginTransaction();
+
         if (dto.BrandId != null && !await brandRepository.ExistsAsync(dto.BrandId.Value))
             return NotFound(nameof(dto.BrandId));
 
@@ -104,7 +106,16 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var isAdded = await productRepository.AddAsync(productEntity);
 
-        return isAdded ? Ok() : Conflict();
+        if (isAdded)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -123,6 +134,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpPut("{productId:guid}")]
     public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductWriteDto dto)
     {
+        using var transaction = productRepository.BeginTransaction();
+
         if (dto.BrandId != null && !await brandRepository.ExistsAsync(dto.BrandId.Value))
             return NotFound(nameof(dto.BrandId));
 
@@ -141,7 +154,16 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var isUpdated = await productRepository.UpdateAsync(productEntity);
 
-        return isUpdated ? Ok() : Conflict();
+        if (isUpdated)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -157,6 +179,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpDelete("{productId:guid}")]
     public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid productId)
     {
+        using var transaction = productRepository.BeginTransaction();
+
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
 
@@ -167,7 +191,16 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var isDeleted = await productRepository.RemoveByIdAsync(productId);
 
-        return isDeleted ? Ok() : Conflict();
+        if (isDeleted)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -211,6 +244,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
+        using var transaction = productImageRepository.BeginTransaction();
+
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
 
@@ -219,7 +254,6 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
             return BadRequest(nameof(imageCount), $"The maximum number of images {imageHandlingSettings.MaxProductImages} for this product has been reached.");
 
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
-        await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
 
         var imageUrl = $"{blobServiceSettings.Endpoint}/{blobServiceSettings.ProductImageBucketName}/{uniqueFileName}";
 
@@ -228,7 +262,18 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var isAdded = await productImageRepository.AddAsync(entity);
 
-        return isAdded ? Ok(imageUrl) : Conflict();
+        if (isAdded)
+        {
+            await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
+
+            transaction.Commit();
+            return Ok(imageUrl);
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -279,6 +324,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (dto.DisplayOrder < 0)
             return BadRequest();
 
+        using var transaction = productImageRepository.BeginTransaction();
+
         var entity = await productImageRepository.GetByIdAsync(productImageId);
         if (entity == null)
             return NotFound(nameof(productImageId));
@@ -301,7 +348,16 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var isUpdated = await productImageRepository.BatchUpdateAsync(orderedImages);
 
-        return isUpdated ? Ok() : Conflict();
+        if (isUpdated)
+        {
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 
     /// <summary>
@@ -320,6 +376,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpDelete("{productId:guid}/images/{productImageId:guid}")]
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromRoute] [NonZeroGuid] Guid productImageId)
     {
+        using var transaction = productImageRepository.BeginTransaction();
+
         var productImageEntity = await productImageRepository.GetByIdAsync(productImageId);
         if (productImageEntity == null)
             return NotFound(nameof(productImageId));
@@ -327,10 +385,19 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productImageEntity.ProductId != productId)
             return BadRequest("The product ID provided does not match the product ID associated with the image.");
 
-        await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
-
         var isRemoved = await productImageRepository.RemoveByIdAsync(productImageId);
 
-        return isRemoved ? Ok() : Conflict();
+        if (isRemoved)
+        {
+            await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
+
+            transaction.Commit();
+            return Ok();
+        }
+        else
+        {
+            transaction.Rollback();
+            return Conflict();
+        }
     }
 }
