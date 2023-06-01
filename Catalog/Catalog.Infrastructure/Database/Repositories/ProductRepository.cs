@@ -1,5 +1,6 @@
 using System.Data;
 using Catalog.Domain.Entities;
+using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
@@ -63,7 +64,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception e)
         {
-            throw;
+            throw new DatabaseException(e);
         }
     }
 
@@ -111,7 +112,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception e)
         {
-            throw;
+            throw new DatabaseException(e);
         }
     }
 
@@ -140,7 +141,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception e)
         {
-            throw;
+            throw new DatabaseException(e);
         }
     }
 
@@ -160,7 +161,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception e)
         {
-            throw;
+            throw new DatabaseException(e);
         }
     }
 
@@ -200,7 +201,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception e)
         {
-            throw;
+            throw new DatabaseException(e);
         }
     }
 
@@ -221,7 +222,7 @@ public class ProductRepository : IProductRepository
         }
         catch (Exception e)
         {
-            throw;
+            throw new DatabaseException(e);
         }
     }
 }

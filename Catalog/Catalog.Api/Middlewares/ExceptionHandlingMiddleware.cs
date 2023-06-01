@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Catalog.Infrastructure.Database.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Minio.Exceptions;
@@ -16,6 +17,10 @@ public static class ExceptionHandlingMiddleware
                 try
                 {
                     throw context.Features.Get<IExceptionHandlerFeature>()?.Error!;
+                }
+                catch (DatabaseException)
+                {
+                    await HandleException(context, $"An error occurred while querying the database");
                 }
                 catch (MinioException)
                 {
