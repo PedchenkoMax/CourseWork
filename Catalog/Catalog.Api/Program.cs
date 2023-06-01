@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Middlewares;
+using Catalog.Api.Middlewares;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
@@ -6,10 +6,15 @@ using Catalog.Infrastructure.BlobStorage.Abstractions;
 using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
+using Minio;
 using Minio.AspNetCore;
+using Minio.AspNetCore.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -28,6 +33,16 @@ var services = builder.Services;
         options.AccessKey = configuration["MinioOptions:AccessKey"]!;
         options.SecretKey = configuration["MinioOptions:SecretKey"]!;
     });
+
+    services.AddHealthChecks()
+            .AddNpgSql(
+                npgsqlConnectionString: configuration["ConnectionString"],
+                name: "PostgresSQL",
+                failureStatus: HealthStatus.Unhealthy)
+            .AddMinio(
+                factory: sp => sp.GetRequiredService<MinioClient>(),
+                name: "Minio",
+                failureStatus: HealthStatus.Unhealthy);
 
     var blobServiceSettings = configuration.GetSection("MinioBlobServiceSettings").Get<BlobServiceSettings>()!;
     services.AddSingleton<IBlobServiceSettings, BlobServiceSettings>(_ => blobServiceSettings);
@@ -76,6 +91,12 @@ var app = builder.Build();
 {
     app.UseSwagger(options => options.RouteTemplate = "swagger/{documentName}/swagger.json");
     app.UseSwaggerUI(options => { options.SwaggerEndpoint($"/swagger/v1/swagger.json", $"v1"); });
+
+    app.UseHealthChecks("/healthz", new HealthCheckOptions
+    {
+        Predicate = _ => true,
+        ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+    });
 
     app.UseExceptionHandlingMiddleware();
 
