@@ -6,6 +6,7 @@ public record ProductReadDto(
     Guid Id,
     Guid? BrandId,
     Guid? CategoryId,
+    string Slug,
     string Name,
     string Description,
     decimal Price,

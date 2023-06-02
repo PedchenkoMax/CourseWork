@@ -12,6 +12,7 @@ public static class ProductMapper
             Id: entity.Id,
             BrandId: entity.BrandId,
             CategoryId: entity.CategoryId,
+            Slug: entity.Slug,
             Name: entity.Name,
             Description: entity.Description,
             Price: entity.Price,
