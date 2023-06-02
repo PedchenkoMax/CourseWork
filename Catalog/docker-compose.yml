@@ -8,6 +8,7 @@ services:
             dockerfile: Dockerfile
         environment:
             - PostgresConnectionString=${POSTGRES_CONNECTION_STRING}
+            - RedisConnectionString=${REDIS_CONNECTION_STRING}
 
             - MinioOptions__Endpoint=${MINIO_OPTIONS__ENDPOINT}
             - MinioOptions__AccessKey=${MINIO_OPTIONS__ACCESS_KEY}
@@ -59,6 +60,15 @@ services:
         volumes:
             - minio-storage:/data
 
+    catalog-redis:
+        container_name: redis
+        image: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis-data:/data
+
 volumes:
     postgres-data:
     minio-storage:
+    redis-data:
