@@ -3,6 +3,7 @@ using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
 using Catalog.Infrastructure.BlobStorage.Abstractions;
+using Catalog.Infrastructure.Cache.Repositories;
 using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -15,6 +16,7 @@ using Microsoft.OpenApi.Models;
 using Minio;
 using Minio.AspNetCore;
 using Minio.AspNetCore.HealthChecks;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -22,10 +24,19 @@ var configuration = builder.Configuration;
 var services = builder.Services;
 {
     services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["PostgresConnectionString"]!));
+    services.AddSingleton<IConnectionMultiplexer>(x => ConnectionMultiplexer.Connect(configuration["RedisConnectionString"]!));
+
     services.AddTransient<IProductRepository, ProductRepository>();
+    services.Decorate<IProductRepository, CachedProductRepository>();
+
     services.AddTransient<IProductImageRepository, ProductImageRepository>();
+    services.Decorate<IProductImageRepository, CachedProductImageRepository>();
+    
     services.AddTransient<IBrandRepository, BrandRepository>();
+    services.Decorate<IBrandRepository, CachedBrandRepository>();
+    
     services.AddTransient<ICategoryRepository, CategoryRepository>();
+    services.Decorate<ICategoryRepository, CachedCategoryRepository>();
 
     services.AddMinio(options =>
     {
