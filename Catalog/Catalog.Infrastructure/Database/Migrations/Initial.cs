@@ -34,6 +34,32 @@ public class Initial : Migration
               .ToTable("categories").PrimaryColumn("id")
               .OnDelete(Rule.SetNull);
 
+
+        Create.Index("idx_products_brand_id")
+              .OnTable("products")
+              .OnColumn("brand_id")
+              .Ascending();
+
+        Create.Index("idx_products_category_id")
+              .OnTable("products")
+              .OnColumn("category_id")
+              .Ascending();
+
+        Create.Index("idx_products_slug")
+              .OnTable("products")
+              .OnColumn("slug")
+              .Ascending();
+
+        Create.Index("idx_products_price")
+              .OnTable("products")
+              .OnColumn("price")
+              .Ascending();
+
+        Create.Index("idx_products_discount")
+              .OnTable("products")
+              .OnColumn("discount")
+              .Ascending();
+
         #endregion
 
         #region Product Image
@@ -49,6 +75,12 @@ public class Initial : Migration
               .FromTable("product_images").ForeignColumn("product_id")
               .ToTable("products").PrimaryColumn("id")
               .OnDelete(Rule.Cascade);
+
+
+        Create.Index("idx_product_images_product_id")
+              .OnTable("product_images")
+              .OnColumn("product_id")
+              .Ascending();
 
         #endregion
 
@@ -66,7 +98,13 @@ public class Initial : Migration
               .FromTable("categories").ForeignColumn("parent_category_id")
               .ToTable("categories").PrimaryColumn("id")
               .OnDelete(Rule.SetNull);
-        
+
+
+        Create.Index("idx_categories_parent_category_id")
+              .OnTable("categories")
+              .OnColumn("parent_category_id")
+              .Ascending();
+
         #endregion
 
         #region Brand
