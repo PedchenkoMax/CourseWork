@@ -8,25 +8,7 @@ public class Initial : Migration
 {
     public override void Up()
     {
-        Create.Table("brands")
-              .WithColumn("id").AsGuid().PrimaryKey()
-              .WithColumn("name").AsString().NotNullable()
-              .WithColumn("description").AsString().NotNullable()
-              .WithColumn("image_file_name").AsString().NotNullable();
-
-
-        Create.Table("categories")
-              .WithColumn("id").AsGuid().PrimaryKey()
-              .WithColumn("parent_category_id").AsGuid().Nullable()
-              .WithColumn("name").AsString().NotNullable()
-              .WithColumn("description").AsString().NotNullable()
-              .WithColumn("image_file_name").AsString().NotNullable();
-
-        Create.ForeignKey("fk_categories_parent_categories")
-              .FromTable("categories").ForeignColumn("parent_category_id")
-              .ToTable("categories").PrimaryColumn("id")
-              .OnDelete(Rule.SetNull);
-
+        #region Product
 
         Create.Table("products")
               .WithColumn("id").AsGuid().PrimaryKey()
@@ -41,6 +23,7 @@ public class Initial : Migration
               .WithColumn("stock").AsInt32().NotNullable()
               .WithColumn("availability").AsBoolean().NotNullable();
 
+
         Create.ForeignKey("fk_products_brands")
               .FromTable("products").ForeignColumn("brand_id")
               .ToTable("brands").PrimaryColumn("id")
@@ -51,6 +34,9 @@ public class Initial : Migration
               .ToTable("categories").PrimaryColumn("id")
               .OnDelete(Rule.SetNull);
 
+        #endregion
+
+        #region Product Image
 
         Create.Table("product_images")
               .WithColumn("id").AsGuid().PrimaryKey()
@@ -58,10 +44,40 @@ public class Initial : Migration
               .WithColumn("image_file_name").AsString().NotNullable()
               .WithColumn("display_order").AsInt32().NotNullable();
 
+
         Create.ForeignKey("fk_product_images_products")
               .FromTable("product_images").ForeignColumn("product_id")
               .ToTable("products").PrimaryColumn("id")
               .OnDelete(Rule.Cascade);
+
+        #endregion
+
+        #region Category
+
+        Create.Table("categories")
+              .WithColumn("id").AsGuid().PrimaryKey()
+              .WithColumn("parent_category_id").AsGuid().Nullable()
+              .WithColumn("name").AsString().NotNullable()
+              .WithColumn("description").AsString().NotNullable()
+              .WithColumn("image_file_name").AsString().NotNullable();
+
+
+        Create.ForeignKey("fk_categories_parent_categories")
+              .FromTable("categories").ForeignColumn("parent_category_id")
+              .ToTable("categories").PrimaryColumn("id")
+              .OnDelete(Rule.SetNull);
+        
+        #endregion
+
+        #region Brand
+
+        Create.Table("brands")
+              .WithColumn("id").AsGuid().PrimaryKey()
+              .WithColumn("name").AsString().NotNullable()
+              .WithColumn("description").AsString().NotNullable()
+              .WithColumn("image_file_name").AsString().NotNullable();
+
+        #endregion
     }
 
     public override void Down()
