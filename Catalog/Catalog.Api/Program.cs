@@ -50,6 +50,10 @@ var services = builder.Services;
                 npgsqlConnectionString: configuration["PostgresConnectionString"],
                 name: "PostgresSQL",
                 failureStatus: HealthStatus.Unhealthy)
+            .AddRedis(
+                redisConnectionString: configuration["RedisConnectionString"],
+                name: "Redis",
+                failureStatus: HealthStatus.Unhealthy)
             .AddMinio(
                 factory: sp => sp.GetRequiredService<MinioClient>(),
                 name: "Minio",
