@@ -1,4 +1,4 @@
-﻿using Catalog.Api.Middlewares;
+using Catalog.Api.Middlewares;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
@@ -21,7 +21,7 @@ var configuration = builder.Configuration;
 
 var services = builder.Services;
 {
-    services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["ConnectionString"]!));
+    services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["PostgresConnectionString"]!));
     services.AddTransient<IProductRepository, ProductRepository>();
     services.AddTransient<IProductImageRepository, ProductImageRepository>();
     services.AddTransient<IBrandRepository, BrandRepository>();
@@ -36,7 +36,7 @@ var services = builder.Services;
 
     services.AddHealthChecks()
             .AddNpgSql(
-                npgsqlConnectionString: configuration["ConnectionString"],
+                npgsqlConnectionString: configuration["PostgresConnectionString"],
                 name: "PostgresSQL",
                 failureStatus: HealthStatus.Unhealthy)
             .AddMinio(
