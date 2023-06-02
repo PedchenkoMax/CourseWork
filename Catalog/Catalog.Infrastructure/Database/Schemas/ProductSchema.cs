@@ -9,6 +9,7 @@ public static class ProductSchema
         public static string Id => "id";
         public static string BrandId => "brand_id";
         public static string CategoryId => "category_id";
+        public static string Slug => "slug";
         public static string Name => "name";
         public static string Description => "description";
         public static string Price => "price";

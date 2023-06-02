@@ -32,6 +32,7 @@ public class Initial : Migration
               .WithColumn("id").AsGuid().PrimaryKey()
               .WithColumn("brand_id").AsGuid().Nullable()
               .WithColumn("category_id").AsGuid().Nullable()
+              .WithColumn("slug").AsString().NotNullable()
               .WithColumn("name").AsString().NotNullable()
               .WithColumn("description").AsString().NotNullable()
               .WithColumn("price").AsDecimal().NotNullable()
