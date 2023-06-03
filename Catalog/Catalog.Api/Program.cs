@@ -1,3 +1,5 @@
+using Catalog.Api.Mappers;
+using Catalog.Api.Mappers.Abstractions;
 using Catalog.Api.Middlewares;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
@@ -74,6 +76,10 @@ var services = builder.Services;
     var migrationRunner = new MigrationRunner();
     migrationRunner.RunMigrations(configuration["ConnectionString"]!, true);
 
+    services.AddSingleton<ICategoryMapper, CategoryMapper>();
+    services.AddSingleton<IProductImageMapper, ProductImageMapper>();
+    services.AddSingleton<IProductMapper, ProductMapper>();
+    
     services.AddControllers();
     services.AddEndpointsApiExplorer();
 
