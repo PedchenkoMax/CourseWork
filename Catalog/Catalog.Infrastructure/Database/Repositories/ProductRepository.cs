@@ -4,21 +4,27 @@ using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
 using Dapper;
+using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure.Database.Repositories;
 
 public class ProductRepository : IProductRepository
 {
+    private readonly ILogger<ProductRepository> logger;
     private readonly IDbConnection connection;
 
-    public ProductRepository(DapperDbContext context)
+    public ProductRepository(ILogger<ProductRepository> logger, DapperDbContext context)
     {
+        this.logger = logger;
         connection = context.Connection;
     }
 
     public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
     {
+        logger.LogInformation("Database connection opened");
         connection.Open();
+
+        logger.LogInformation("Starting a new transaction with isolation level {IsolationLevel}", isolationLevel);
         return connection.BeginTransaction(isolationLevel);
     }
     
@@ -35,6 +41,8 @@ public class ProductRepository : IProductRepository
             LEFT JOIN {ProductImageSchema.Table} AS i
                 ON p.{ProductSchema.Columns.Id} = i.{ProductImageSchema.Columns.ProductId}
             """;
+
+        logger.LogInformation("Fetching all products");
 
         try
         {
@@ -60,10 +68,12 @@ public class ProductRepository : IProductRepository
                 },
                 splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
 
+            logger.LogInformation("Successfully fetched all products");
             return productDictionary.Values.ToList();
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred while fetching all products");
             throw new DatabaseException(e);
         }
     }
@@ -83,6 +93,7 @@ public class ProductRepository : IProductRepository
             WHERE p.{ProductSchema.Columns.Id} = @{nameof(id)}
             """;
 
+        logger.LogInformation("Fetching product by ID {Id}", id);
         try
         {
             var productDictionary = new Dictionary<Guid, ProductEntity>();
@@ -108,10 +119,12 @@ public class ProductRepository : IProductRepository
                 new { Id = id },
                 splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.Id}");
 
+            logger.LogInformation("Product fetched successfully with ID {Id}", id);
             return productDictionary.Values.FirstOrDefault();
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred while fetching product by ID {Id}", id);
             throw new DatabaseException(e);
         }
     }
@@ -134,14 +147,25 @@ public class ProductRepository : IProductRepository
             WHERE {ProductSchema.Columns.Id} = @{nameof(product.Id)}
             """;
 
+        logger.LogInformation("Updating product with ID {Id}", product.Id);
         try
         {
             var rowsAffected = await connection.ExecuteAsync(sql, product);
 
-            return rowsAffected > 0;
+            if (rowsAffected > 0)
+            {
+                logger.LogInformation("Product updated successfully with ID {Id}", product.Id);
+                return true;
+            }
+            else
+            {
+                logger.LogInformation("No product found with ID {Id} to update", product.Id);
+                return false;
+            }
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred while updating product with ID {Id}", product.Id);
             throw new DatabaseException(e);
         }
     }
@@ -154,14 +178,24 @@ public class ProductRepository : IProductRepository
             WHERE {ProductSchema.Columns.Id} = @{nameof(id)}
             """;
 
+        logger.LogInformation("Removing product by ID {Id}", id);
         try
         {
             var rowsAffected = await connection.ExecuteAsync(sql, new { Id = id });
-
-            return rowsAffected > 0;
+            if (rowsAffected > 0)
+            {
+                logger.LogInformation("Product removed successfully with ID {Id}", id);
+                return true;
+            }
+            else
+            {
+                logger.LogInformation("No product found with ID {Id} to remove", id);
+                return false;
+            }
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred while removing product by ID {Id}", id);
             throw new DatabaseException(e);
         }
     }
@@ -196,14 +230,25 @@ public class ProductRepository : IProductRepository
                  @{nameof(product.Availability)})
             """;
 
+        logger.LogInformation("Adding new product with ID {Id}", product.Id);
         try
         {
             var rowsAffected = await connection.ExecuteAsync(sql, product);
 
-            return rowsAffected > 0;
+            if (rowsAffected > 0)
+            {
+                logger.LogInformation("Product added successfully with ID {Id}", product.Id);
+                return true;
+            }
+            else
+            {
+                logger.LogInformation("Product could not be added with ID {Id}", product.Id);
+                return false;
+            }
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred while adding new product with ID {Id}", product.Id);
             throw new DatabaseException(e);
         }
     }
@@ -217,14 +262,25 @@ public class ProductRepository : IProductRepository
                            WHERE {ProductSchema.Columns.Id} = @{nameof(id)})
             """;
 
+        logger.LogInformation("Checking if product exists with ID {Id}", id);
         try
         {
             var exists = await connection.ExecuteScalarAsync<bool>(sql, new { Id = id });
 
-            return exists;
+            if (exists)
+            {
+                logger.LogInformation("Product exists with ID {Id}", id);
+                return exists;
+            }
+            else
+            {
+                logger.LogInformation("Product does not exist with ID {Id}", id);
+                return exists;
+            }
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error occurred while checking if product exists with ID {Id}", id);
             throw new DatabaseException(e);
         }
     }

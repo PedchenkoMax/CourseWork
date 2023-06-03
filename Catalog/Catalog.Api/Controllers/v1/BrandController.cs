@@ -19,16 +19,18 @@ namespace Catalog.Api.Controllers.v1;
 [Route("api/v{version:apiVersion}/brands")]
 public class BrandController : ApiControllerBase<BrandController>, IBrandController
 {
+    private readonly ILogger<BrandController> logger;
     private readonly IBrandRepository brandRepository;
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
     private readonly IImageHandlingSettings imageHandlingSettings;
     private readonly IBrandMapper brandMapper;
 
-    public BrandController(IBrandRepository brandRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings,
-        IBrandMapper brandMapper)
+    public BrandController(ILogger<BrandController> logger, IBrandRepository brandRepository,
+        IBlobService blobService, IBlobServiceSettings blobServiceSettings,
+        IImageHandlingSettings imageHandlingSettings, IBrandMapper brandMapper)
     {
+        this.logger = logger;
         this.brandRepository = brandRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
@@ -44,10 +46,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpGet]
     public async Task<IActionResult> GetAllBrands()
     {
+        logger.LogInformation("Getting all brands...");
         var brandEntities = await brandRepository.GetAllAsync();
 
-        var brandDtos = brandEntities.Select(brandMapper.MapToDto);
+        var brandDtos = brandEntities.Select(brandMapper.MapToDto).ToList();
 
+        logger.LogInformation("Successfully retrieved {BrandCount} brands", brandDtos.Count);
         return Ok(brandDtos);
     }
 
@@ -62,12 +66,19 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpGet("{brandId:guid}")]
     public async Task<IActionResult> GetBrand([FromRoute] [NonZeroGuid] Guid brandId)
     {
+        logger.LogInformation("Getting brand with ID {BrandId}...", brandId);
+
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
 
         if (brandEntity == null)
+        {
+            logger.LogInformation("Brand with ID {BrandId} not found", brandId);
             return NotFound(nameof(brandId));
+        }
 
         var brandDto = brandMapper.MapToDto(brandEntity);
+
+        logger.LogInformation("Successfully retrieved brand with ID {BrandId}", brandId);
 
         return Ok(brandDto);
     }
@@ -85,10 +96,15 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpPost]
     public async Task<IActionResult> AddBrand([FromBody] BrandWriteDto dto)
     {
+        logger.LogInformation("Adding new brand...");
+
         var (validationResult, brandEntity) = brandMapper.MapToEntity(dto);
 
         if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid brand data");
             return BadRequest(validationResult);
+        }
 
         // using var transaction = brandRepository.BeginTransaction();
 
@@ -96,11 +112,13 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
 
         if (isAdded)
         {
+            logger.LogInformation("Brand added successfully");
             // transaction.Commit();
             return Ok(brandEntity.Id);
         }
         else
         {
+            logger.LogError("Conflict occurred while adding the brand to db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -122,12 +140,17 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpPut("{brandId:guid}")]
     public async Task<IActionResult> UpdateBrand([FromRoute] [NonZeroGuid] Guid brandId, [FromBody] BrandWriteDto dto)
     {
+        logger.LogInformation("Updating brand with ID {BrandId}...", brandId);
+
         // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
 
         if (brandEntity == null)
+        {
+            logger.LogInformation("Brand with ID {BrandId} not found", brandId);
             return NotFound(nameof(brandId));
+        }
 
         var validationResult = brandEntity.Update(
             name: dto.Name,
@@ -135,17 +158,22 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
             imageFileName: brandEntity.ImageFileName);
 
         if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid brand data");
             return BadRequest(validationResult);
+        }
 
         var isUpdated = await brandRepository.UpdateAsync(brandEntity);
 
         if (isUpdated)
         {
+            logger.LogInformation("Brand updated successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while updating the brand in db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -164,11 +192,15 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpDelete("{brandId:guid}")]
     public async Task<IActionResult> DeleteBrand([FromRoute] [NonZeroGuid] Guid brandId)
     {
+        logger.LogInformation("Deleting brand with ID {BrandId}...", brandId);
         // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
         if (brandEntity == null)
+        {
+            logger.LogInformation("Brand with ID {BrandId} not found", brandId);
             return NotFound(nameof(brandId));
+        }
 
         if (brandEntity.ImageFileName != null && brandEntity.ImageFileName != imageHandlingSettings.DefaultBrandImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
@@ -177,11 +209,13 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
 
         if (isRemoved)
         {
+            logger.LogInformation("Brand deleted successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while deleting the brand in db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -203,15 +237,23 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpPut("{brandId:guid}/image/")]
     public async Task<IActionResult> UpdateBrandImage(Guid brandId, [FromForm] BrandImageUpdateDto dto)
     {
+        logger.LogInformation("Updating image for brand with ID {BrandId}...", brandId);
+
         var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!result.IsValid)
+        {
+            logger.LogInformation("Invalid image file for brand with ID {BrandId}", brandId);
             return BadRequest(result);
+        }
 
         // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
         if (brandEntity == null)
+        {
+            logger.LogInformation("Brand with ID {BrandId} not found", brandId);
             return NotFound(nameof(brandId));
+        }
 
         var fileNameToDelete = brandEntity.ImageFileName;
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
@@ -222,20 +264,27 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
             imageFileName: uniqueFileName);
 
         if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid brand data");
             return BadRequest(validationResult);
+        }
 
         var isUpdated = await brandRepository.UpdateAsync(brandEntity);
 
         if (isUpdated)
         {
-            await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, fileNameToDelete);
+            if (fileNameToDelete != null)
+                await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, fileNameToDelete);
+
             await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, uniqueFileName, dto.ImageFile);
 
+            logger.LogInformation("Brand image updated successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while updating the brand image in db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -254,11 +303,16 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpDelete("{brandId:guid}/image/")]
     public async Task<IActionResult> DeleteBrandImage(Guid brandId)
     {
+        logger.LogInformation("Deleting image for brand with ID {BrandId}...", brandId);
+
         // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
         if (brandEntity == null)
+        {
+            logger.LogInformation("Brand with ID {BrandId} not found", brandId);
             return NotFound(nameof(brandId));
+        }
 
         brandEntity.Update(
             name: brandEntity.Name,
@@ -271,11 +325,13 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         {
             await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
 
+            logger.LogInformation("Brand image deleted successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while deleting the brand image from db");
             // transaction.Rollback();
             return Conflict();
         }

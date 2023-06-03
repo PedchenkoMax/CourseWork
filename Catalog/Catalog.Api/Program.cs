@@ -6,6 +6,7 @@ using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
 using Catalog.Infrastructure.BlobStorage.Abstractions;
 using Catalog.Infrastructure.Cache.Repositories;
+using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -18,15 +19,26 @@ using Microsoft.OpenApi.Models;
 using Minio;
 using Minio.AspNetCore;
 using Minio.AspNetCore.HealthChecks;
+using Serilog;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostingContext, loggerConfig) =>
+{
+    loggerConfig.ReadFrom.Configuration(hostingContext.Configuration)
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithThreadId();
+});
+
 var configuration = builder.Configuration;
 
 var services = builder.Services;
 {
     services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["PostgresConnectionString"]!));
     services.AddSingleton<IConnectionMultiplexer>(x => ConnectionMultiplexer.Connect(configuration["RedisConnectionString"]!));
+    services.AddSingleton<RedisCacheManager>();
 
     services.AddTransient<IProductRepository, ProductRepository>();
     services.Decorate<IProductRepository, CachedProductRepository>();
@@ -114,6 +126,10 @@ var services = builder.Services;
 
 var app = builder.Build();
 {
+    app.UseSerilogRequestLogging(options =>
+    {
+    });
+    
     app.UseSwagger(options => options.RouteTemplate = "swagger/{documentName}/swagger.json");
     app.UseSwaggerUI(options => { options.SwaggerEndpoint($"/swagger/v1/swagger.json", $"v1"); });
 

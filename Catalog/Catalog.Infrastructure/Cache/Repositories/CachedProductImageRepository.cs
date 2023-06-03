@@ -1,20 +1,26 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
-using Catalog.Infrastructure.Cache.Extensions;
+using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace Catalog.Infrastructure.Cache.Repositories;
 
 public class CachedProductImageRepository : IProductImageRepository
 {
+    private readonly ILogger<CachedProductImageRepository> logger; // TODO: cover methods with logs
     private readonly IProductImageRepository repository;
+    private readonly RedisCacheManager cacheManager;
     private readonly IDatabase database;
     private readonly TimeSpan expiry;
 
-    public CachedProductImageRepository(IProductImageRepository repository, IConnectionMultiplexer connectionMultiplexer)
+    public CachedProductImageRepository(ILogger<CachedProductImageRepository> logger, IProductImageRepository repository,
+        IConnectionMultiplexer connectionMultiplexer, RedisCacheManager cacheManager)
     {
+        this.logger = logger;
         this.repository = repository;
+        this.cacheManager = cacheManager;
         database = connectionMultiplexer.GetDatabase();
         expiry = TimeSpan.FromMinutes(5);
     }
@@ -26,7 +32,7 @@ public class CachedProductImageRepository : IProductImageRepository
 
     public async Task<List<ProductImageEntity>> GetAllByProductIdAsync(Guid id)
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: $"ProductImage_All_{id}",
             fetchFromDb: () => repository.GetAllByProductIdAsync(id),
             expiry: expiry);
@@ -34,7 +40,7 @@ public class CachedProductImageRepository : IProductImageRepository
 
     public async Task<ProductImageEntity?> GetByIdAsync(Guid id)
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: $"ProductImage_{id}",
             fetchFromDb: () => repository.GetByIdAsync(id),
             expiry: expiry);
@@ -44,7 +50,9 @@ public class CachedProductImageRepository : IProductImageRepository
     {
         var result = await repository.UpdateAsync(productImage);
 
-        await database.InvalidateCacheAsync($"ProductImage_{productImage.Id}", $"ProductImage_All_{productImage.ProductId}");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"ProductImage_{productImage.Id}",
+            $"ProductImage_All_{productImage.ProductId}");
 
         return result;
     }
@@ -55,7 +63,9 @@ public class CachedProductImageRepository : IProductImageRepository
 
         foreach (var productImage in productImages)
         {
-            await database.InvalidateCacheAsync($"ProductImage_{productImage.Id}", $"ProductImage_All_{productImage.ProductId}");
+            await cacheManager.InvalidateCacheAsync(database,
+                $"ProductImage_{productImage.Id}",
+                $"ProductImage_All_{productImage.ProductId}");
         }
 
         return result;
@@ -68,7 +78,9 @@ public class CachedProductImageRepository : IProductImageRepository
 
         if (productImage != null)
         {
-            await database.InvalidateCacheAsync($"ProductImage_{id}", $"ProductImage_All_{productImage.ProductId}");
+            await cacheManager.InvalidateCacheAsync(database,
+                $"ProductImage_{id}",
+                $"ProductImage_All_{productImage.ProductId}");
         }
 
         return result;
@@ -78,7 +90,9 @@ public class CachedProductImageRepository : IProductImageRepository
     {
         var result = await repository.AddAsync(productImage);
 
-        await database.InvalidateCacheAsync($"ProductImage_{productImage.Id}", $"ProductImage_All_{productImage.ProductId}");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"ProductImage_{productImage.Id}",
+            $"ProductImage_All_{productImage.ProductId}");
 
         return result;
     }
