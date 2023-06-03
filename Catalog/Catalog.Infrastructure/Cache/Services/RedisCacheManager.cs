@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -26,11 +26,17 @@ public class RedisCacheManager
         var value = await database.StringGetAsync(key);
 
         if (!value.IsNull)
+        {
+            logger.LogInformation("Cache hit for key: {Key}", key);
             return JsonConvert.DeserializeObject<T>(value, jsonSettings);
+        }
+
+        logger.LogInformation("Cache miss for key: {Key}", key);
 
         var result = await fetchFromDb();
 
         await database.StringSetAsync(key, JsonConvert.SerializeObject(result, jsonSettings), expiry);
+        logger.LogInformation("Item stored in cache for key: {Key}", key);
 
         return result;
     }
@@ -40,6 +46,7 @@ public class RedisCacheManager
         foreach (var key in keys)
         {
             await database.KeyDeleteAsync(key);
+            logger.LogInformation("Cache invalidated for key: {Key}", key);
         }
     }
 

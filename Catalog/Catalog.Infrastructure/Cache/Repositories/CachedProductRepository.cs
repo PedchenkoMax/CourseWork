@@ -2,20 +2,23 @@ using System.Data;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace Catalog.Infrastructure.Cache.Repositories;
 
 public class CachedProductRepository : IProductRepository
 {
+    private readonly ILogger<CachedProductRepository> logger; // TODO: cover methods with logs
     private readonly IProductRepository repository;
     private readonly RedisCacheManager cacheManager;
     private readonly IDatabase database;
     private readonly TimeSpan expiry;
 
-    public CachedProductRepository(IProductRepository repository, IConnectionMultiplexer connectionMultiplexer,
-        RedisCacheManager cacheManager)
+    public CachedProductRepository(ILogger<CachedProductRepository> logger, IProductRepository repository,
+        IConnectionMultiplexer connectionMultiplexer, RedisCacheManager cacheManager)
     {
+        this.logger = logger;
         this.repository = repository;
         this.cacheManager = cacheManager;
         database = connectionMultiplexer.GetDatabase();

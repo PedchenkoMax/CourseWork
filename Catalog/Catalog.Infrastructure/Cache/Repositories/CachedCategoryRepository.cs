@@ -3,20 +3,23 @@ using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace Catalog.Infrastructure.Cache.Repositories;
 
 public class CachedCategoryRepository : ICategoryRepository
 {
+    private readonly ILogger<CachedCategoryRepository> logger; // TODO: cover methods with logs
     private readonly ICategoryRepository repository;
     private readonly RedisCacheManager cacheManager;
     private readonly IDatabase database;
     private readonly TimeSpan expiry;
 
-    public CachedCategoryRepository(ICategoryRepository repository, IConnectionMultiplexer connectionMultiplexer,
-        RedisCacheManager cacheManager)
+    public CachedCategoryRepository(ILogger<CachedCategoryRepository> logger, ICategoryRepository repository,
+        IConnectionMultiplexer connectionMultiplexer, RedisCacheManager cacheManager)
     {
+        this.logger = logger;
         this.repository = repository;
         this.cacheManager = cacheManager;
         database = connectionMultiplexer.GetDatabase();
