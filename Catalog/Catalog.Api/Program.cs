@@ -18,9 +18,19 @@ using Microsoft.OpenApi.Models;
 using Minio;
 using Minio.AspNetCore;
 using Minio.AspNetCore.HealthChecks;
+using Serilog;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((hostingContext, loggerConfig) =>
+{
+    loggerConfig.ReadFrom.Configuration(hostingContext.Configuration)
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithThreadId();
+});
+
 var configuration = builder.Configuration;
 
 var services = builder.Services;
@@ -114,6 +124,10 @@ var services = builder.Services;
 
 var app = builder.Build();
 {
+    app.UseSerilogRequestLogging(options =>
+    {
+    });
+    
     app.UseSwagger(options => options.RouteTemplate = "swagger/{documentName}/swagger.json");
     app.UseSwaggerUI(options => { options.SwaggerEndpoint($"/swagger/v1/swagger.json", $"v1"); });
 
