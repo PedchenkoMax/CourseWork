@@ -1,60 +1,90 @@
 ﻿using Catalog.Api.DTO;
+using Catalog.Api.Mappers.Abstractions;
+using Catalog.Api.Services.Abstractions;
 using Catalog.Domain.Entities;
 using FluentValidation.Results;
 
 namespace Catalog.Api.Mappers;
 
-public static class ProductMapper
+/// <summary>
+/// Provides mapping between ProductEntity and Read/Write dto's.
+/// </summary>
+public class ProductMapper : IProductMapper
 {
-    public static ProductReadDto MapToReadDto(ProductEntity entity)
+    private readonly IBrandMapper brandMapper;
+    private readonly ICategoryMapper categoryMapper;
+    private readonly IProductImageMapper productImageMapper;
+    private readonly List<ProductImageReadDto> defaultImage; // TODO: probably there is better solution
+
+    public ProductMapper(IBrandMapper brandMapper, ICategoryMapper categoryMapper, IProductImageMapper productImageMapper,
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
     {
-        return new ProductReadDto(
-            Id: entity.Id,
-            BrandId: entity.BrandId,
-            CategoryId: entity.CategoryId,
-            Slug: entity.Slug,
-            Name: entity.Name,
-            Description: entity.Description,
-            Price: entity.Price,
-            Discount: entity.Discount,
-            SKU: entity.SKU,
-            Stock: entity.Stock,
-            Availability: entity.Availability,
-            Brand: entity.Brand != null ? BrandMapper.MapToReadDto(entity.Brand) : null,
-            Category: entity.Category != null ? CategoryMapper.MapToReadDto(entity.Category) : null,
-            Images: entity.Images?.Select(imageEntity => ProductImageMapper.MapToReadDto(imageEntity)).ToList());
+        this.brandMapper = brandMapper;
+        this.categoryMapper = categoryMapper;
+        this.productImageMapper = productImageMapper;
+
+        defaultImage = new List<ProductImageReadDto>
+        {
+            new ProductImageReadDto(Id: Guid.NewGuid(), ProductId: Guid.NewGuid(), DisplayOrder: 1,
+                ImageUrl: $"{blobServiceSettings.Endpoint}/{blobServiceSettings.ProductImageBucketName}/{imageHandlingSettings.DefaultProductImageName}")
+        };
     }
 
-    public static ValidationResult TryCreateEntity(ProductWriteDto writeDto, out ProductEntity entity)
+    /// <summary>
+    /// Maps a ProductEntity to a ProductReadDto.
+    /// </summary>
+    /// <param name="entity">The ProductEntity to map.</param>
+    /// <returns>A ProductReadDto mapped from the given ProductEntity.</returns>
+    public ProductReadDto MapToDto(ProductEntity entity)
+    {
+        var brandReadDto = entity.Brand != null
+            ? brandMapper.MapToDto(entity.Brand)
+            : null;
+
+        var categoryReadDto = entity.Category != null
+            ? categoryMapper.MapToDto(entity.Category)
+            : null;
+
+        var productImagesReadDto = entity.Images.Count != 0
+            ? entity.Images.Select(productImageMapper.MapToDto).ToList()
+            : defaultImage;
+
+        return new ProductReadDto(
+            entity.Id,
+            entity.BrandId,
+            entity.CategoryId,
+            entity.Slug,
+            entity.Name,
+            entity.Description,
+            entity.Price,
+            entity.Discount,
+            entity.SKU,
+            entity.Stock,
+            entity.Availability,
+            brandReadDto,
+            categoryReadDto,
+            productImagesReadDto);
+    }
+
+    /// <summary>
+    /// Maps a ProductWriteDto to a ProductEntity and validates it.
+    /// </summary>
+    /// <param name="dto">The ProductWriteDto to map.</param>
+    /// <returns>A tuple with ValidationResult and the created ProductEntity.</returns>
+    public (ValidationResult ValidationResult, ProductEntity Entity) MapToEntity(ProductWriteDto dto)
     {
         var validationResult = ProductEntity.TryCreate(
-            brandId: writeDto.BrandId,
-            categoryId: writeDto.CategoryId,
-            name: writeDto.Name,
-            description: writeDto.Description,
-            price: writeDto.Price,
-            discount: writeDto.Discount,
-            sku: writeDto.SKU,
-            stock: writeDto.Stock,
-            availability: writeDto.Availability,
-            out entity);
+            dto.BrandId,
+            dto.CategoryId,
+            dto.Name,
+            dto.Description,
+            dto.Price,
+            dto.Discount,
+            dto.SKU,
+            dto.Stock,
+            dto.Availability,
+            out var entity);
 
-        return validationResult;
-    }
-
-    public static ValidationResult TryUpdateEntity(ProductWriteDto writeDto, ProductEntity entity)
-    {
-        var validationResult = entity.Update(
-            brandId: writeDto.BrandId,
-            categoryId: writeDto.CategoryId,
-            name: writeDto.Name,
-            description: writeDto.Description,
-            price: writeDto.Price,
-            discount: writeDto.Discount,
-            sku: writeDto.SKU,
-            stock: writeDto.Stock,
-            availability: writeDto.Availability);
-
-        return validationResult;
+        return (validationResult, entity);
     }
 }
