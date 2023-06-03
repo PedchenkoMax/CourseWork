@@ -107,7 +107,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto dto)
     {
-        using var transaction = categoryRepository.BeginTransaction();
+        // using var transaction = categoryRepository.BeginTransaction();
 
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
@@ -121,12 +121,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         if (isAdded)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok(categoryEntity.Id);
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -147,7 +147,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}")]
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid categoryId, [FromBody] CategoryWriteDto dto)
     {
-        using var transaction = categoryRepository.BeginTransaction();
+        // using var transaction = categoryRepository.BeginTransaction();
 
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
@@ -170,12 +170,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         if (isUpdated)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -193,7 +193,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpDelete("{categoryId:guid}")]
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid categoryId)
     {
-        using var transaction = categoryRepository.BeginTransaction();
+        // using var transaction = categoryRepository.BeginTransaction();
 
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
@@ -206,12 +206,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         if (isRemoved)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -232,7 +232,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}/image/")]
     public async Task<IActionResult> UpdateCategoryImage(Guid categoryId, [FromForm] CategoryImageUpdateDto dto)
     {
-        using var transaction = categoryRepository.BeginTransaction();
+        // using var transaction = categoryRepository.BeginTransaction();
 
         var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!result.IsValid)
@@ -261,12 +261,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, fileNameToDelete);
             await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, uniqueFileName, dto.ImageFile);
 
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -284,7 +284,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpDelete("{categoryId:guid}/image/")]
     public async Task<IActionResult> DeleteCategoryImage(Guid categoryId)
     {
-        using var transaction = categoryRepository.BeginTransaction();
+        // using var transaction = categoryRepository.BeginTransaction();
 
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
@@ -302,12 +302,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         {
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }

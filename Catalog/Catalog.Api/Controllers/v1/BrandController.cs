@@ -90,18 +90,18 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        using var transaction = brandRepository.BeginTransaction();
+        // using var transaction = brandRepository.BeginTransaction();
 
         var isAdded = await brandRepository.AddAsync(brandEntity);
 
         if (isAdded)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok(brandEntity.Id);
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -122,7 +122,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpPut("{brandId:guid}")]
     public async Task<IActionResult> UpdateBrand([FromRoute] [NonZeroGuid] Guid brandId, [FromBody] BrandWriteDto dto)
     {
-        using var transaction = brandRepository.BeginTransaction();
+        // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
 
@@ -141,12 +141,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
 
         if (isUpdated)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -164,7 +164,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpDelete("{brandId:guid}")]
     public async Task<IActionResult> DeleteBrand([FromRoute] [NonZeroGuid] Guid brandId)
     {
-        using var transaction = brandRepository.BeginTransaction();
+        // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
         if (brandEntity == null)
@@ -177,12 +177,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
 
         if (isRemoved)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -207,7 +207,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (!result.IsValid)
             return BadRequest(result);
 
-        using var transaction = brandRepository.BeginTransaction();
+        // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
         if (brandEntity == null)
@@ -231,12 +231,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
             await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, fileNameToDelete);
             await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, uniqueFileName, dto.ImageFile);
 
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -254,7 +254,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpDelete("{brandId:guid}/image/")]
     public async Task<IActionResult> DeleteBrandImage(Guid brandId)
     {
-        using var transaction = brandRepository.BeginTransaction();
+        // using var transaction = brandRepository.BeginTransaction();
 
         var brandEntity = await brandRepository.GetByIdAsync(brandId);
         if (brandEntity == null)
@@ -271,12 +271,12 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         {
             await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, brandEntity.ImageFileName);
 
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }

@@ -97,7 +97,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpPost]
     public async Task<IActionResult> AddProduct([FromBody] ProductWriteDto dto)
     {
-        using var transaction = productRepository.BeginTransaction();
+        // using var transaction = productRepository.BeginTransaction();
 
         if (dto.BrandId != null && !await brandRepository.ExistsAsync(dto.BrandId.Value))
             return NotFound(nameof(dto.BrandId));
@@ -114,12 +114,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         if (isAdded)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok(productEntity.Id);
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -140,7 +140,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpPut("{productId:guid}")]
     public async Task<IActionResult> UpdateProduct([FromRoute] [NonZeroGuid] Guid productId, [FromBody] ProductWriteDto dto)
     {
-        using var transaction = productRepository.BeginTransaction();
+        // using var transaction = productRepository.BeginTransaction();
 
         if (dto.BrandId != null && !await brandRepository.ExistsAsync(dto.BrandId.Value))
             return NotFound(nameof(dto.BrandId));
@@ -163,12 +163,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         if (isUpdated)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -186,7 +186,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpDelete("{productId:guid}")]
     public async Task<IActionResult> DeleteProduct([FromRoute] [NonZeroGuid] Guid productId)
     {
-        using var transaction = productRepository.BeginTransaction();
+        // using var transaction = productRepository.BeginTransaction();
 
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
@@ -200,12 +200,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         if (isDeleted)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -251,7 +251,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
 
-        using var transaction = productImageRepository.BeginTransaction();
+        // using var transaction = productImageRepository.BeginTransaction();
 
         if (!await productRepository.ExistsAsync(productId))
             return NotFound(nameof(productId));
@@ -273,12 +273,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         {
             await blobService.UploadFileAsync(blobServiceSettings.ProductImageBucketName, uniqueFileName, dto.ImageFile);
 
-            transaction.Commit();
+            // transaction.Commit();
             return Ok(entity.Id); // TODO: should i return link or id? or both?
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -331,7 +331,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (dto.DisplayOrder < 0)
             return BadRequest();
 
-        using var transaction = productImageRepository.BeginTransaction();
+        // using var transaction = productImageRepository.BeginTransaction();
 
         var entity = await productImageRepository.GetByIdAsync(productImageId);
         if (entity == null)
@@ -357,12 +357,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         if (isUpdated)
         {
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
@@ -383,7 +383,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     [HttpDelete("{productId:guid}/images/{productImageId:guid}")]
     public async Task<IActionResult> DeleteProductImage([FromRoute] [NonZeroGuid] Guid productId, [FromRoute] [NonZeroGuid] Guid productImageId)
     {
-        using var transaction = productImageRepository.BeginTransaction();
+        // using var transaction = productImageRepository.BeginTransaction();
 
         var productImageEntity = await productImageRepository.GetByIdAsync(productImageId);
         if (productImageEntity == null)
@@ -408,12 +408,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         {
             await blobService.DeleteFileAsync(blobServiceSettings.ProductImageBucketName, productImageEntity.ImageFileName);
 
-            transaction.Commit();
+            // transaction.Commit();
             return Ok();
         }
         else
         {
-            transaction.Rollback();
+            // transaction.Rollback();
             return Conflict();
         }
     }
