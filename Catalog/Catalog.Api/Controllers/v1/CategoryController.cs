@@ -199,7 +199,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        if (categoryEntity.Name != imageHandlingSettings.DefaultCategoryImageName)
+        if (categoryEntity.ImageFileName != null && categoryEntity.ImageFileName != imageHandlingSettings.DefaultCategoryImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
         var isRemoved = await categoryRepository.RemoveByIdAsync(categoryId);
