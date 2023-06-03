@@ -76,6 +76,7 @@ var services = builder.Services;
     var migrationRunner = new MigrationRunner();
     migrationRunner.RunMigrations(configuration["ConnectionString"]!, true);
 
+    services.AddSingleton<IBrandMapper, BrandMapper>();
     services.AddSingleton<ICategoryMapper, CategoryMapper>();
     services.AddSingleton<IProductImageMapper, ProductImageMapper>();
     services.AddSingleton<IProductMapper, ProductMapper>();
