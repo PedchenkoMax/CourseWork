@@ -18,16 +18,18 @@ namespace Catalog.Api.Controllers.v1;
 [Route("api/v{version:apiVersion}/categories")]
 public class CategoryController : ApiControllerBase<CategoryController>, ICategoryController
 {
+    private readonly ILogger<CategoryController> logger;
     private readonly ICategoryRepository categoryRepository;
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
     private readonly IImageHandlingSettings imageHandlingSettings;
     private readonly ICategoryMapper categoryMapper;
 
-    public CategoryController(ICategoryRepository categoryRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings,
-        ICategoryMapper categoryMapper)
+    public CategoryController(ILogger<CategoryController> logger, ICategoryRepository categoryRepository,
+        IBlobService blobService, IBlobServiceSettings blobServiceSettings,
+        IImageHandlingSettings imageHandlingSettings, ICategoryMapper categoryMapper)
     {
+        this.logger = logger;
         this.categoryRepository = categoryRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
@@ -43,10 +45,12 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
+        logger.LogInformation("Getting all categories...");
         var categoryEntities = await categoryRepository.GetAllAsync();
 
         var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto).ToList();
 
+        logger.LogInformation("Successfully retrieved {CategoryCount} categories", categoryDtos.Count);
         return Ok(categoryDtos);
     }
 
@@ -61,13 +65,19 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpGet("{categoryId:guid}/subcategories")]
     public async Task<IActionResult> GetCategorySubcategories([FromRoute] [NonZeroGuid] Guid categoryId)
     {
+        logger.LogInformation("Getting subcategories for category with ID {CategoryId}...", categoryId);
+
         if (!await categoryRepository.ExistsAsync(categoryId))
+        {
+            logger.LogInformation("Category with ID {CategoryId} not found", categoryId);
             return NotFound(nameof(categoryId));
+        }
 
         var categoryEntities = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(categoryId);
 
         var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto).ToList();
 
+        logger.LogInformation("Successfully retrieved {SubcategoryCount} subcategories for category with ID {CategoryId}", categoryDtos.Count, categoryId);
         return Ok(categoryDtos);
     }
 
@@ -82,13 +92,19 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpGet("{categoryId:guid}")]
     public async Task<IActionResult> GetCategory([FromRoute] [NonZeroGuid] Guid categoryId)
     {
+        logger.LogInformation("Getting category with ID {CategoryId}...", categoryId);
+
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
 
         if (categoryEntity == null)
+        {
+            logger.LogInformation("Category with ID {CategoryId} not found", categoryId);
             return NotFound(nameof(categoryId));
+        }
 
         var categoryDto = categoryMapper.MapToDto(categoryEntity);
 
+        logger.LogInformation("Successfully retrieved category with ID {CategoryId}", categoryId);
         return Ok(categoryDto);
     }
 
@@ -107,25 +123,35 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPost]
     public async Task<IActionResult> AddCategory([FromBody] CategoryWriteDto dto)
     {
+        logger.LogInformation("Adding new category...");
+
         // using var transaction = categoryRepository.BeginTransaction();
 
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
+        {
+            logger.LogInformation("Parent category with ID {ParentCategoryId} not found", dto.ParentCategoryId.Value);
             return NotFound(nameof(dto.ParentCategoryId));
+        }
 
         var (validationResult, categoryEntity) = categoryMapper.MapToEntity(dto);
 
         if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid category data");
             return BadRequest(validationResult);
+        }
 
         var isAdded = await categoryRepository.AddAsync(categoryEntity);
 
         if (isAdded)
         {
+            logger.LogInformation("Category added successfully");
             // transaction.Commit();
             return Ok(categoryEntity.Id);
         }
         else
         {
+            logger.LogError("Conflict occurred while adding the category to db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -147,15 +173,23 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}")]
     public async Task<IActionResult> UpdateCategory([FromRoute] [NonZeroGuid] Guid categoryId, [FromBody] CategoryWriteDto dto)
     {
+        logger.LogInformation("Updating category with ID {CategoryId}...", categoryId);
+
         // using var transaction = categoryRepository.BeginTransaction();
 
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
+        {
+            logger.LogInformation("Parent category with ID {ParentCategoryId} not found", dto.ParentCategoryId.Value);
             return NotFound(nameof(dto.ParentCategoryId));
+        }
 
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
 
         if (categoryEntity == null)
+        {
+            logger.LogInformation("Category with ID {CategoryId} not found", categoryId);
             return NotFound(nameof(categoryId));
+        }
 
         var validationResult = categoryEntity.Update(
             parentCategoryId: dto.ParentCategoryId,
@@ -164,17 +198,22 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             imageFileName: categoryEntity.ImageFileName);
 
         if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid category data");
             return BadRequest(validationResult);
+        }
 
         var isUpdated = await categoryRepository.UpdateAsync(categoryEntity);
 
         if (isUpdated)
         {
+            logger.LogInformation("Category updated successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while updating the category in db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -193,11 +232,16 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpDelete("{categoryId:guid}")]
     public async Task<IActionResult> DeleteCategory([FromRoute] [NonZeroGuid] Guid categoryId)
     {
+        logger.LogInformation("Deleting category with ID {CategoryId}...", categoryId);
+
         // using var transaction = categoryRepository.BeginTransaction();
 
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
+        {
+            logger.LogInformation("Category with ID {CategoryId} not found", categoryId);
             return NotFound(nameof(categoryId));
+        }
 
         if (categoryEntity.ImageFileName != null && categoryEntity.ImageFileName != imageHandlingSettings.DefaultCategoryImageName)
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
@@ -206,11 +250,13 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         if (isRemoved)
         {
+            logger.LogInformation("Category deleted successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while deleting the category in db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -232,15 +278,23 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpPut("{categoryId:guid}/image/")]
     public async Task<IActionResult> UpdateCategoryImage(Guid categoryId, [FromForm] CategoryImageUpdateDto dto)
     {
+        logger.LogInformation("Updating image for category with ID {CategoryId}...", categoryId);
+
         // using var transaction = categoryRepository.BeginTransaction();
 
         var result = await new ProductImageFileValidator().ValidateAsync(dto.ImageFile);
         if (!result.IsValid)
+        {
+            logger.LogInformation("Invalid image file for category with ID {CategoryId}", categoryId);
             return BadRequest(result);
+        }
 
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
+        {
+            logger.LogInformation("Category with ID {CategoryId} not found", categoryId);
             return NotFound(nameof(categoryId));
+        }
 
         var fileNameToDelete = categoryEntity.ImageFileName;
         var uniqueFileName = BlobService.GenerateUniqueFileName(dto.ImageFile);
@@ -252,7 +306,10 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             imageFileName: uniqueFileName);
 
         if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid category data");
             return BadRequest(validationResult);
+        }
 
         var isUpdated = await categoryRepository.UpdateAsync(categoryEntity);
 
@@ -261,11 +318,13 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, fileNameToDelete);
             await blobService.UploadFileAsync(blobServiceSettings.CategoryImageBucketName, uniqueFileName, dto.ImageFile);
 
+            logger.LogInformation("Category image updated successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while updating the category image in db");
             // transaction.Rollback();
             return Conflict();
         }
@@ -284,11 +343,16 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     [HttpDelete("{categoryId:guid}/image/")]
     public async Task<IActionResult> DeleteCategoryImage(Guid categoryId)
     {
+        logger.LogInformation("Deleting image for category with ID {CategoryId}...", categoryId);
+
         // using var transaction = categoryRepository.BeginTransaction();
 
         var categoryEntity = await categoryRepository.GetByIdAsync(categoryId);
         if (categoryEntity == null)
+        {
+            logger.LogInformation("Category with ID {CategoryId} not found", categoryId);
             return NotFound(nameof(categoryId));
+        }
 
         categoryEntity.Update(
             parentCategoryId: categoryEntity.ParentCategoryId,
@@ -302,11 +366,13 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         {
             await blobService.DeleteFileAsync(blobServiceSettings.CategoryImageBucketName, categoryEntity.ImageFileName);
 
+            logger.LogInformation("Category image deleted successfully");
             // transaction.Commit();
             return Ok();
         }
         else
         {
+            logger.LogError("Conflict occurred while deleting the category image from db");
             // transaction.Rollback();
             return Conflict();
         }
