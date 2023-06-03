@@ -1,6 +1,6 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
-using Catalog.Api.Mappers;
+using Catalog.Api.Mappers.Abstractions;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
@@ -23,14 +23,17 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
     private readonly IImageHandlingSettings imageHandlingSettings;
+    private readonly IBrandMapper brandMapper;
 
     public BrandController(IBrandRepository brandRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings,
+        IBrandMapper brandMapper)
     {
         this.brandRepository = brandRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
         this.imageHandlingSettings = imageHandlingSettings;
+        this.brandMapper = brandMapper;
     }
 
     /// <summary>
@@ -43,7 +46,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     {
         var brandEntities = await brandRepository.GetAllAsync();
 
-        var brandDtos = brandEntities.Select(brandEntity => BrandMapper.MapToReadDto(brandEntity));
+        var brandDtos = brandEntities.Select(brandMapper.MapToDto);
 
         return Ok(brandDtos);
     }
@@ -64,7 +67,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
         if (brandEntity == null)
             return NotFound(nameof(brandId));
 
-        var brandDto = BrandMapper.MapToReadDto(brandEntity);
+        var brandDto = brandMapper.MapToDto(brandEntity);
 
         return Ok(brandDto);
     }
@@ -82,11 +85,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     [HttpPost]
     public async Task<IActionResult> AddBrand([FromBody] BrandWriteDto dto)
     {
-        var validationResult = BrandEntity.TryCreate(
-            name: dto.Name,
-            description: dto.Description,
-            imageFileName: imageHandlingSettings.DefaultBrandImageName,
-            entity: out var brandEntity);
+        var (validationResult, brandEntity) = brandMapper.MapToEntity(dto);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

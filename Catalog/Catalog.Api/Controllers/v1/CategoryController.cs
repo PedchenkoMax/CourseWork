@@ -1,11 +1,10 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
-using Catalog.Api.Mappers;
+using Catalog.Api.Mappers.Abstractions;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
 using Catalog.Api.Validators;
-using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,14 +22,17 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
     private readonly IImageHandlingSettings imageHandlingSettings;
+    private readonly ICategoryMapper categoryMapper;
 
     public CategoryController(ICategoryRepository categoryRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings,
+        ICategoryMapper categoryMapper)
     {
         this.categoryRepository = categoryRepository;
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
         this.imageHandlingSettings = imageHandlingSettings;
+        this.categoryMapper = categoryMapper;
     }
 
     /// <summary>
@@ -43,7 +45,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     {
         var categoryEntities = await categoryRepository.GetAllAsync();
 
-        var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
+        var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto);
 
         return Ok(categoryDtos);
     }
@@ -64,7 +66,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var categoryEntities = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(categoryId);
 
-        var categoryDtos = categoryEntities.Select(entity => CategoryMapper.MapToReadDto(entity));
+        var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto);
 
         return Ok(categoryDtos);
     }
@@ -85,7 +87,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (categoryEntity == null)
             return NotFound(nameof(categoryId));
 
-        var categoryDto = CategoryMapper.MapToReadDto(categoryEntity);
+        var categoryDto = categoryMapper.MapToDto(categoryEntity);
 
         return Ok(categoryDto);
     }
@@ -110,12 +112,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
         if (dto.ParentCategoryId != null && !await categoryRepository.ExistsAsync(dto.ParentCategoryId.Value))
             return NotFound(nameof(dto.ParentCategoryId));
 
-        var validationResult = CategoryEntity.TryCreate(
-            parentCategoryId: dto.ParentCategoryId,
-            name: dto.Name,
-            description: dto.Description,
-            imageFileName: imageHandlingSettings.DefaultCategoryImageName,
-            out var categoryEntity);
+        var (validationResult, categoryEntity) = categoryMapper.MapToEntity(dto);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);

@@ -92,7 +92,7 @@ public class Initial : Migration
               .WithColumn(CategorySchema.Columns.ParentCategoryId).AsGuid().Nullable()
               .WithColumn(CategorySchema.Columns.Name).AsString().NotNullable()
               .WithColumn(CategorySchema.Columns.Description).AsString().NotNullable()
-              .WithColumn(CategorySchema.Columns.ImageFileName).AsString().NotNullable();
+              .WithColumn(CategorySchema.Columns.ImageFileName).AsString().Nullable();
 
 
         Create.ForeignKey("fk_categories_parent_categories")
@@ -114,7 +114,7 @@ public class Initial : Migration
               .WithColumn(BrandSchema.Columns.Id).AsGuid().PrimaryKey()
               .WithColumn(BrandSchema.Columns.Name).AsString().NotNullable()
               .WithColumn(BrandSchema.Columns.Description).AsString().NotNullable()
-              .WithColumn(BrandSchema.Columns.ImageFileName).AsString().NotNullable();
+              .WithColumn(BrandSchema.Columns.ImageFileName).AsString().Nullable();
 
         #endregion
     }

@@ -1,6 +1,7 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
 using Catalog.Api.Mappers;
+using Catalog.Api.Mappers.Abstractions;
 using Catalog.Api.Services;
 using Catalog.Api.Services.Abstractions;
 using Catalog.Api.ValidationAttributes;
@@ -26,10 +27,13 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     private readonly IBlobService blobService;
     private readonly IBlobServiceSettings blobServiceSettings;
     private readonly IImageHandlingSettings imageHandlingSettings;
+    private readonly IProductMapper productMapper;
+    private readonly IProductImageMapper productImageMapper;
 
     public ProductController(IProductRepository productRepository, IProductImageRepository productImageRepository,
         IBrandRepository brandRepository, ICategoryRepository categoryRepository, IBlobService blobService,
-        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings)
+        IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings,
+        IProductMapper productMapper, IProductImageMapper productImageMapper)
     {
         this.productRepository = productRepository;
         this.productImageRepository = productImageRepository;
@@ -38,6 +42,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         this.blobService = blobService;
         this.blobServiceSettings = blobServiceSettings;
         this.imageHandlingSettings = imageHandlingSettings;
+        this.productMapper = productMapper;
+        this.productImageMapper = productImageMapper;
     }
 
     /// <summary>
@@ -50,7 +56,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     {
         var productEntities = await productRepository.GetAllAsync();
 
-        var productDtos = productEntities.Select(productEntity => ProductMapper.MapToReadDto(productEntity));
+        var productDtos = productEntities.Select(productMapper.MapToDto);
 
         return Ok(productDtos);
     }
@@ -71,7 +77,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productEntity == null)
             return NotFound(nameof(productId));
 
-        var productDto = ProductMapper.MapToReadDto(productEntity);
+        var productDto = productMapper.MapToDto(productEntity);
 
         return Ok(productDto);
     }
@@ -99,7 +105,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (dto.CategoryId != null && !await categoryRepository.ExistsAsync(dto.CategoryId.Value))
             return NotFound(nameof(dto.CategoryId));
 
-        var validationResult = ProductMapper.TryCreateEntity(dto, out var productEntity);
+        var (validationResult, productEntity) = productMapper.MapToEntity(dto);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -147,7 +153,8 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productEntity == null)
             return NotFound(nameof(productId));
 
-        var validationResult = ProductMapper.TryUpdateEntity(dto, productEntity);
+        var validationResult = productEntity.Update(dto.BrandId, dto.CategoryId, dto.Name, dto.Description,
+            dto.Price, dto.Discount, dto.SKU, dto.Stock, dto.Availability);
 
         if (!validationResult.IsValid)
             return BadRequest(validationResult);
@@ -219,7 +226,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var productImageEntities = await productImageRepository.GetAllByProductIdAsync(productId);
 
-        var productImageDtos = productImageEntities.Select(productImageEntity => ProductImageMapper.MapToReadDto(productImageEntity));
+        var productImageDtos = productImageEntities.Select(productImageMapper.MapToDto);
 
         return Ok(productImageDtos);
     }
@@ -258,7 +265,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         var imageUrl = $"{blobServiceSettings.Endpoint}/{blobServiceSettings.ProductImageBucketName}/{uniqueFileName}";
 
         // No need for validation check as it always valid at this point
-        _ = ProductImageEntity.TryCreate(productId: productId, imageFileName: uniqueFileName, displayOrder: imageCount, out var entity);
+        var (_, entity) = productImageMapper.MapToEntity(productId, uniqueFileName, imageCount);
 
         var isAdded = await productImageRepository.AddAsync(entity);
 
@@ -297,7 +304,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (productImageEntity.ProductId != productId)
             return BadRequest("The product ID provided does not match the product ID associated with the image.");
 
-        var productImageDto = ProductImageMapper.MapToReadDto(productImageEntity);
+        var productImageDto = productImageMapper.MapToDto(productImageEntity);
 
         return Ok(productImageDto);
     }
