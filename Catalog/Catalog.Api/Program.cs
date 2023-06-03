@@ -74,7 +74,7 @@ var services = builder.Services;
     services.AddTransient<IBlobService, BlobService>();
 
     var migrationRunner = new MigrationRunner();
-    migrationRunner.RunMigrations(configuration["ConnectionString"]!, true);
+    migrationRunner.RunMigrations(configuration["PostgresConnectionString"]!, true);
 
     services.AddSingleton<IBrandMapper, BrandMapper>();
     services.AddSingleton<ICategoryMapper, CategoryMapper>();
