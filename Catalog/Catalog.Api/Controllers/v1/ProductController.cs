@@ -52,7 +52,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// Gets all products.
     /// </summary>
     /// <response code="200">Products successfully retrieved, returns a list of all products.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ProductReadDto>), StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllProducts()
     {
@@ -71,7 +71,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <param name="productId">ID of the desired product.</param>
     /// <response code="200">Product found and returned successfully.</response>
     /// <response code="404">Product with the given ID does not exist.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProductReadDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}")]
     public async Task<IActionResult> GetProduct([FromRoute] [NonZeroGuid] Guid productId)
@@ -100,7 +100,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <response code="400">Invalid product data or product data is null.</response>
     /// <response code="404">Brand, or category with the given ID does not exist.</response>
     /// <response code="409">Conflict occurred while updating the product.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -259,7 +259,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <param name="productId">ID of the product.</param>
     /// <response code="200">Images successfully retrieved, returns a list of all product images.</response>
     /// <response code="404">Product with the given ID does not exist.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<ProductImageReadDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}/images")]
     public async Task<IActionResult> GetProductImages([FromRoute] [NonZeroGuid] Guid productId)
@@ -289,7 +289,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <response code="400">Invalid image data, image data is null, or maximum limit of images has been reached.</response>
     /// <response code="404">Product with the given ID does not exist.</response>
     /// <response code="409">Conflict occurred while adding the product image to the database or adding it to the blob storage.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -354,7 +354,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     /// <response code="200">Image found and returned successfully.</response>
     /// <response code="400">Provided product ID does not match with the product ID associated with the image.</response>
     /// <response code="404">Product image with the given ID does not exist.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProductImageReadDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{productId:guid}/images/{productImageId:guid}")]

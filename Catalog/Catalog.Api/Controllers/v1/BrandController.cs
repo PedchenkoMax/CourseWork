@@ -42,7 +42,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// Gets all brands.
     /// </summary>
     /// <response code="200">Brands successfully retrieved, returns a list of all brands.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<BrandReadDto>), StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllBrands()
     {
@@ -61,7 +61,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <param name="brandId">ID of the desired brand.</param>
     /// <response code="200">Brand found and returned successfully.</response>
     /// <response code="404">Brand with the given ID does not exist.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BrandReadDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{brandId:guid}")]
     public async Task<IActionResult> GetBrand([FromRoute] [NonZeroGuid] Guid brandId)
@@ -90,7 +90,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     /// <response code="200">Brand created successfully, returns the ID of created brand.</response>
     /// <response code="400">Invalid brand data or brand data is null.</response>
     /// <response code="409">Conflict occurred while adding the brand to db.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [HttpPost]

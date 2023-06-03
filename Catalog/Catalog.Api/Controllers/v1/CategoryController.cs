@@ -41,7 +41,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// Gets all categories.
     /// </summary>
     /// <response code="200">Products successfully retrieved, returns a list of all categories.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<CategoryReadDto>), StatusCodes.Status200OK)]
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
@@ -60,7 +60,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <param name="categoryId">ID of the parent category.</param>
     /// <response code="200">Subcategories found and returned successfully.</response>
     /// <response code="404">Parent category with the given ID does not exist.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(List<CategoryReadDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{categoryId:guid}/subcategories")]
     public async Task<IActionResult> GetCategorySubcategories([FromRoute] [NonZeroGuid] Guid categoryId)
@@ -87,7 +87,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <param name="categoryId">ID of the desired category.</param>
     /// <response code="200">Category found and returned successfully.</response>
     /// <response code="404">Category with the given ID does not exist.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(CategoryReadDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [HttpGet("{categoryId:guid}")]
     public async Task<IActionResult> GetCategory([FromRoute] [NonZeroGuid] Guid categoryId)
@@ -116,7 +116,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     /// <response code="400">Invalid category data or category data is null.</response>
     /// <response code="404">Parent category with the given ID does not exist.</response>
     /// <response code="409">Conflict occurred while adding the category to db.</response>
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
