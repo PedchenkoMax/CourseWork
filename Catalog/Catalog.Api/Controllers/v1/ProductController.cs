@@ -56,7 +56,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     {
         var productEntities = await productRepository.GetAllAsync();
 
-        var productDtos = productEntities.Select(productMapper.MapToDto);
+        var productDtos = productEntities.Select(productMapper.MapToDto).ToList();
 
         return Ok(productDtos);
     }
@@ -226,7 +226,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
 
         var productImageEntities = await productImageRepository.GetAllByProductIdAsync(productId);
 
-        var productImageDtos = productImageEntities.Select(productImageMapper.MapToDto);
+        var productImageDtos = productImageEntities.Select(productImageMapper.MapToDto).ToList();
 
         return Ok(productImageDtos);
     }

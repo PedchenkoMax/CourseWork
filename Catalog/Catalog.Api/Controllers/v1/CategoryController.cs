@@ -45,7 +45,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
     {
         var categoryEntities = await categoryRepository.GetAllAsync();
 
-        var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto);
+        var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto).ToList();
 
         return Ok(categoryDtos);
     }
@@ -66,7 +66,7 @@ public class CategoryController : ApiControllerBase<CategoryController>, ICatego
 
         var categoryEntities = await categoryRepository.GetSubcategoriesByParentCategoryIdAsync(categoryId);
 
-        var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto);
+        var categoryDtos = categoryEntities.Select(categoryMapper.MapToDto).ToList();
 
         return Ok(categoryDtos);
     }

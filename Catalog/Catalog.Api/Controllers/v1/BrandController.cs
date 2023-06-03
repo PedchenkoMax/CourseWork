@@ -46,7 +46,7 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
     {
         var brandEntities = await brandRepository.GetAllAsync();
 
-        var brandDtos = brandEntities.Select(brandMapper.MapToDto);
+        var brandDtos = brandEntities.Select(brandMapper.MapToDto).ToList();
 
         return Ok(brandDtos);
     }
