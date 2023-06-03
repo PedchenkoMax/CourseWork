@@ -228,7 +228,9 @@ public class BrandController : ApiControllerBase<BrandController>, IBrandControl
 
         if (isUpdated)
         {
-            await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, fileNameToDelete);
+            if (fileNameToDelete != null)
+                await blobService.DeleteFileAsync(blobServiceSettings.BrandImageBucketName, fileNameToDelete);
+
             await blobService.UploadFileAsync(blobServiceSettings.BrandImageBucketName, uniqueFileName, dto.ImageFile);
 
             // transaction.Commit();
