@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
-using Catalog.Infrastructure.Cache.Extensions;
+using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using StackExchange.Redis;
@@ -10,12 +10,15 @@ namespace Catalog.Infrastructure.Cache.Repositories;
 public class CachedCategoryRepository : ICategoryRepository
 {
     private readonly ICategoryRepository repository;
+    private readonly RedisCacheManager cacheManager;
     private readonly IDatabase database;
     private readonly TimeSpan expiry;
 
-    public CachedCategoryRepository(ICategoryRepository repository,  IConnectionMultiplexer connectionMultiplexer)
+    public CachedCategoryRepository(ICategoryRepository repository, IConnectionMultiplexer connectionMultiplexer,
+        RedisCacheManager cacheManager)
     {
         this.repository = repository;
+        this.cacheManager = cacheManager;
         database = connectionMultiplexer.GetDatabase();
         expiry = TimeSpan.FromMinutes(5);
     }
@@ -23,12 +26,11 @@ public class CachedCategoryRepository : ICategoryRepository
     public IDbTransaction BeginTransaction(IsolationLevel isolationLevel = IsolationLevel.ReadCommitted)
     {
         return repository.BeginTransaction(isolationLevel);
-
     }
 
     public async Task<List<CategoryEntity>> GetAllAsync()
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: "Category_All",
             fetchFromDb: () => repository.GetAllAsync(),
             expiry: expiry);
@@ -36,7 +38,7 @@ public class CachedCategoryRepository : ICategoryRepository
 
     public async Task<List<CategoryEntity>> GetSubcategoriesByParentCategoryIdAsync(Guid parentCategoryId)
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: $"Category_Sub_{parentCategoryId}",
             fetchFromDb: () => repository.GetSubcategoriesByParentCategoryIdAsync(parentCategoryId),
             expiry: expiry);
@@ -44,7 +46,7 @@ public class CachedCategoryRepository : ICategoryRepository
 
     public async Task<CategoryEntity?> GetByIdAsync(Guid id)
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: $"Category_{id}",
             fetchFromDb: () => repository.GetByIdAsync(id),
             expiry: expiry);
@@ -54,7 +56,10 @@ public class CachedCategoryRepository : ICategoryRepository
     {
         var result = await repository.UpdateAsync(category);
 
-        await database.InvalidateCacheAsync($"Category_{category.Id}", $"Category_Sub_{category.ParentCategoryId}", "Category_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Category_{category.Id}",
+            $"Category_Sub_{category.ParentCategoryId}",
+            "Category_All");
 
         return result;
     }
@@ -66,7 +71,10 @@ public class CachedCategoryRepository : ICategoryRepository
         var category = await GetByIdAsync(id);
         if (category != null)
         {
-            await database.InvalidateCacheAsync($"Category_{id}", $"Category_Sub_{category.ParentCategoryId}", "Category_All");
+            await cacheManager.InvalidateCacheAsync(database,
+                $"Category_{id}",
+                $"Category_Sub_{category.ParentCategoryId}",
+                "Category_All");
         }
 
         return result;
@@ -76,7 +84,10 @@ public class CachedCategoryRepository : ICategoryRepository
     {
         var result = await repository.AddAsync(category);
 
-        await database.InvalidateCacheAsync($"Category_{category.Id}", $"Category_Sub_{category.ParentCategoryId}", "Category_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Category_{category.Id}",
+            $"Category_Sub_{category.ParentCategoryId}",
+            "Category_All");
 
         return result;
     }

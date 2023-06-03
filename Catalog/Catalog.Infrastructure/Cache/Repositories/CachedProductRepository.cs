@@ -1,6 +1,6 @@
 using System.Data;
 using Catalog.Domain.Entities;
-using Catalog.Infrastructure.Cache.Extensions;
+using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using StackExchange.Redis;
 
@@ -9,12 +9,15 @@ namespace Catalog.Infrastructure.Cache.Repositories;
 public class CachedProductRepository : IProductRepository
 {
     private readonly IProductRepository repository;
+    private readonly RedisCacheManager cacheManager;
     private readonly IDatabase database;
     private readonly TimeSpan expiry;
 
-    public CachedProductRepository(IProductRepository repository, IConnectionMultiplexer connectionMultiplexer)
+    public CachedProductRepository(IProductRepository repository, IConnectionMultiplexer connectionMultiplexer,
+        RedisCacheManager cacheManager)
     {
         this.repository = repository;
+        this.cacheManager = cacheManager;
         database = connectionMultiplexer.GetDatabase();
         expiry = TimeSpan.FromMinutes(5);
     }
@@ -26,7 +29,7 @@ public class CachedProductRepository : IProductRepository
 
     public async Task<List<ProductEntity>> GetAllAsync()
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: "Product_All",
             fetchFromDb: () => repository.GetAllAsync(),
             expiry: expiry);
@@ -34,7 +37,7 @@ public class CachedProductRepository : IProductRepository
 
     public async Task<ProductEntity?> GetByIdAsync(Guid id)
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: $"Product_{id}",
             fetchFromDb: () => repository.GetByIdAsync(id),
             expiry: expiry);
@@ -44,7 +47,9 @@ public class CachedProductRepository : IProductRepository
     {
         var result = await repository.UpdateAsync(product);
 
-        await database.InvalidateCacheAsync($"Product_{product.Id}", "Product_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Product_{product.Id}",
+            "Product_All");
 
         return result;
     }
@@ -53,7 +58,9 @@ public class CachedProductRepository : IProductRepository
     {
         var result = await repository.RemoveByIdAsync(id);
 
-        await database.InvalidateCacheAsync($"Product_{id}", "Product_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Product_{id}",
+            "Product_All");
 
         return result;
     }
@@ -62,7 +69,9 @@ public class CachedProductRepository : IProductRepository
     {
         var result = await repository.AddAsync(product);
 
-        await database.InvalidateCacheAsync($"Product_{product.Id}", "Product_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Product_{product.Id}",
+            "Product_All");
 
         return result;
     }

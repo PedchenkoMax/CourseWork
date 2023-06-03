@@ -1,6 +1,6 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
-using Catalog.Infrastructure.Cache.Extensions;
+using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using StackExchange.Redis;
 
@@ -9,12 +9,15 @@ namespace Catalog.Infrastructure.Cache.Repositories;
 public class CachedBrandRepository : IBrandRepository
 {
     private readonly IBrandRepository repository;
+    private readonly RedisCacheManager cacheManager;
     private readonly IDatabase database;
     private readonly TimeSpan expiry;
 
-    public CachedBrandRepository(IBrandRepository repository, IConnectionMultiplexer connectionMultiplexer)
+    public CachedBrandRepository(IBrandRepository repository, IConnectionMultiplexer connectionMultiplexer,
+        RedisCacheManager cacheManager)
     {
         this.repository = repository;
+        this.cacheManager = cacheManager;
         database = connectionMultiplexer.GetDatabase();
         expiry = TimeSpan.FromMinutes(5);
     }
@@ -26,7 +29,7 @@ public class CachedBrandRepository : IBrandRepository
 
     public async Task<List<BrandEntity>> GetAllAsync()
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: "Brand_All",
             fetchFromDb: () => repository.GetAllAsync(),
             expiry: expiry);
@@ -34,7 +37,7 @@ public class CachedBrandRepository : IBrandRepository
 
     public async Task<BrandEntity?> GetByIdAsync(Guid id)
     {
-        return await database.GetFromCacheAsync(
+        return await cacheManager.GetFromCacheAsync(database,
             key: $"Brand_{id}",
             fetchFromDb: () => repository.GetByIdAsync(id),
             expiry: expiry);
@@ -44,7 +47,9 @@ public class CachedBrandRepository : IBrandRepository
     {
         var result = await repository.UpdateAsync(brand);
 
-        await database.InvalidateCacheAsync($"Brand_{brand.Id}", "Brand_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Brand_{brand.Id}",
+            "Brand_All");
 
         return result;
     }
@@ -53,7 +58,9 @@ public class CachedBrandRepository : IBrandRepository
     {
         var result = await repository.RemoveByIdAsync(id);
 
-        await database.InvalidateCacheAsync($"Brand_{id}", "Brand_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Brand_{id}",
+            "Brand_All");
 
         return result;
     }
@@ -62,7 +69,9 @@ public class CachedBrandRepository : IBrandRepository
     {
         var result = await repository.AddAsync(brand);
 
-        await database.InvalidateCacheAsync($"Brand_{brand.Id}", "Brand_All");
+        await cacheManager.InvalidateCacheAsync(database,
+            $"Brand_{brand.Id}",
+            "Brand_All");
 
         return result;
     }

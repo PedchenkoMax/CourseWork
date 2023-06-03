@@ -6,6 +6,7 @@ using Catalog.Api.Services.Abstractions;
 using Catalog.Infrastructure.BlobStorage;
 using Catalog.Infrastructure.BlobStorage.Abstractions;
 using Catalog.Infrastructure.Cache.Repositories;
+using Catalog.Infrastructure.Cache.Services;
 using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -37,6 +38,7 @@ var services = builder.Services;
 {
     services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["PostgresConnectionString"]!));
     services.AddSingleton<IConnectionMultiplexer>(x => ConnectionMultiplexer.Connect(configuration["RedisConnectionString"]!));
+    services.AddSingleton<RedisCacheManager>();
 
     services.AddTransient<IProductRepository, ProductRepository>();
     services.Decorate<IProductRepository, CachedProductRepository>();
