@@ -8,6 +8,7 @@ using Catalog.Api.ValidationAttributes;
 using Catalog.Api.Validators;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
+using Catalog.Infrastructure.Database.Schemas;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers.v1;
@@ -46,6 +47,43 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         this.imageHandlingSettings = imageHandlingSettings;
         this.productMapper = productMapper;
         this.productImageMapper = productImageMapper;
+    }
+
+    
+    /// <summary>
+    /// Search for products with specified parameters.
+    /// </summary>
+    /// <param name="parameters">Object containing search and pagination parameters.</param>
+    /// <response code="200">Products successfully retrieved, returns a paginated list of products based on search parameters.</response>
+    /// <response code="400">Invalid product search parameters.</response>
+    [ProducesResponseType(typeof(List<ProductReadDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [HttpGet("search")]
+    public async Task<IActionResult> SearchProducts([FromQuery] ProductParameters parameters)
+    {
+        logger.LogInformation("Searching products with parameters {Parameters}...", parameters);
+
+        var validationResult = await new ProductParametersValidator().ValidateAsync(parameters);
+        if (!validationResult.IsValid)
+        {
+            logger.LogInformation("Invalid product parameters {Parameters}", parameters);
+            return BadRequest(validationResult);
+        }
+
+        var (products, totalCount) = await productRepository
+            .SearchByParametersAsync(parameters.PageNumber, parameters.PageSize, parameters.OrderBy, parameters.IsAscending);
+
+        var productDtos = products.Select(productMapper.MapToDto).ToList();
+
+        var paginatedList = new PaginatedList<ProductReadDto>(
+            Items: productDtos,
+            CurrentPage: parameters.PageNumber,
+            TotalPages: (int)Math.Ceiling(totalCount / (double)parameters.PageSize),
+            PageSize: parameters.PageSize,
+            TotalCount: totalCount);
+
+        logger.LogInformation("Products found and paginated list created successfully");
+        return Ok(paginatedList);
     }
 
     /// <summary>
