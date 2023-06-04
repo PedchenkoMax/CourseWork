@@ -77,9 +77,24 @@ services:
             - "5341:80"
         volumes:
             - seq-data:/data
+    
+    rabbitmq:
+        container_name: "rabbitmq"
+        image: rabbitmq:management
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq/
+            - rabbitmq-log:/var/log/rabbitmq/
 
 volumes:
     postgres-data:
     minio-storage:
     redis-data:
     seq-data:
+    rabbitmq-data:
+    rabbitmq-log:
