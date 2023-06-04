@@ -1,5 +1,6 @@
 using Catalog.Api.Controllers.v1.Abstractions;
 using Catalog.Api.DTO;
+using Catalog.Api.Events;
 using Catalog.Api.Mappers;
 using Catalog.Api.Mappers.Abstractions;
 using Catalog.Api.Services;
@@ -9,6 +10,7 @@ using Catalog.Api.Validators;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.Api.Controllers.v1;
@@ -31,11 +33,12 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
     private readonly IImageHandlingSettings imageHandlingSettings;
     private readonly IProductMapper productMapper;
     private readonly IProductImageMapper productImageMapper;
+    private readonly IPublishEndpoint publishEndpoint;
 
     public ProductController(ILogger<ProductController> logger, IProductRepository productRepository,
         IProductImageRepository productImageRepository, IBrandRepository brandRepository, ICategoryRepository categoryRepository,
         IBlobService blobService, IBlobServiceSettings blobServiceSettings, IImageHandlingSettings imageHandlingSettings,
-        IProductMapper productMapper, IProductImageMapper productImageMapper)
+        IProductMapper productMapper, IProductImageMapper productImageMapper, IPublishEndpoint publishEndpoint)
     {
         this.logger = logger;
         this.productRepository = productRepository;
@@ -47,6 +50,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         this.imageHandlingSettings = imageHandlingSettings;
         this.productMapper = productMapper;
         this.productImageMapper = productImageMapper;
+        this.publishEndpoint = publishEndpoint;
     }
 
     
@@ -280,6 +284,7 @@ public class ProductController : ApiControllerBase<ProductController>, IProductC
         if (isDeleted)
         {
             logger.LogInformation("Product with ID {ProductId} deleted successfully", productId);
+            await publishEndpoint.Publish<IProductDeletedEvent>(new ProductDeletedEvent(productId));
             // transaction.Commit();
             return Ok();
         }
