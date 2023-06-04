@@ -9,6 +9,7 @@ services:
         environment:
             - PostgresConnectionString=${POSTGRES_CONNECTION_STRING}
             - RedisConnectionString=${REDIS_CONNECTION_STRING}
+            - RabbitMqConnectionString=${RABBITMQ_CONNECTION_STRING}
 
             - MinioOptions__Endpoint=${MINIO_OPTIONS__ENDPOINT}
             - MinioOptions__AccessKey=${MINIO_OPTIONS__ACCESS_KEY}
@@ -77,9 +78,24 @@ services:
             - "5341:80"
         volumes:
             - seq-data:/data
+    
+    rabbitmq:
+        container_name: "rabbitmq"
+        image: rabbitmq:management
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq/
+            - rabbitmq-log:/var/log/rabbitmq/
 
 volumes:
     postgres-data:
     minio-storage:
     redis-data:
     seq-data:
+    rabbitmq-data:
+    rabbitmq-log:

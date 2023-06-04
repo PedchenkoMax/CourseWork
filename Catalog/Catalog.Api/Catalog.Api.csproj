@@ -9,10 +9,12 @@
 
     <ItemGroup>
         <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="6.0.2" />
+        <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="6.0.2" />
         <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="6.0.4" />
         <PackageReference Include="AspNetCore.HealthChecks.UI" Version="6.0.5" />
         <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
         <PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="6.0.5" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.16" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.1.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.5" />

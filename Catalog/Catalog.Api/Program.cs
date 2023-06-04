@@ -1,3 +1,4 @@
+using System.Reflection;
 using Catalog.Api.Mappers;
 using Catalog.Api.Mappers.Abstractions;
 using Catalog.Api.Middlewares;
@@ -11,6 +12,7 @@ using Catalog.Infrastructure.Database;
 using Catalog.Infrastructure.Database.Repositories;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using HealthChecks.UI.Client;
+using MassTransit;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -19,6 +21,7 @@ using Microsoft.OpenApi.Models;
 using Minio;
 using Minio.AspNetCore;
 using Minio.AspNetCore.HealthChecks;
+using RabbitMQ.Client.Exceptions;
 using Serilog;
 using StackExchange.Redis;
 
@@ -36,6 +39,28 @@ var configuration = builder.Configuration;
 
 var services = builder.Services;
 {
+    services.AddMassTransit(configurator =>
+    {
+        configurator.SetKebabCaseEndpointNameFormatter();
+    
+        configurator.AddConsumers(Assembly.GetExecutingAssembly());
+        
+        configurator.UsingRabbitMq((context, busConfigurator) =>
+        {
+            busConfigurator.ConfigureEndpoints(context);
+    
+            configurator.AddConsumers(Assembly.GetExecutingAssembly());
+    
+            busConfigurator.Host(configuration["RabbitMqConnectionString"]);
+    
+            busConfigurator.UseRetry(retryConfig =>
+            {
+                retryConfig.Interval(10, TimeSpan.FromSeconds(30));
+                retryConfig.Handle<BrokerUnreachableException>();
+            });
+        });
+    });
+
     services.AddSingleton<DapperDbContext>(_ => new DapperDbContext(configuration["PostgresConnectionString"]!));
     services.AddSingleton<IConnectionMultiplexer>(x => ConnectionMultiplexer.Connect(configuration["RedisConnectionString"]!));
     services.AddSingleton<RedisCacheManager>();
@@ -71,6 +96,10 @@ var services = builder.Services;
             .AddMinio(
                 factory: sp => sp.GetRequiredService<MinioClient>(),
                 name: "Minio",
+                failureStatus: HealthStatus.Unhealthy)
+            .AddRabbitMQ(
+                rabbitConnectionString: configuration["RabbitMqConnectionString"],
+                name: "RabbitMq",
                 failureStatus: HealthStatus.Unhealthy);
 
     services.AddHealthChecksUI()
