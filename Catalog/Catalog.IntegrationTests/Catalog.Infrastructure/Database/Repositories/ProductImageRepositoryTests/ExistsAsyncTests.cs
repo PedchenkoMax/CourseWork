@@ -16,8 +16,8 @@ public class ExistsAsyncTests : IClassFixture<DatabaseFixture>
     public ExistsAsyncTests(DatabaseFixture fixture)
     {
         var context = new DapperDbContext(fixture.ConnectionString);
-        productImageRepository = new ProductImageRepository(context);
-        productRepository = new ProductRepository(context);
+        productImageRepository = new ProductImageRepository(new NullLogger<ProductImageRepository>(), context);
+        productRepository = new ProductRepository(new NullLogger<ProductRepository>(), context);
     }
 
     [Fact]

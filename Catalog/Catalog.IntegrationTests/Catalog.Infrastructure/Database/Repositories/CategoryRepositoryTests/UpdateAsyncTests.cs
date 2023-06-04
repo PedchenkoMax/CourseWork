@@ -15,7 +15,7 @@ public class UpdateAsyncTests : IClassFixture<DatabaseFixture>
     public UpdateAsyncTests(DatabaseFixture fixture)
     {
         var context = new DapperDbContext(fixture.ConnectionString);
-        categoryRepository = new CategoryRepository(context);
+        categoryRepository = new CategoryRepository(new NullLogger<CategoryRepository>(), context);
     }
 
     [Fact]

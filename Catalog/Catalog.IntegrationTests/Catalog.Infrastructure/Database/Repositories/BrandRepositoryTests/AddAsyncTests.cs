@@ -15,7 +15,7 @@ public class AddAsyncTests : IClassFixture<DatabaseFixture>
     public AddAsyncTests(DatabaseFixture fixture)
     {
         var context = new DapperDbContext(fixture.ConnectionString);
-        brandRepository = new BrandRepository(context);
+        brandRepository = new BrandRepository(new NullLogger<BrandRepository>(), context);
     }
 
     [Fact]
