@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text;
 using Catalog.Domain.Entities;
 using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
@@ -27,7 +28,89 @@ public class ProductRepository : IProductRepository
         logger.LogInformation("Starting a new transaction with isolation level {IsolationLevel}", isolationLevel);
         return connection.BeginTransaction(isolationLevel);
     }
-    
+
+    public async Task<(List<ProductEntity>, int)> SearchByParametersAsync(int pageNumber, int pageSize, string orderBy, bool isAscending)
+    {
+        var sql = new StringBuilder(
+            $"""
+            SELECT p.*, b.*, c.*, i.*
+            FROM {ProductSchema.Table} AS p
+            LEFT JOIN {BrandSchema.Table} AS b
+                ON p.{ProductSchema.Columns.BrandId} = b.{BrandSchema.Columns.Id}
+            LEFT JOIN {CategorySchema.Table} AS c
+                ON p.{ProductSchema.Columns.CategoryId} = c.{CategorySchema.Columns.Id}
+            LEFT JOIN {ProductImageSchema.Table} AS i
+                ON p.{ProductSchema.Columns.Id} = i.{ProductImageSchema.Columns.ProductId}
+            """);
+
+        var sortOrder = isAscending ? "ASC" : "DESC";
+        var offSet = (pageNumber - 1)  * pageSize;
+        sql.AppendLine($" ORDER BY p.{orderBy} {sortOrder}");
+        sql.AppendLine(" OFFSET @Offset ROWS");
+        sql.AppendLine(" FETCH NEXT @PageSize ROWS ONLY");
+
+        logger.LogInformation("Searching for products by parameters (PageNumber: {PageNumber}, PageSize: {PageSize}, OrderBy: {OrderBy}, IsAscending: {IsAscending})",
+            pageNumber, pageSize, orderBy, isAscending);
+        try
+        {
+            var productDictionary = new Dictionary<string, ProductEntity>();
+
+            var productEntities = (await connection.QueryAsync<ProductEntity, BrandEntity, CategoryEntity, ProductImageEntity, ProductEntity>(
+                sql.ToString(),
+                (product, brand, category, image) =>
+                {
+                    var key = product.Id.ToString();
+                    if (!productDictionary.TryGetValue(key, out var productEntry))
+                    {
+                        productEntry = product;
+                        productDictionary.Add(key, productEntry);
+                    }
+
+                    productEntry.Brand = brand;
+                    productEntry.Category = category;
+
+                    if (image != null)
+                        productEntry.Images.Add(image);
+
+                    return productEntry;
+                },
+                new { Offset = offSet, PageSize = pageSize },
+                splitOn: $"{BrandSchema.Columns.Id},{CategorySchema.Columns.Id},{ProductImageSchema.Columns.ProductId}"
+            )).Distinct().ToList();
+        
+//             var countSql = new StringBuilder(
+//                 $"""
+//                 SELECT COUNT(*)
+//                 FROM {ProductSchema.Table} AS p
+//                 LEFT JOIN {BrandSchema.Table} AS b
+//                     ON p.{ProductSchema.Columns.BrandId} = b.{BrandSchema.Columns.Id}
+//                 LEFT JOIN {CategorySchema.Table} AS c
+//                     ON p.{ProductSchema.Columns.CategoryId} = c.{CategorySchema.Columns.Id}
+//                 LEFT JOIN {ProductImageSchema.Table} AS i
+//                     ON p.{ProductSchema.Columns.Id} = i.{ProductImageSchema.Columns.ProductId}
+//                 """);
+            
+             var countSql = new StringBuilder(
+                 $"""
+                 SELECT COUNT(*)
+                 FROM {ProductSchema.Table}
+                 """);
+
+            var totalCount = await connection.ExecuteScalarAsync<int>(countSql.ToString());
+        
+            logger.LogInformation("Successfully fetched {ProductCount} products with specified parameters (PageNumber: {PageNumber}, PageSize: {PageSize}," +
+                                  " OrderBy: {OrderBy}, IsAscending: {IsAscending})", productEntities.Count, pageNumber, pageSize, orderBy, isAscending);
+            return (productEntities, totalCount);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Error occurred while searching for products by parameters (PageNumber: {PageNumber}, PageSize: {PageSize}," +
+                               " OrderBy: {OrderBy}, IsAscending: {IsAscending})", pageNumber, pageSize, orderBy, isAscending);
+
+            throw new DatabaseException(e);
+        }
+    }
+
     public async Task<List<ProductEntity>> GetAllAsync()
     {
         var sql =

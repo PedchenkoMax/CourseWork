@@ -30,6 +30,11 @@ public class CachedProductRepository : IProductRepository
         return repository.BeginTransaction(isolationLevel);
     }
 
+    public async Task<(List<ProductEntity>, int)> SearchByParametersAsync(int pageNumber, int pageSize, string orderBy, bool isAscending)
+    {
+        return await repository.SearchByParametersAsync(pageNumber, pageSize, orderBy, isAscending);
+    }
+
     public async Task<List<ProductEntity>> GetAllAsync()
     {
         return await cacheManager.GetFromCacheAsync(database,
