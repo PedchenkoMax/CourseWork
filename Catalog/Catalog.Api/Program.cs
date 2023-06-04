@@ -71,6 +71,10 @@ var services = builder.Services;
             .AddMinio(
                 factory: sp => sp.GetRequiredService<MinioClient>(),
                 name: "Minio",
+                failureStatus: HealthStatus.Unhealthy)
+            .AddRabbitMQ(
+                rabbitConnectionString: configuration["RabbitMqConnectionString"],
+                name: "RabbitMq",
                 failureStatus: HealthStatus.Unhealthy);
 
     services.AddHealthChecksUI()
