@@ -1,4 +1,5 @@
 using System.Reflection;
+using Catalog.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -23,30 +24,46 @@ public class RedisCacheManager
 
     public async Task<T> GetFromCacheAsync<T>(IDatabase database, string key, Func<Task<T>> fetchFromDb, TimeSpan? expiry = null)
     {
-        var value = await database.StringGetAsync(key);
-
-        if (!value.IsNull)
+        try
         {
-            logger.LogInformation("Cache hit for key: {Key}", key);
-            return JsonConvert.DeserializeObject<T>(value, jsonSettings);
+            var value = await database.StringGetAsync(key);
+
+            if (!value.IsNull)
+            {
+                logger.LogInformation("Cache hit for key: {Key}", key);
+                return JsonConvert.DeserializeObject<T>(value, jsonSettings);
+            }
+
+            logger.LogInformation("Cache miss for key: {Key}", key);
+
+            var result = await fetchFromDb();
+
+            await database.StringSetAsync(key, JsonConvert.SerializeObject(result, jsonSettings), expiry);
+            logger.LogInformation("Item stored in cache for key: {Key}", key);
+
+            return result;
         }
-
-        logger.LogInformation("Cache miss for key: {Key}", key);
-
-        var result = await fetchFromDb();
-
-        await database.StringSetAsync(key, JsonConvert.SerializeObject(result, jsonSettings), expiry);
-        logger.LogInformation("Item stored in cache for key: {Key}", key);
-
-        return result;
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while getting data from the cache: {Message}", ex.Message);
+            throw new CacheException(ex);
+        }
     }
 
     public async Task InvalidateCacheAsync(IDatabase database, params string[] keys)
     {
-        foreach (var key in keys)
+        try
         {
-            await database.KeyDeleteAsync(key);
-            logger.LogInformation("Cache invalidated for key: {Key}", key);
+            foreach (var key in keys)
+            {
+                await database.KeyDeleteAsync(key);
+                logger.LogInformation("Cache invalidated for key: {Key}", key);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while invalidating the cache: {Message}", ex.Message);
+            throw new CacheException(ex);
         }
     }
 

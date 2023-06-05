@@ -1,4 +1,5 @@
 ﻿using Catalog.Infrastructure.BlobStorage.Abstractions;
+using Catalog.Infrastructure.Exceptions;
 using Microsoft.Extensions.Logging;
 using Minio;
 using Minio.Exceptions;
@@ -32,10 +33,10 @@ public class MinioBlobStorage : IBlobStorage
             await minioClient.PutObjectAsync(putObjectArgs);
             logger.LogInformation("File {UniqueFileName} uploaded successfully to Minio bucket {BucketName}", uniqueFileName, bucketName);
         }
-        catch (MinioException ex)
+        catch (Exception ex)
         {
             logger.LogError(ex, "Error occurred while uploading file {UniqueFileName} to Minio bucket {BucketName}", uniqueFileName, bucketName);
-            throw;
+            throw new BlobStorageException(ex);
         }
     }
 
@@ -51,10 +52,10 @@ public class MinioBlobStorage : IBlobStorage
             await minioClient.RemoveObjectAsync(removeObjectArgs);
             logger.LogInformation("File {FileName} deleted successfully from Minio bucket {BucketName}", fileName, bucketName);
         }
-        catch (MinioException ex)
+        catch (Exception ex)
         {
             logger.LogError(ex, "Error occurred while deleting file {FileName} from Minio bucket {BucketName}", fileName, bucketName);
-            throw;
+            throw new BlobStorageException(ex);
         }
     }
 }

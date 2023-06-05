@@ -1,8 +1,8 @@
 ﻿using System.Data;
 using Catalog.Domain.Entities;
-using Catalog.Infrastructure.Database.Exceptions;
 using Catalog.Infrastructure.Database.Repositories.Abstractions;
 using Catalog.Infrastructure.Database.Schemas;
+using Catalog.Infrastructure.Exceptions;
 using Dapper;
 using Microsoft.Extensions.Logging;
 
