@@ -1,5 +1,5 @@
 ﻿using System.Text.Json;
-using Catalog.Infrastructure.Database.Exceptions;
+using Catalog.Infrastructure.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Minio.Exceptions;
@@ -20,11 +20,15 @@ public static class ExceptionHandlingMiddleware
                 }
                 catch (DatabaseException)
                 {
-                    await HandleException(context, $"An error occurred while querying the database");
+                    await HandleException(context, $"An error occurred with Database");
                 }
-                catch (MinioException)
+                catch (BlobStorageException)
                 {
-                    await HandleException(context, $"An error occurred with Minio.");
+                    await HandleException(context, $"An error occurred with BlobStorage.");
+                }
+                catch (CacheException)
+                {
+                    await HandleException(context, $"An error occurred with Cache.");
                 }
                 catch (Exception)
                 {
