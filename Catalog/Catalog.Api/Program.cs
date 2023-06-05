@@ -54,6 +54,9 @@ internal static class Program
 
         var app = builder.Build();
         {
+            var runner = app.Services.GetRequiredService<MigrationRunner>();
+            runner.RunMigrations();
+
             app.UseExceptionHandlingMiddleware();
             app.UseSerilogRequestLogging();
 
@@ -109,8 +112,12 @@ internal static class Program
         services.AddTransient<IBrandRepository, BrandRepository>();
         services.AddTransient<ICategoryRepository, CategoryRepository>();
 
-        var migrationRunner = new MigrationRunner();
-        migrationRunner.RunMigrations(configuration["PostgresConnectionString"]!, true);
+        services.AddSingleton<MigrationRunner>(serviceProvider =>
+        {
+            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
+            var logger = loggerFactory.CreateLogger<MigrationRunner>();
+            return new MigrationRunner(logger, configuration["PostgresConnectionString"]!);
+        });
     }
 
     private static void ConfigureCache(IServiceCollection services, IConfiguration configuration)
