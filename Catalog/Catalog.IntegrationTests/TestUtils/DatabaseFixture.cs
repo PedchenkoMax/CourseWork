@@ -22,8 +22,8 @@ public class DatabaseFixture : IAsyncLifetime
 
         ConnectionString = container.GetConnectionString();
 
-        var migrationRunner = new MigrationRunner();
-        migrationRunner.RunMigrations(ConnectionString);
+        var migrationRunner = new MigrationRunner(new NullLogger<MigrationRunner>(), ConnectionString);
+        migrationRunner.RunMigrations();
     }
 
     public Task DisposeAsync()
