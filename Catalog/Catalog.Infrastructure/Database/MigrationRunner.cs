@@ -1,29 +1,41 @@
-﻿using FluentMigrator.Runner;
+﻿using Catalog.Infrastructure.Database.Migrations;
+using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure.Database;
 
-// TODO: It works, but i don't like how it looks
-// like, in future i would be using logger 
-// and here it wouldn't use needed one
-// https://code-maze.com/dapper-migrations-fluentmigrator-aspnetcore/
 public class MigrationRunner
 {
-    public void RunMigrations(string connectionString, bool isMigrationUp = true)
+    private readonly ILogger<MigrationRunner> logger;
+    private readonly string connectionString;
+
+    public MigrationRunner(ILogger<MigrationRunner> logger, string connectionString)
     {
-        var serviceProvider = CreateServices(connectionString);
+        this.logger = logger;
+        this.connectionString = connectionString;
+    }
+
+    public void RunMigrations()
+    {
+        var serviceProvider = CreateServices();
 
         using var scope = serviceProvider.CreateScope();
 
         var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
 
-        if (isMigrationUp)
+        try
+        {
             runner.MigrateUp();
-        else
-            runner.MigrateDown(0);
+            logger.LogInformation("The database is up-to-date");
+        }
+        catch (Exception ex)
+        {
+            logger.LogError("An error occurred while migrating the database: {Exception}", ex);
+        }
     }
 
-    private IServiceProvider CreateServices(string connectionString)
+    private IServiceProvider CreateServices()
     {
         return new ServiceCollection()
                .AddFluentMigratorCore()
@@ -31,7 +43,7 @@ public class MigrationRunner
                    => runnerBuilder
                       .AddPostgres()
                       .WithGlobalConnectionString(connectionString)
-                      .ScanIn(typeof(MigrationRunner).Assembly).For.Migrations())
+                      .ScanIn(typeof(Initial).Assembly).For.Migrations())
                .AddLogging(lb => lb.AddFluentMigratorConsole())
                .BuildServiceProvider(false);
     }
