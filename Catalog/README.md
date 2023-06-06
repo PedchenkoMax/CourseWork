@@ -2,11 +2,8 @@
 
 ### 📌 Table of contents
 
-- [|❓ Main responsibilities](#-main-responsibilities)
 - [|🧱 Technology stack](#-technology-stack)
 - [|🚀 How to start](#-how-to-start)
-
-### |❓ Main responsibilities
 
 ### |🧱 Technology stack
 
