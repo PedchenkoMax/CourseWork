@@ -1,0 +1,101 @@
+version: "3.4"
+
+services:
+    catalog-api:
+        container_name: api
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "42000:80"
+        environment:
+            - PostgresConnectionString=${POSTGRES_CONNECTION_STRING}
+            - RedisConnectionString=${REDIS_CONNECTION_STRING}
+            - RabbitMqConnectionString=${RABBITMQ_CONNECTION_STRING}
+
+            - MinioOptions__Endpoint=${MINIO_OPTIONS__ENDPOINT}
+            - MinioOptions__AccessKey=${MINIO_OPTIONS__ACCESS_KEY}
+            - MinioOptions__SecretKey=${MINIO_OPTIONS__SECRET_KEY}
+
+            - MinioBlobServiceSettings__Endpoint=${MINIO_BLOB_SERVICE_SETTINGS__ENDPOINT}
+            - MinioBlobServiceSettings__BrandImageBucketName=${MINIO_BLOB_SERVICE_SETTINGS__BRAND_IMAGE_BUCKET_NAME}
+            - MinioBlobServiceSettings__CategoryImageBucketName=${MINIO_BLOB_SERVICE_SETTINGS__CATEGORY_IMAGE_BUCKET_NAME}
+            - MinioBlobServiceSettings__ProductImageBucketName=${MINIO_BLOB_SERVICE_SETTINGS__PRODUCT_IMAGE_BUCKET_NAME}
+
+            - ImageHandlingSettings__MaxProductImages=${IMAGE_HANDLING_SETTINGS__MAX_PRODUCT_IMAGES}
+            - ImageHandlingSettings__DefaultCategoryImageName=${IMAGE_HANDLING_SETTINGS__DEFAULT_CATEGORY_IMAGE_NAME}
+            - ImageHandlingSettings__DefaultBrandImageName=${IMAGE_HANDLING_SETTINGS__DEFAULT_BRAND_IMAGE_NAME}
+            - ImageHandlingSettings__DefaultProductImageName=${IMAGE_HANDLING_SETTINGS__DEFAULT_PRODUCT_IMAGE_NAME}
+
+            - HealthChecksUI__HealthChecks__0__Name=${HEALTHCHECKS_UI__HEALTH_CHECKS__NAME}
+            - HealthChecksUI__HealthChecks__0__Uri=${HEALTHCHECKS_UI__HEALTH_CHECKS__URI}
+            - HealthChecksUI__ApiMaxActiveRequests=${HEALTHCHECKS_UI__API_MAX_ACTIVE_REQUESTS}
+            - HealthChecksUI__MaximumExecutionHistoriesPerEndpoint=${HEALTHCHECKS_UI__MAXIMUM_EXECUTION_HISTORIES_PER_ENDPOINT}
+            - HealthChecksUI__EvaluationTimeInSeconds=${HEALTHCHECKS_UI__EVALUATION_TIME_IN_SECONDS}
+            - HealthChecksUI__DisableMigrations=${HEALTHCHECKS_UI__DISABLE_MIGRATIONS}
+            - HealthChecksUI__MinimumSecondsBetweenFailureNotifications=${HEALTHCHECKS_UI__MINIMUM_SECONDS_BETWEEN_FAILURE_NOTIFICATIONS}
+    
+    
+    catalog-postgres-db:
+        container_name: postgres-db
+        image: postgres
+        ports:
+            - "5432:5432"
+        environment:
+            - POSTGRES_USER=${POSTGRES_USER}
+            - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+            - POSTGRES_DB=${POSTGRES_DB}
+        volumes:
+            - postgres-data:/var/lib/postgresql/data
+
+    catalog-minio:
+        container_name: minio
+        image: minio/minio:latest
+        command: server --console-address ":9001" /data/
+        ports:
+            - "9000:9000"
+            - "9001:9001"
+        environment:
+            - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+            - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+        volumes:
+            - minio-storage:/data
+
+    catalog-redis:
+        container_name: redis
+        image: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - redis-data:/data
+
+    catalog-seq:
+        container_name: seq
+        image: datalust/seq:latest
+        ports:
+            - "5341:80"
+        environment:
+            - ACCEPT_EULA=Y
+        volumes:
+            - seq-data:/data
+    
+    rabbitmq:
+        container_name: "rabbitmq"
+        image: rabbitmq:management
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+            - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+        volumes:
+            - rabbitmq-data:/var/lib/rabbitmq/
+            - rabbitmq-log:/var/log/rabbitmq/
+
+volumes:
+    postgres-data:
+    minio-storage:
+    redis-data:
+    seq-data:
+    rabbitmq-data:
+    rabbitmq-log:
