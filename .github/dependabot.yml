@@ -3,4 +3,4 @@ updates:
   - package-ecosystem: "nuget"
     directory: "Catalog/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
