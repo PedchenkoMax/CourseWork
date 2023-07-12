@@ -16,7 +16,7 @@
       <PackageReference Include="Minio" Version="5.0.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="Npgsql" Version="7.0.4" />
-      <PackageReference Include="StackExchange.Redis" Version="2.6.116" />
+      <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
     </ItemGroup>
 
 </Project>
